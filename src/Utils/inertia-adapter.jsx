@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 import { getStoredUser } from "@/Services/auth";
 
 // Global navigation handler for router.visit outside React components (e.g. in api.js)
@@ -34,6 +34,39 @@ export const router = {
             window.location.href = url;
         }
     },
+    post: (url, data, options = {}) => {
+        if (globalNavigate) {
+            globalNavigate(url, { replace: options.replace || false });
+        } else {
+            window.location.href = url;
+        }
+    },
+    put: (url, data, options = {}) => {
+        if (globalNavigate) {
+            globalNavigate(url, { replace: options.replace || false });
+        } else {
+            window.location.href = url;
+        }
+    },
+    patch: (url, data, options = {}) => {
+        if (globalNavigate) {
+            globalNavigate(url, { replace: options.replace || false });
+        } else {
+            window.location.href = url;
+        }
+    },
+    delete: (url, options = {}) => {
+        if (globalNavigate) {
+            globalNavigate(url, { replace: options.replace || false });
+        } else {
+            window.location.href = url;
+        }
+    },
+    on: (_event, _callback) => {
+        // Return an unsubscribe handler
+        return () => {};
+    },
+    cancel: () => {},
 };
 
 export const Link = React.forwardRef(function InertiaLink(

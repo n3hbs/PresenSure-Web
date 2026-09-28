@@ -91,7 +91,6 @@ export default function Departments() {
     } = useQuery({
         queryKey: departmentsQueryKey,
         enabled: Boolean(getAuthToken()),
-        refetchOnMount: "always",
         queryFn: async () => {
             const token = getAuthToken();
             const response = await api.get("/v1/departments", {

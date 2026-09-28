@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { getStoredUser, getAuthToken, setAuthSession } from "@/Services/auth";
 import api from "@/Services/api";
 
@@ -34,7 +34,13 @@ export function usePermission() {
 
     const roleName = (user?.role_name || user?.role?.role_name || "").toLowerCase();
     const isSystemAdmin = Boolean(user?.is_system_admin || roleName === "administrator");
-    const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
+    const userPermissions = user?.permissions;
+    const permissions = useMemo(() => {
+        if (!Array.isArray(userPermissions)) return [];
+        return userPermissions
+            .map((p) => (typeof p === "string" ? p : p?.name || p?.slug || p?.permission_name || ""))
+            .filter(Boolean);
+    }, [userPermissions]);
 
     /**
      * Check if the user has any of the specified roles.

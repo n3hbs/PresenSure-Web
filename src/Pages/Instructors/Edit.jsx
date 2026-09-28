@@ -1,12 +1,11 @@
 import InstructorForm from "@/Components/Instructors/InstructorForm";
 import useFetchData from "@/Hooks/useFetchData";
+import { useLocation } from "react-router-dom";
 
-export default function Edit() {
-    const params =
-        typeof window !== "undefined"
-            ? new URLSearchParams(window.location.search)
-            : new URLSearchParams();
-    const userId = params.get("user_id");
+export default function Edit({ userId: propUserId }) {
+    const location = useLocation();
+    const params = new URLSearchParams(location.search || window.location.search);
+    const userId = propUserId || params.get("user_id") || params.get("id");
 
     const { data: instructorData, isLoading: loadingInstructor } = useFetchData(
         ["instructor-details", userId],

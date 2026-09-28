@@ -278,7 +278,7 @@ export default function DepartmentForm({
                 }
             />
 
-            <div className="mx-auto max-w-7xl space-y-6">
+            <div className="space-y-6">
                 <Breadcrumbs
                     items={[
                         { label: "Departments", href: "/departments" },

@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import {
     IdentificationIcon,
     LockClosedIcon,
     EyeIcon,
     EyeSlashIcon,
-    ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 
 import Logo from "@/assets/images/MainLogo.webp";

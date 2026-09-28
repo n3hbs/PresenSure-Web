@@ -62,6 +62,11 @@ const makeStudentId = (value) => {
     return suffix ? `C-${prefix}-${suffix}` : `C-${prefix}`;
 };
 
+const getAuthHeaders = () => {
+    const token = getAuthToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export default function SingleRegistration() {
     const { can } = usePermission();
     const queryClient = useQueryClient();
@@ -103,15 +108,19 @@ export default function SingleRegistration() {
         [currentStep, form, image, registrationType],
     );
 
-    const { data: departments = [], isLoading: loadingDepartments } = useFetchData(
-        departmentsQueryKey,
-        "/departments"
-    );
+    const {
+        data: departments = [],
+        isLoading: loadingDepartments,
+        isError: departmentsError,
+        error: departmentRequestError,
+    } = useFetchData(departmentsQueryKey, "/departments");
 
-    const { data: programs = [], isLoading: loadingPrograms } = useFetchData(
-        programsQueryKey,
-        "/programs"
-    );
+    const {
+        data: programs = [],
+        isLoading: loadingPrograms,
+        isError: programsError,
+        error: programRequestError,
+    } = useFetchData(programsQueryKey, "/programs");
 
     const loadingOptions = loadingDepartments || loadingPrograms;
 

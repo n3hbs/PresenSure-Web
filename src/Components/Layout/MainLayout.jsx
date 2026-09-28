@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
+import { Outlet } from "react-router-dom";
 import { router } from "@inertiajs/react";
 import Sidebar from "./Sidebar";
 import TopNavbar from "./Navbar";
@@ -10,7 +11,9 @@ import {
     recordUserActivity,
 } from "@/Services/auth";
 
-export default function MainLayout({ children }) {
+const MainLayoutContext = createContext(false);
+
+function MainLayoutContent({ children }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [isSessionExpired, setIsSessionExpired] = useState(false);
@@ -85,7 +88,7 @@ export default function MainLayout({ children }) {
             window.removeEventListener("ps:auth-expired", handleAuthExpired);
             window.removeEventListener("ps:toast", handleToast);
         };
-    }, []);
+    }, [token]);
 
     useEffect(() => {
         if (!toast) return undefined;
@@ -107,39 +110,52 @@ export default function MainLayout({ children }) {
     }
 
     return (
-        <div className="flex h-screen bg-gray-100">
-            {/* Global Toast Pop Message */}
-            <Toast toast={toast} onClose={() => setToast(null)} />
+        <MainLayoutContext.Provider value={true}>
+            <div className="flex h-screen bg-gray-100">
+                {/* Global Toast Pop Message */}
+                <Toast toast={toast} onClose={() => setToast(null)} />
 
-            {/* Session Expired / Re-login Modal */}
-            <SessionExpiredModal isOpen={isSessionExpired} />
+                {/* Session Expired / Re-login Modal */}
+                <SessionExpiredModal isOpen={isSessionExpired} />
 
-            {/* Desktop Sidebar */}
-            <div className="hidden lg:block">
-                <Sidebar collapsed={sidebarCollapsed} />
-            </div>
-
-            {/* Mobile Sidebar */}
-            {mobileOpen && (
-                <div className="fixed inset-0 z-50 flex">
-                    <Sidebar
-                        mobile
-                        onClose={() => setMobileOpen(false)}
-                    />
-                    <div
-                        className="flex-1 bg-black/50"
-                        onClick={() => setMobileOpen(false)}
-                    />
+                {/* Desktop Sidebar */}
+                <div className="hidden lg:block">
+                    <Sidebar collapsed={sidebarCollapsed} />
                 </div>
-            )}
 
-            <div className="flex flex-1 flex-col">
-                <TopNavbar onMenu={handleMenu} />
+                {/* Mobile Sidebar */}
+                {mobileOpen && (
+                    <div className="fixed inset-0 z-50 flex">
+                        <Sidebar
+                            mobile
+                            onClose={() => setMobileOpen(false)}
+                        />
+                        <div
+                            className="flex-1 bg-black/50"
+                            onClick={() => setMobileOpen(false)}
+                        />
+                    </div>
+                )}
 
-                <main className="flex-1 overflow-auto p-6">
-                    {children}
-                </main>
+                <div className="flex flex-1 flex-col">
+                    <TopNavbar onMenu={handleMenu} />
+
+                    <main className="flex-1 overflow-auto p-6">
+                        {children || <Outlet />}
+                    </main>
+                </div>
             </div>
-        </div>
+        </MainLayoutContext.Provider>
     );
+}
+
+export default function MainLayout({ children }) {
+    const isNested = useContext(MainLayoutContext);
+
+    // If already wrapped by a parent MainLayout, render children directly to prevent duplicate layout & queries
+    if (isNested) {
+        return <>{children}</>;
+    }
+
+    return <MainLayoutContent>{children}</MainLayoutContent>;
 }

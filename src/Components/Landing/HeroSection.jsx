@@ -1,4 +1,3 @@
-import Badge from "@/Components/UI/Badge";
 import Button from "@/Components/UI/Button";
 import ScanPulse from "@/Components/Landing/ScanPulse";
 

@@ -72,7 +72,6 @@ export default function Semesters() {
     } = useQuery({
         queryKey: semestersQueryKey,
         enabled: Boolean(getAuthToken()),
-        refetchOnMount: "always",
         queryFn: async () => {
             const token = sessionStorage.getItem("token");
             const response = await api.get("/v1/semesters", {

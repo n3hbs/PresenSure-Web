@@ -1,122 +1,153 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { Suspense, lazy, useEffect } from "react";
+import {
+    BrowserRouter,
+    Routes,
+    Route,
+    Navigate,
+    useNavigate,
+    useParams,
+} from "react-router-dom";
+import { QueryClientProvider } from "@tanstack/react-query";
+import queryClient from "@/Services/queryClient";
+import { setGlobalNavigate } from "@/Utils/inertia-adapter";
+import MainLayout from "@/Components/Layout/MainLayout";
 
-function App() {
-  const [count, setCount] = useState(0)
+// Public pages
+const LandingPage = lazy(() => import("@/Pages/LandingPage/Index"));
+const SignIn = lazy(() => import("@/Pages/SignIn/Index"));
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+// Core pages
+const Dashboard = lazy(() => import("@/Pages/Dashboard/Index"));
+const Roles = lazy(() => import("@/Pages/Roles/Index"));
 
-      <div className="ticks"></div>
+// Students
+const StudentsIndex = lazy(() => import("@/Pages/Students/Index"));
+const StudentSingleRegistration = lazy(() => import("@/Pages/Students/SingleRegistration"));
+const StudentBulkRegistration = lazy(() => import("@/Pages/Students/BulkRegistration"));
+const StudentBulkImageUpload = lazy(() => import("@/Pages/Students/BulkImageUpload"));
+const StudentDetails = lazy(() => import("@/Pages/Students/StudentDetails"));
+const StudentArchives = lazy(() => import("@/Pages/Students/Archives"));
+const StudentEdit = lazy(() => import("@/Pages/Students/Edit"));
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+// Instructors
+const InstructorsIndex = lazy(() => import("@/Pages/Instructors/Index"));
+const InstructorSingleRegistration = lazy(() => import("@/Pages/Instructors/SingleRegistration"));
+const InstructorBulkImageUpload = lazy(() => import("@/Pages/Instructors/BulkImageUpload"));
+const InstructorDetails = lazy(() => import("@/Pages/Instructors/InstructorDetails"));
+const InstructorArchives = lazy(() => import("@/Pages/Instructors/Archives"));
+const InstructorEdit = lazy(() => import("@/Pages/Instructors/Edit"));
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+// Semesters
+const SemestersIndex = lazy(() => import("@/Pages/Semesters/Index"));
+const SemestersCreate = lazy(() => import("@/Pages/Semesters/Create"));
+const SemestersEdit = lazy(() => import("@/Pages/Semesters/Edit"));
+const SemestersArchives = lazy(() => import("@/Pages/Semesters/Archives"));
+const SemestersDetails = lazy(() => import("@/Pages/Semesters/SemesterDetails"));
+
+// Departments
+const DepartmentsIndex = lazy(() => import("@/Pages/Departments/Index"));
+const DepartmentsCreate = lazy(() => import("@/Pages/Departments/Create"));
+const DepartmentsEdit = lazy(() => import("@/Pages/Departments/Edit"));
+const DepartmentsArchives = lazy(() => import("@/Pages/Departments/Archives"));
+const DepartmentsDetails = lazy(() => import("@/Pages/Departments/DepartmentDetails"));
+
+// In-Progress Modules
+const ProgramsIndex = lazy(() => import("@/Pages/Programs/Index"));
+const CoursesIndex = lazy(() => import("@/Pages/Courses/Index"));
+const FacilitiesIndex = lazy(() => import("@/Pages/Facilities/Index"));
+const SchedulesIndex = lazy(() => import("@/Pages/Schedules/Index"));
+const MySchedulesIndex = lazy(() => import("@/Pages/MySchedules/Index"));
+const RecordsIndex = lazy(() => import("@/Pages/Records/Index"));
+const AuditLogsIndex = lazy(() => import("@/Pages/AuditLogs/Index"));
+
+// Parameter wrappers
+function SemesterEditRoute() {
+    const { semester } = useParams();
+    return <SemestersEdit semesterId={semester} />;
 }
 
-export default App
+function DepartmentEditRoute() {
+    const { department } = useParams();
+    return <DepartmentsEdit departmentId={department} />;
+}
+
+// Global navigator bridge
+function NavigationBridge() {
+    const navigate = useNavigate();
+    useEffect(() => {
+        setGlobalNavigate(navigate);
+    }, [navigate]);
+    return null;
+}
+
+import PageLoader from "@/Components/UI/PageLoader";
+
+export default function App() {
+    return (
+        <QueryClientProvider client={queryClient}>
+            <BrowserRouter>
+                <NavigationBridge />
+                <Suspense fallback={<PageLoader fullScreen message="Loading PresenSure..." />}>
+                    <Routes>
+                        {/* Public Pages (Outside MainLayout) */}
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/signin" element={<SignIn />} />
+                        <Route path="/signIn" element={<Navigate to="/signin" replace />} />
+                        <Route path="/login" element={<Navigate to="/signin" replace />} />
+
+                        {/* Persistent Authenticated Layout (MainLayout stays mounted permanently) */}
+                        <Route element={<MainLayout />}>
+                            <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/roles" element={<Roles />} />
+
+                            {/* Students */}
+                            <Route path="/students" element={<StudentsIndex />} />
+                            <Route path="/students/single-registration" element={<StudentSingleRegistration />} />
+                            <Route path="/students/bulk-registration" element={<StudentBulkRegistration />} />
+                            <Route path="/students/bulk-image-upload" element={<StudentBulkImageUpload />} />
+                            <Route path="/students/student-details" element={<StudentDetails />} />
+                            <Route path="/students/archives" element={<StudentArchives />} />
+                            <Route path="/students/edit" element={<StudentEdit />} />
+
+                            {/* Instructors */}
+                            <Route path="/instructors" element={<InstructorsIndex />} />
+                            <Route path="/instructors/single-registration" element={<InstructorSingleRegistration />} />
+                            <Route path="/instructors/bulk-image-upload" element={<InstructorBulkImageUpload />} />
+                            <Route path="/instructors/instructor-details" element={<InstructorDetails />} />
+                            <Route path="/instructors/archives" element={<InstructorArchives />} />
+                            <Route path="/instructors/edit" element={<InstructorEdit />} />
+
+                            {/* Semesters */}
+                            <Route path="/semesters" element={<SemestersIndex />} />
+                            <Route path="/semesters/create" element={<SemestersCreate />} />
+                            <Route path="/semesters/edit" element={<SemestersEdit />} />
+                            <Route path="/semesters/:semester/edit" element={<SemesterEditRoute />} />
+                            <Route path="/semesters/archives" element={<SemestersArchives />} />
+                            <Route path="/semesters/semester-details" element={<SemestersDetails />} />
+
+                            {/* Departments */}
+                            <Route path="/departments" element={<DepartmentsIndex />} />
+                            <Route path="/departments/create" element={<DepartmentsCreate />} />
+                            <Route path="/departments/edit" element={<DepartmentsEdit />} />
+                            <Route path="/departments/:department/edit" element={<DepartmentEditRoute />} />
+                            <Route path="/departments/archives" element={<DepartmentsArchives />} />
+                            <Route path="/departments/department-details" element={<DepartmentsDetails />} />
+
+                            {/* In-Progress Modules */}
+                            <Route path="/programs" element={<ProgramsIndex />} />
+                            <Route path="/courses" element={<CoursesIndex />} />
+                            <Route path="/facilities" element={<FacilitiesIndex />} />
+                            <Route path="/schedules" element={<SchedulesIndex />} />
+                            <Route path="/my-schedules" element={<MySchedulesIndex />} />
+                            <Route path="/records" element={<RecordsIndex />} />
+                            <Route path="/audit-logs" element={<AuditLogsIndex />} />
+                        </Route>
+
+                        {/* Wildcard */}
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                </Suspense>
+            </BrowserRouter>
+        </QueryClientProvider>
+    );
+}

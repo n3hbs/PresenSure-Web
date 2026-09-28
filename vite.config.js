@@ -11,8 +11,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@inertiajs/react': path.resolve(__dirname, './src/Utils/inertia-adapter.jsx'),
+      '@': path.resolve(import.meta.dirname, './src'),
+      '@inertiajs/react': path.resolve(import.meta.dirname, './src/Utils/inertia-adapter.jsx'),
     },
   },
   server: {

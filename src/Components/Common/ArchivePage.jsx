@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Head, router } from "@inertiajs/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-    ArchiveBoxIcon,
     ArrowLeftIcon,
     ArrowPathIcon,
     MagnifyingGlassIcon,
@@ -32,7 +31,7 @@ export default function ArchivePage({
     getEntityLabel = (item) => item.name || item[idField],
     statCards = [],
     filterComponent = null,
-    filterFn = (item, search) => true,
+    filterFn = (_item, _search) => true,
     columns = () => [],
     transformData = (items) => items,
 }) {
@@ -58,9 +57,7 @@ export default function ArchivePage({
         data: rawArchivedItems = [],
         isLoading: loading,
         isError,
-    } = useFetchData(queryKey, fetchUrl, {
-        refetchOnMount: "always",
-    });
+    } = useFetchData(queryKey, fetchUrl);
 
     const archivedItems = useMemo(() => {
         const list = Array.isArray(rawArchivedItems) ? rawArchivedItems : [];

@@ -7,12 +7,8 @@ import {
     ArrowLeftIcon,
     ArrowPathIcon,
     BuildingOffice2Icon,
-    CalendarDaysIcon,
-    HashtagIcon,
-    InformationCircleIcon,
     PencilSquareIcon,
     UserGroupIcon,
-    UsersIcon,
 } from "@heroicons/react/24/outline";
 
 import MainLayout from "@/Components/Layout/MainLayout";
@@ -40,10 +36,13 @@ const formatDate = (dateStr) => {
     }
 };
 
-export default function DepartmentDetails() {
+import { useLocation } from "react-router-dom";
+
+export default function DepartmentDetails({ departmentId: propDeptId }) {
     const queryClient = useQueryClient();
-    const params = new URLSearchParams(window.location.search);
-    const departmentId = params.get("department_id");
+    const location = useLocation();
+    const params = new URLSearchParams(location.search || window.location.search);
+    const departmentId = propDeptId || params.get("department_id") || params.get("id");
     const { can, hasRole } = usePermission();
 
     const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
@@ -136,8 +135,8 @@ export default function DepartmentDetails() {
                             { label: "Departments", href: "/departments" },
                             {
                                 label: department
-                                    ? `${department.department_code} (${department.department_name})`
-                                    : "Department Details",
+                                    ? `${department.department_code}`
+                                    : "Details",
                             },
                         ]}
                     />
@@ -171,241 +170,188 @@ export default function DepartmentDetails() {
 
             {/* Loading Skeleton */}
             {isLoading ? (
-                <div className="space-y-6">
-                    <div className="rounded-2xl border border-gray-200/80 bg-white p-6 sm:p-8 shadow-sm shadow-blue-950/5 animate-pulse">
-                        <div className="space-y-4">
-                            <div className="h-6 w-24 rounded-full bg-gray-100" />
-                            <div className="h-8 w-64 rounded bg-gray-100" />
-                            <div className="h-5 w-96 rounded bg-gray-100" />
-                        </div>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="h-44 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 animate-pulse border border-gray-100" />
+                <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-6 shadow-2xs animate-pulse">
+                    <div className="h-5 w-20 rounded bg-gray-100" />
+                    <div className="h-7 w-64 rounded bg-gray-100" />
+                    <div className="h-4 w-96 rounded bg-gray-100" />
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-gray-100">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="h-10 rounded bg-gray-100" />
                         ))}
                     </div>
                 </div>
             ) : !department ? (
-                <section className="rounded-xl bg-white p-8 text-center shadow-sm shadow-blue-950/5">
-                    <BuildingOffice2Icon className="mx-auto h-12 w-12 text-gray-300" />
-                    <p className="mt-3 text-sm font-semibold text-gray-700">
+                <section className="rounded-xl border border-gray-100 bg-white p-8 text-center shadow-2xs">
+                    <BuildingOffice2Icon className="mx-auto h-10 w-10 text-gray-300" />
+                    <p className="mt-2 text-sm font-semibold text-gray-700">
                         Department not found.
                     </p>
                     <Link
                         href="/departments"
-                        className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
+                        className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
                     >
-                        <ArrowLeftIcon className="h-4 w-4" />
+                        <ArrowLeftIcon className="h-3.5 w-3.5" />
                         Back to Departments
                     </Link>
                 </section>
             ) : (
                 <div className="space-y-6">
-                    {/* Primary Overview Container (Maximized Full-Width Layout) */}
-                    <section className="rounded-2xl border border-gray-200/80 bg-white p-6 sm:p-8 shadow-sm shadow-blue-950/5">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-6">
-                            <div className="space-y-2">
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/70">
-                                    {department.department_code}
-                                </span>
-                                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                    {/* Primary Department Card */}
+                    <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-2xs">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="space-y-1.5 min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700">
+                                        {department.department_code}
+                                    </span>
+                                    <span className="text-xs text-gray-400">
+                                        #{department.department_id}
+                                    </span>
+                                </div>
+                                <h1 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl truncate">
                                     {department.department_name}
                                 </h1>
+                                {department.description ? (
+                                    <p className="pt-1 text-sm text-gray-500 leading-relaxed max-w-2xl whitespace-pre-line">
+                                        {department.description}
+                                    </p>
+                                ) : (
+                                    <p className="pt-1 text-xs text-gray-400 italic">
+                                        No description provided for this department.
+                                    </p>
+                                )}
                             </div>
 
-                            <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3 border border-gray-100 shrink-0">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
-                                    <BuildingOffice2Icon className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                        Academic Unit
-                                    </p>
-                                    <p className="text-sm font-bold text-gray-900">
-                                        {department.department_code}
-                                    </p>
-                                </div>
+                            <div className="hidden sm:flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50/70 text-blue-600">
+                                <BuildingOffice2Icon className="h-6 w-6" />
                             </div>
                         </div>
 
-                        {/* Metric Cards Bar (Spanning Full Container Width) */}
-                        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            {/* Programs Count */}
-                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
-                                        <AcademicCapIcon className="h-5 w-5" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            Offered Programs
-                                        </p>
-                                        <p className="mt-0.5 text-sm font-bold text-gray-900">
-                                            {department.programs?.length || department.programs_count || 0} Programs
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Instructors Count */}
-                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
-                                        <UsersIcon className="h-5 w-5" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            Faculty Members
-                                        </p>
-                                        <p className="mt-0.5 text-sm font-bold text-gray-900">
-                                            {department.instructors_count || 0} Instructors
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Created Date */}
-                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
-                                        <CalendarDaysIcon className="h-5 w-5" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            Established Date
-                                        </p>
-                                        <p className="mt-0.5 text-sm font-bold text-gray-900">
-                                            {formatDate(department.created_at)}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Reference Code */}
-                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-50 text-purple-700">
-                                        <HashtagIcon className="h-5 w-5" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            Department ID
-                                        </p>
-                                        <p className="mt-0.5 text-sm font-bold text-gray-900">
-                                            #{department.department_id}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Description / Remarks (Full Width) */}
-                        {department.description && (
-                            <div className="mt-6 rounded-xl border border-gray-200/80 bg-gray-50/50 p-4">
-                                <div className="flex items-start gap-3">
-                                    <InformationCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
-                                    <div className="space-y-1">
-                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                                            About this Department
-                                        </p>
-                                        <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                                            {department.description}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </section>
-
-                    {/* Under Programs Section (Requested: View under programs of the department) */}
-                    <section className="rounded-2xl border border-gray-200/80 bg-white p-6 sm:p-8 shadow-sm shadow-blue-950/5">
-                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-4">
+                        {/* Metric Strip */}
+                        <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-100 pt-5 sm:grid-cols-3 lg:grid-cols-5">
                             <div>
-                                <h2 className="text-lg font-bold text-gray-900">
-                                    Under Programs of {department.department_code}
-                                </h2>
-                                <p className="text-xs text-gray-400">
-                                    Degree programs and academic curricula offered under this department
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                                    Programs
+                                </p>
+                                <p className="mt-1 text-base font-bold text-gray-900">
+                                    {department.programs_count ?? department.programs?.length ?? 0}
                                 </p>
                             </div>
-                            <span className="mt-1 sm:mt-0 inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-                                {department.programs?.length || 0} Programs Active
-                            </span>
+                            <div>
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                                    Enrolled Students
+                                </p>
+                                <p className="mt-1 text-base font-bold text-blue-600">
+                                    {department.students_count ?? 0}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                                    Instructors
+                                </p>
+                                <p className="mt-1 text-base font-bold text-gray-900">
+                                    {department.instructors_count || 0}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                                    Established
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-gray-800">
+                                    {formatDate(department.created_at)}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                                    Last Updated
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-gray-800">
+                                    {formatDate(department.updated_at || department.created_at)}
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Academic Programs Section */}
+                    <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-2xs">
+                        <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                            <div>
+                                <h2 className="text-sm font-bold text-gray-900">
+                                    Academic Programs
+                                </h2>
+                                <p className="text-xs text-gray-400">
+                                    Programs and curricula under {department.department_code}
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+                                    {department.programs?.length || 0} Total
+                                </span>
+                                {(hasRole("administrator") || can("departments.manage")) && (
+                                    <Link
+                                        href={`/departments/edit?department_id=${department.department_id}`}
+                                        className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline ml-1"
+                                    >
+                                        Manage &rarr;
+                                    </Link>
+                                )}
+                            </div>
                         </div>
 
-                        {/* Programs Grid */}
                         {department.programs && department.programs.length > 0 ? (
-                            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="mt-2 divide-y divide-gray-100">
                                 {department.programs.map((program) => (
                                     <div
                                         key={program.program_id}
-                                        className="flex flex-col justify-between rounded-xl border border-gray-200/90 bg-white p-5 shadow-sm shadow-blue-950/5 transition hover:border-blue-200 hover:shadow-md"
+                                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3.5 gap-2 transition hover:bg-gray-50/50 px-2 -mx-2 rounded-lg"
                                     >
-                                        <div>
-                                            <div className="flex items-center justify-between gap-2">
-                                                <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-700">
                                                     {program.program_code}
                                                 </span>
-                                                <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-600">
+                                                <span className="text-xs text-gray-400">
                                                     {program.program_years || 4}-Year Degree
                                                 </span>
                                             </div>
-
-                                            <h3 className="mt-3 text-base font-bold text-gray-900">
+                                            <p className="text-sm font-semibold text-gray-900">
                                                 {program.program_name}
-                                            </h3>
+                                            </p>
                                         </div>
 
-                                        <div className="mt-4 border-t border-gray-100 pt-3 flex items-center justify-between text-xs text-gray-500">
-                                            <div className="flex items-center gap-1.5 font-medium">
-                                                <UserGroupIcon className="h-4 w-4 text-blue-600" />
-                                                <span>
-                                                    {program.student_count ?? 0} Enrolled Students
-                                                </span>
-                                            </div>
-                                            <span className="font-semibold text-gray-400">
-                                                ID: {program.program_id}
+                                        <div className="flex items-center gap-3 text-xs text-gray-500 sm:text-right">
+                                            <span className="inline-flex items-center gap-1 font-medium text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">
+                                                <UserGroupIcon className="h-3.5 w-3.5 text-blue-600" />
+                                                {program.students_count ?? program.student_count ?? 0} Students
                                             </span>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="mt-6 rounded-xl border border-dashed border-gray-200 p-8 text-center">
-                                <AcademicCapIcon className="mx-auto h-10 w-10 text-gray-300" />
-                                <p className="mt-2 text-sm font-semibold text-gray-700">
-                                    No Degree Programs Configured
+                            <div className="py-8 text-center">
+                                <AcademicCapIcon className="mx-auto h-8 w-8 text-gray-300" />
+                                <p className="mt-2 text-xs font-semibold text-gray-600">
+                                    No degree programs found
                                 </p>
-                                <p className="mt-1 text-xs text-gray-400">
+                                <p className="mt-0.5 text-xs text-gray-400">
                                     No programs are currently linked to this department.
                                 </p>
-                                <Link
-                                    href={`/departments/edit?department_id=${department.department_id}`}
-                                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
-                                >
-                                    Add Programs via Edit &rarr;
-                                </Link>
+                                {(hasRole("administrator") || can("departments.manage")) && (
+                                    <Link
+                                        href={`/departments/edit?department_id=${department.department_id}`}
+                                        className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
+                                    >
+                                        Add Programs via Department Edit &rarr;
+                                    </Link>
+                                )}
                             </div>
                         )}
                     </section>
-
-                    {/* System Metadata Footer (Spanning Full Container Width) */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200/60 bg-gray-50/50 px-6 py-4 text-xs text-gray-500">
-                        <div className="flex items-center gap-2">
-                            <HashtagIcon className="h-4 w-4 text-gray-400" />
-                            <span>Department Reference ID: <strong className="text-gray-700">{department.department_id}</strong></span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-4">
-                            <span>Created: <strong className="text-gray-700">{formatDate(department.created_at)}</strong></span>
-                            {department.updated_at && (
-                                <span>Last Updated: <strong className="text-gray-700">{formatDate(department.updated_at)}</strong></span>
-                            )}
-                        </div>
-                    </div>
                 </div>
             )}
 
-            {/* Archive Department Confirmation Modal (No pop message inside modal) */}
+            {/* Archive Department Confirmation Modal */}
             <Modal
                 isOpen={isArchiveModalOpen}
                 onClose={() => {
@@ -425,9 +371,14 @@ export default function DepartmentDetails() {
                             <p className="text-sm font-bold text-red-900">
                                 {department.department_name} ({department.department_code})
                             </p>
-                            {department.programs?.length > 0 && (
+                            {(department.programs_count > 0 || department.programs?.length > 0) && (
                                 <p className="mt-1 text-xs text-red-700">
-                                    {department.programs.length} degree program(s) belong to this department.
+                                    {department.programs_count ?? department.programs?.length} degree program(s) belong to this department.
+                                </p>
+                            )}
+                            {department.students_count > 0 && (
+                                <p className="mt-1 text-xs text-red-700">
+                                    {department.students_count} student(s) currently enrolled in this department.
                                 </p>
                             )}
                         </div>

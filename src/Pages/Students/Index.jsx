@@ -151,7 +151,6 @@ export default function Students() {
     } = useQuery({
         queryKey: activeStudentsQueryKey,
         enabled: Boolean(getAuthToken()),
-        refetchOnMount: "always",
         queryFn: async () => {
             const token = sessionStorage.getItem("token");
             const response = await api.get("/student/getByActiveSemester", {

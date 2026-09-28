@@ -48,6 +48,12 @@ export default function BulkImageUploadPage({ type = "student" }) {
     }, [can, requiredPermission, entityPlural, basePath]);
 
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [previews, setPreviews] = useState([]);
+    const [isDragging, setIsDragging] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [overwrite, setOverwrite] = useState(false);
+    const [uploadResults, setUploadResults] = useState(null);
+    const [resultModalOpen, setResultModalOpen] = useState(false);
 
     // Manage object URLs for memory safety
     useEffect(() => {

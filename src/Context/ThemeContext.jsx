@@ -9,12 +9,17 @@ export function ThemeProvider({ children }) {
     });
 
     useEffect(() => {
-        const root = document.documentElement;
+        // Dark mode is strictly isolated to the Landing Page.
+        // We explicitly ensure that the root html and body elements never carry the "dark" class,
+        // preventing dark mode styles from bleeding into the rest of the application.
+        if (typeof document !== "undefined") {
+            document.documentElement.classList.remove("dark");
+            document.body.classList.remove("dark");
+        }
+
         if (dark) {
-            root.classList.add("dark");
             localStorage.setItem("theme", "dark");
         } else {
-            root.classList.remove("dark");
             localStorage.setItem("theme", "light");
         }
     }, [dark]);
@@ -27,5 +32,6 @@ export function ThemeProvider({ children }) {
 }
 
 export function useTheme() {
-    return useContext(ThemeContext);
+    const context = useContext(ThemeContext);
+    return context ?? { dark: false, setDark: () => {} };
 }

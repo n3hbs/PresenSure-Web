@@ -7,10 +7,10 @@ import {
     clearAuthSession,
 } from "@/Services/auth";
 
-const appUrl = import.meta.env.VITE_APP_URL?.replace(/\/$/, "") || "";
+const appUrl = import.meta.env.VITE_APP_URL?.replace(/\/$/, "") || "http://localhost:8000";
 
 const api = axios.create({
-    baseURL: `${appUrl}/api`,
+    baseURL: import.meta.env.VITE_API_URL || `${appUrl}/api`,
     headers: {
         Accept: "application/json",
     },

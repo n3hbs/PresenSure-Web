@@ -14,7 +14,6 @@ import UserPermissionsModal from "@/Components/Roles/UserPermissionsModal";
 
 import MainLayout from "@/Components/Layout/MainLayout";
 import Breadcrumbs from "@/Components/UI/Breadcrumbs";
-import Button from "@/Components/UI/Button";
 import StudentDetailsContent from "@/Components/Students/Details/StudentDetailsContent";
 import StudentDetailsSkeleton from "@/Components/Students/Details/StudentDetailsSkeleton";
 import ArchiveStudentModal from "@/Components/Students/Details/ArchiveStudentModal";
@@ -23,11 +22,13 @@ import api from "@/Services/api";
 import { getAuthToken } from "@/Services/auth";
 import { activeStudentsQueryKey } from "@/Services/queryKeys";
 import { notify } from "@/Services/toast";
+import { useLocation } from "react-router-dom";
 
-export default function StudentDetails() {
+export default function StudentDetails({ userId: propUserId }) {
     const queryClient = useQueryClient();
-    const params = new URLSearchParams(window.location.search);
-    const userId = params.get("user_id");
+    const location = useLocation();
+    const params = new URLSearchParams(location.search || window.location.search);
+    const userId = propUserId || params.get("user_id") || params.get("id");
     const { can, hasRole } = usePermission();
 
     const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);

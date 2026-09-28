@@ -50,11 +50,19 @@ const getCollection = (response) => {
     return [];
 };
 
-export default function Edit() {
+import { useLocation } from "react-router-dom";
+
+const getAuthHeaders = () => {
+    const token = getAuthToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+export default function Edit({ userId: propUserId }) {
     const { can } = usePermission();
     const queryClient = useQueryClient();
-    const params = new URLSearchParams(window.location.search);
-    const userId = params.get("user_id");
+    const location = useLocation();
+    const params = new URLSearchParams(location.search || window.location.search);
+    const userId = propUserId || params.get("user_id") || params.get("id");
 
     useEffect(() => {
         if (!can("students.edit")) {

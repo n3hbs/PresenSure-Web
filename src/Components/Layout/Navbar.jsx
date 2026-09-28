@@ -31,6 +31,7 @@ const pageTitles = [
     { path: "/departments", title: "Departments" },
     { path: "/programs", title: "Programs" },
     { path: "/courses", title: "Courses" },
+    { path: "/facilities", title: "Facilities" },
     { path: "/schedules", title: "Schedules" },
     { path: "/my-schedules", title: "My Schedules" },
     { path: "/records", title: "Records" },
@@ -155,6 +156,8 @@ export default function TopNavbar({ onMenu }) {
             return semester;
         },
         initialData: getStoredActiveSemester,
+        initialDataUpdatedAt: () =>
+            getStoredActiveSemester() !== undefined ? Date.now() : 0,
         enabled: Boolean(getAuthToken()),
         staleTime: Infinity,
         gcTime: Infinity,
@@ -180,6 +183,8 @@ export default function TopNavbar({ onMenu }) {
             return period;
         },
         initialData: getStoredActivePeriod,
+        initialDataUpdatedAt: () =>
+            getStoredActivePeriod() !== undefined ? Date.now() : 0,
         enabled: Boolean(getAuthToken()),
         staleTime: 1000 * 60 * 5,
         retry: 1,

@@ -76,10 +76,13 @@ const calculateDuration = (startStr, endStr) => {
     }
 };
 
-export default function SemesterDetails() {
+import { useLocation } from "react-router-dom";
+
+export default function SemesterDetails({ semesterId: propSemId }) {
     const queryClient = useQueryClient();
-    const params = new URLSearchParams(window.location.search);
-    const semesterId = params.get("semester_id");
+    const location = useLocation();
+    const params = new URLSearchParams(location.search || window.location.search);
+    const semesterId = propSemId || params.get("semester_id") || params.get("id");
     const { can, hasRole } = usePermission();
 
     const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
@@ -221,10 +224,7 @@ export default function SemesterDetails() {
                         {(hasRole("administrator") || can("semesters.manage")) && (
                             <button
                                 type="button"
-                                onClick={() => {
-                                    setArchiveError("");
-                                    setIsArchiveModalOpen(true);
-                                }}
+                                onClick={() => setIsArchiveModalOpen(true)}
                                 className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-red-600 px-3.5 text-sm font-semibold text-white shadow-sm shadow-red-200 transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 active:scale-[0.98]"
                             >
                                 <ArchiveBoxIcon className="h-4 w-4" />

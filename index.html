@@ -2,12 +2,76 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/webp" href="/src/assets/images/MainLogo.webp" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>presensure-web</title>
+    <title>PresenSure</title>
+    <style>
+      #pre-root-loader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8fafc;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+      .pre-loader-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .pre-loader-logo-wrap {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .pre-loader-logo-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 6px rgba(15, 23, 42, 0.08));
+      }
+      .pre-loader-ring {
+        position: absolute;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        border: 2px solid rgba(37, 99, 235, 0.15);
+        border-top-color: #2563eb;
+        animation: preSpin 1s linear infinite;
+      }
+      .pre-loader-title {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.025em;
+      }
+      .pre-loader-title span {
+        color: #2563eb;
+      }
+      @keyframes preSpin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="pre-root-loader">
+        <div class="pre-loader-card">
+          <div class="pre-loader-ring"></div>
+          <div class="pre-loader-logo-wrap">
+            <img src="/src/assets/images/MainLogo.webp" alt="PresenSure Logo" />
+          </div>
+          <div class="pre-loader-title">Presen<span>Sure</span></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

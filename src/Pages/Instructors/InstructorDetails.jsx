@@ -27,11 +27,13 @@ import {
     instructorsQueryKey,
 } from "@/Services/queryKeys";
 import { notify } from "@/Services/toast";
+import { useLocation } from "react-router-dom";
 
-export default function InstructorDetails() {
+export default function InstructorDetails({ userId: propUserId }) {
     const queryClient = useQueryClient();
-    const params = new URLSearchParams(window.location.search);
-    const userId = params.get("user_id");
+    const location = useLocation();
+    const params = new URLSearchParams(location.search || window.location.search);
+    const userId = propUserId || params.get("user_id") || params.get("id");
     const { can, hasRole } = usePermission();
 
     const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);

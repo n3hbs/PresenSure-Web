@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import {
     AcademicCapIcon,
@@ -10,7 +10,6 @@ import {
     ClipboardDocumentListIcon,
     DocumentTextIcon,
     HomeIcon,
-    IdentificationIcon,
     ShieldCheckIcon,
     UserGroupIcon,
     UsersIcon,
@@ -24,8 +23,6 @@ const mainLinks = [
     { label: "Dashboard", href: "/dashboard", icon: HomeIcon },
     { label: "Roles & Permissions", href: "/roles", icon: ShieldCheckIcon, permission: "roles.view" },
     { label: "Semesters", href: "/semesters", icon: CalendarDaysIcon, permission: "semesters.manage" },
-    { label: "Department", href: "/departments", icon: BuildingOffice2Icon, permission: "departments.manage" },
-    { label: "Programs", href: "/programs", icon: AcademicCapIcon, permission: "programs.manage" },
     { label: "Courses", href: "/courses", icon: BookOpenIcon, permission: "courses.manage" },
     { label: "Facilities", href: "/facilities", icon: ClipboardDocumentListIcon, permission: "facilities.manage" },
     { label: "Schedules", href: "/schedules", icon: ClipboardDocumentListIcon, permission: "schedules.manage" },
@@ -39,6 +36,11 @@ const userLinks = [
     { label: "Instructors", href: "/instructors", icon: UsersIcon, permission: "instructors.view" },
 ];
 
+const academicLinks = [
+    { label: "Departments", href: "/departments", icon: BuildingOffice2Icon, permission: "departments.manage" },
+    { label: "Programs", href: "/programs", icon: AcademicCapIcon, permission: "programs.manage" },
+];
+
 export default function Sidebar({ collapsed = false, mobile = false, onClose }) {
     const { url } = usePage();
     const { can } = usePermission();
@@ -49,9 +51,23 @@ export default function Sidebar({ collapsed = false, mobile = false, onClose }) 
     const visibleUserLinks = userLinks.filter(
         (item) => !item.permission || can(item.permission)
     );
+    const visibleAcademicLinks = academicLinks.filter(
+        (item) => !item.permission || can(item.permission)
+    );
 
     const usersActive = visibleUserLinks.some((item) => url?.startsWith(item.href));
     const [usersOpen, setUsersOpen] = useState(usersActive);
+
+    const academicActive = visibleAcademicLinks.some((item) => url?.startsWith(item.href));
+    const [academicOpen, setAcademicOpen] = useState(academicActive);
+
+    useEffect(() => {
+        if (usersActive) setUsersOpen(true);
+    }, [usersActive]);
+
+    useEffect(() => {
+        if (academicActive) setAcademicOpen(true);
+    }, [academicActive]);
     const showText = mobile || !collapsed;
 
     const isActive = (href) =>
@@ -162,6 +178,47 @@ export default function Sidebar({ collapsed = false, mobile = false, onClose }) 
                         {usersOpen && (
                             <div className={`space-y-1 ${showText ? "pl-6" : ""}`}>
                                 {visibleUserLinks.map(({ label, href, icon: Icon }) => (
+                                    <Link
+                                        key={href}
+                                        href={href}
+                                        className={subNavClass(isActive(href))}
+                                        onClick={handleLinkClick}
+                                        title={!showText ? label : undefined}
+                                    >
+                                        <Icon className="h-4 w-4 shrink-0" />
+                                        {showText && <span>{label}</span>}
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {/* Departments & Programs Dropdown */}
+                {visibleAcademicLinks.length > 0 && (
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => setAcademicOpen((open) => !open)}
+                            className={navClass(academicActive)}
+                            title={!showText ? "Departments & Programs" : undefined}
+                        >
+                            <BuildingOffice2Icon className="h-5 w-5 shrink-0" />
+                            {showText && (
+                                <>
+                                    <span className="flex-1 text-left">Departments & Programs</span>
+                                    <ChevronDownIcon
+                                        className={`h-4 w-4 transition-transform ${
+                                            academicOpen ? "rotate-180" : ""
+                                        }`}
+                                    />
+                                </>
+                            )}
+                        </button>
+
+                        {academicOpen && (
+                            <div className={`space-y-1 ${showText ? "pl-6" : ""}`}>
+                                {visibleAcademicLinks.map(({ label, href, icon: Icon }) => (
                                     <Link
                                         key={href}
                                         href={href}
