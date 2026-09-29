@@ -442,7 +442,7 @@ export default function Edit({ userId: propUserId }) {
                                 `/students/student-details?user_id=${userId}`,
                             )
                         }
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
                     >
                         <ArrowLeftIcon className="h-4 w-4" />
                         Back to Student Details
@@ -452,9 +452,9 @@ export default function Edit({ userId: propUserId }) {
                 {loadingStudent ? (
                     <StudentDetailsSkeleton />
                 ) : !studentData ? (
-                    <section className="rounded-xl bg-white p-8 text-center shadow-sm shadow-blue-950/5">
-                        <UserCircleIcon className="mx-auto h-12 w-12 text-gray-300" />
-                        <p className="mt-3 text-sm font-semibold text-gray-700">
+                    <section className="rounded-xl bg-white p-8 text-center shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+                        <UserCircleIcon className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
+                        <p className="mt-3 text-sm font-semibold text-gray-700 dark:text-slate-200">
                             Student not found.
                         </p>
                         <button

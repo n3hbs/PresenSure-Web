@@ -21,9 +21,9 @@ export default function Archives() {
             sortable: true,
             render: (row) => (
                 <div>
-                    <p className="font-semibold text-gray-900">{row.department_name}</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{row.department_name}</p>
                     {row.description && (
-                        <p className="line-clamp-1 text-xs text-gray-400">{row.description}</p>
+                        <p className="line-clamp-1 text-xs text-gray-400 dark:text-slate-400">{row.description}</p>
                     )}
                 </div>
             ),
@@ -32,7 +32,7 @@ export default function Archives() {
             key: "programs",
             label: "Programs",
             render: (row) => (
-                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                     <AcademicCapIcon className="h-3.5 w-3.5" />
                     {row.programs?.length ?? row.programs_count ?? 0} Programs
                 </span>
@@ -43,7 +43,7 @@ export default function Archives() {
             label: "Archived On",
             sortable: true,
             render: (row) => (
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-slate-300">
                     {formatDate(row.deleted_at)}
                 </span>
             ),
@@ -57,7 +57,7 @@ export default function Archives() {
                     <button
                         type="button"
                         onClick={() => onRestore(row)}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-100"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
                         title="Restore Department"
                     >
                         <ArrowPathIcon className="h-3.5 w-3.5" />

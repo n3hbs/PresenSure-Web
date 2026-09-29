@@ -33,9 +33,9 @@ export default function PermissionModuleCard({
             : "bg-gray-100 text-gray-500 border-gray-200";
 
     return (
-        <div className="rounded-xl bg-white shadow-sm shadow-blue-950/5 border border-gray-100 overflow-hidden transition-all duration-200">
+        <div className="rounded-xl bg-white dark:bg-[#12131C] shadow-sm shadow-blue-950/5 border border-gray-100 dark:border-white/5 overflow-hidden transition-all duration-200">
             {/* Header */}
-            <div className="px-5 py-4 bg-gray-50 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+            <div className="px-5 py-4 bg-gray-50 dark:bg-white/5 border-b border-gray-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                     {Icon && (
                         <div
@@ -46,7 +46,7 @@ export default function PermissionModuleCard({
                     )}
                     <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-base font-bold text-gray-900">
+                            <h3 className="text-base font-bold text-gray-900 dark:text-white">
                                 {title}
                             </h3>
                             <span
@@ -58,7 +58,7 @@ export default function PermissionModuleCard({
                             </span>
                         </div>
                         {description && (
-                            <p className="text-xs text-gray-400 mt-0.5">
+                            <p className="text-xs text-gray-400 dark:text-slate-400 mt-0.5">
                                 {description}
                             </p>
                         )}
@@ -72,8 +72,8 @@ export default function PermissionModuleCard({
                     onClick={() => onToggleAll(moduleKey, !isAllSelected, isFiltered)}
                     className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all duration-150 ${
                         isAllSelected
-                            ? "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100/70"
-                            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                            ? "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20 hover:bg-blue-100/70"
+                            : "bg-white dark:bg-white/5 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300"
                     } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-95 shadow-2xs"}`}
                 >
                     <CheckIcon
@@ -92,7 +92,7 @@ export default function PermissionModuleCard({
             </div>
 
             {/* Permissions List - Clean Rows matching DataTable Aesthetic */}
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 dark:divide-white/5">
                 {permissions.map((perm) => {
                     const isChecked = selectedPermissionIds.includes(
                         perm.permission_id
@@ -109,20 +109,20 @@ export default function PermissionModuleCard({
                             className={`px-5 py-3.5 flex items-center justify-between gap-4 transition-colors select-none ${
                                 disabled
                                     ? "cursor-not-allowed opacity-60"
-                                    : "cursor-pointer hover:bg-gray-50/70"
-                            } ${isChecked ? "bg-blue-50/25" : "bg-white"}`}
+                                    : "cursor-pointer hover:bg-gray-50/70 dark:hover:bg-white/5"
+                            } ${isChecked ? "bg-blue-50/25 dark:bg-blue-500/10" : "bg-white dark:bg-[#12131C]"}`}
                         >
                             {/* Left: Action Title, Description & Code */}
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="text-sm font-semibold text-gray-900 leading-tight">
+                                    <span className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">
                                         {getPermissionTitle(perm.permission_name)}
                                     </span>
-                                    <code className="text-[10px] font-mono text-gray-500 bg-gray-100 border border-gray-200/80 px-1.5 py-0.5 rounded break-all">
+                                    <code className="text-[10px] font-mono text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-white/5 border border-gray-200/80 dark:border-white/10 px-1.5 py-0.5 rounded break-all">
                                         {perm.permission_name}
                                     </code>
                                 </div>
-                                <p className="text-xs text-gray-500 mt-0.5 leading-normal break-words">
+                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 leading-normal break-words">
                                     {perm.description || "No description provided."}
                                 </p>
                             </div>
@@ -132,8 +132,8 @@ export default function PermissionModuleCard({
                                 <span
                                     className={`text-xs px-2.5 py-0.5 rounded-full font-medium border ${
                                         isChecked
-                                            ? "bg-blue-50 text-blue-700 border-blue-200"
-                                            : "bg-gray-100 text-gray-500 border-gray-200"
+                                            ? "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20"
+                                            : "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-slate-400 border-gray-200 dark:border-white/10"
                                     }`}
                                 >
                                     {isChecked ? "Granted" : "Revoked"}
@@ -151,7 +151,7 @@ export default function PermissionModuleCard({
                                         }
                                     }}
                                     className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
-                                        isChecked ? "bg-blue-600" : "bg-gray-200"
+                                        isChecked ? "bg-blue-600" : "bg-gray-200 dark:bg-white/20"
                                     } ${disabled ? "cursor-not-allowed" : ""}`}
                                 >
                                     <span

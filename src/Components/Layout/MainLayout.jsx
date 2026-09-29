@@ -10,6 +10,7 @@ import {
     isSessionInactive,
     recordUserActivity,
 } from "@/Services/auth";
+import { SystemThemeProvider } from "@/Context/SystemThemeContext";
 
 const MainLayoutContext = createContext(false);
 
@@ -111,7 +112,7 @@ function MainLayoutContent({ children }) {
 
     return (
         <MainLayoutContext.Provider value={true}>
-            <div className="flex h-screen bg-gray-100">
+            <div className="flex h-screen bg-gray-100 dark:bg-[#0b0c13] text-gray-900 dark:text-slate-100 transition-colors duration-200">
                 {/* Global Toast Pop Message */}
                 <Toast toast={toast} onClose={() => setToast(null)} />
 
@@ -119,7 +120,7 @@ function MainLayoutContent({ children }) {
                 <SessionExpiredModal isOpen={isSessionExpired} />
 
                 {/* Desktop Sidebar */}
-                <div className="hidden lg:block">
+                <div className="hidden lg:flex flex-col shrink-0 h-screen">
                     <Sidebar collapsed={sidebarCollapsed} />
                 </div>
 
@@ -137,7 +138,7 @@ function MainLayoutContent({ children }) {
                     </div>
                 )}
 
-                <div className="flex flex-1 flex-col">
+                <div className="flex flex-1 flex-col min-w-0">
                     <TopNavbar onMenu={handleMenu} />
 
                     <main className="flex-1 overflow-auto p-6">
@@ -157,5 +158,9 @@ export default function MainLayout({ children }) {
         return <>{children}</>;
     }
 
-    return <MainLayoutContent>{children}</MainLayoutContent>;
+    return (
+        <SystemThemeProvider>
+            <MainLayoutContent>{children}</MainLayoutContent>
+        </SystemThemeProvider>
+    );
 }

@@ -509,14 +509,14 @@ export default function DepartmentForm({
                                 <ReviewItem label="Description" value={form.description || "No description provided"} />
                             </ReviewGroup>
 
-                            <div className="rounded-xl border border-gray-100 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-                                <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
+                            <div className="rounded-xl border border-gray-100 bg-white p-4 dark:border-white/5 dark:bg-[#12131C]">
+                                <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-slate-400 mb-3">
                                     Programs to Offer ({programs.filter((p) => p.program_code && p.program_name).length})
                                 </h3>
 
-                                <div className="overflow-hidden rounded-xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900">
+                                <div className="overflow-hidden rounded-xl border border-gray-100 bg-white dark:border-white/5 dark:bg-[#161724]">
                                     <table className="w-full text-left text-sm">
-                                        <thead className="border-b border-gray-100 bg-gray-50/75 text-xs uppercase text-gray-500 dark:border-gray-800 dark:bg-gray-800/50">
+                                        <thead className="border-b border-gray-100 bg-gray-50/75 text-xs uppercase text-gray-500 dark:border-white/5 dark:bg-white/5 dark:text-slate-400">
                                             <tr>
                                                 <th className="px-4 py-3">Sequence</th>
                                                 <th className="px-4 py-3">Code</th>
@@ -524,21 +524,21 @@ export default function DepartmentForm({
                                                 <th className="px-4 py-3">Duration</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                        <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                                             {programs
                                                 .filter((p) => p.program_code && p.program_name)
                                                 .map((p, idx) => (
                                                     <tr key={idx}>
-                                                        <td className="px-4 py-3 font-semibold text-gray-400">
+                                                        <td className="px-4 py-3 font-semibold text-gray-400 dark:text-slate-500">
                                                             #{idx + 1}
                                                         </td>
                                                         <td className="px-4 py-3 font-bold text-gray-900 dark:text-white">
                                                             {p.program_code}
                                                         </td>
-                                                        <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                                                        <td className="px-4 py-3 text-gray-700 dark:text-slate-300">
                                                             {p.program_name}
                                                         </td>
-                                                        <td className="px-4 py-3 text-gray-500">
+                                                        <td className="px-4 py-3 text-gray-500 dark:text-slate-400">
                                                             {p.program_years} Years
                                                         </td>
                                                     </tr>

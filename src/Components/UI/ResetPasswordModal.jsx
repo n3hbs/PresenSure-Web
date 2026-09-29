@@ -62,7 +62,7 @@ export default function ResetPasswordModal({
             title={`Reset ${role} Password`}
             description={`Are you sure you want to reset the password for this ${role.toLowerCase()}?`}
             icon={<LockClosedIcon className="h-6 w-6" />}
-            iconBg="bg-blue-50 text-blue-600"
+            iconBg="bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
             maxWidth="md"
             footer={
                 <div className="flex items-center justify-end gap-3">
@@ -70,7 +70,7 @@ export default function ResetPasswordModal({
                         type="button"
                         disabled={submitting}
                         onClick={onClose}
-                        className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-50"
+                        className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-white/5"
                     >
                         Cancel
                     </button>
@@ -96,21 +96,21 @@ export default function ResetPasswordModal({
             }
         >
             <div className="space-y-4">
-                <div className="rounded-xl border border-blue-200/80 bg-blue-50/60 p-4 text-xs text-blue-900 space-y-2">
-                    <p className="font-semibold text-blue-950 flex items-center gap-1.5">
-                        <LockClosedIcon className="h-4 w-4 text-blue-600 shrink-0" />
+                <div className="rounded-xl border border-blue-200/80 bg-blue-50/60 p-4 text-xs text-blue-900 space-y-2 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-200">
+                    <p className="font-semibold text-blue-950 flex items-center gap-1.5 dark:text-blue-300">
+                        <LockClosedIcon className="h-4 w-4 text-blue-600 shrink-0 dark:text-blue-400" />
                         Default Password Details
                     </p>
-                    <p className="text-blue-800">
+                    <p className="text-blue-800 dark:text-blue-200">
                         The password will be reset to the {role.toLowerCase()}'s lowercase last name (identical to default registration):
                     </p>
                     <div className="flex items-center gap-2 pt-1">
-                        <span className="text-gray-500">New Password:</span>
-                        <code className="rounded bg-blue-100 px-2.5 py-1 font-mono text-sm font-bold text-blue-900 tracking-wide border border-blue-200">
+                        <span className="text-gray-500 dark:text-slate-400">New Password:</span>
+                        <code className="rounded bg-blue-100 px-2.5 py-1 font-mono text-sm font-bold text-blue-900 tracking-wide border border-blue-200 dark:bg-white/5 dark:border-white/10 dark:text-blue-300">
                             {defaultPassword || "lastname"}
                         </code>
                     </div>
-                    <p className="pt-1 text-[11px] text-blue-700">
+                    <p className="pt-1 text-[11px] text-blue-700 dark:text-blue-300">
                         Any active sessions will be terminated and the {role.toLowerCase()} will need to sign in using this password.
                     </p>
                 </div>

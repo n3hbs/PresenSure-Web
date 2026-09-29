@@ -35,9 +35,9 @@ export default function SingleInstructorRegistrationForm({
             onSubmit={onSubmit}
             className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]"
         >
-            <section className="space-y-6 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5">
-                <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+            <section className="space-y-6 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-white/10">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                         {isEdit ? (
                             <PencilSquareIcon className="h-6 w-6" />
                         ) : (
@@ -45,10 +45,10 @@ export default function SingleInstructorRegistrationForm({
                         )}
                     </div>
                     <div>
-                        <h1 className="text-lg font-bold text-gray-900">
+                        <h1 className="text-lg font-bold text-gray-900 dark:text-white">
                             {isEdit ? "Edit Instructor" : "Instructor Registration"}
                         </h1>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-gray-400 dark:text-slate-400">
                             {isEdit
                                 ? "Update instructor personal and department details."
                                 : "Register a new instructor profile in the system."}
@@ -57,7 +57,7 @@ export default function SingleInstructorRegistrationForm({
                 </div>
 
                 <div>
-                    <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500">
+                    <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-slate-400">
                         Personal Information
                     </h2>
                     <div className="grid gap-4 md:grid-cols-2">
@@ -83,7 +83,7 @@ export default function SingleInstructorRegistrationForm({
                                     onSelectChange("sex", value)
                                 }
                                 placeholder="Select sex"
-                                buttonClassName="bg-white"
+                                buttonClassName="bg-white dark:bg-[#161724] dark:border-white/10"
                             />
                             {renderError("sex")}
                         </div>
@@ -132,7 +132,7 @@ export default function SingleInstructorRegistrationForm({
                 </div>
 
                 <div>
-                    <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500">
+                    <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-slate-400">
                         Department Information
                     </h2>
                     <div className="grid gap-4 md:grid-cols-2">
@@ -149,14 +149,14 @@ export default function SingleInstructorRegistrationForm({
                                         ? "Loading departments..."
                                         : "Select department"
                                 }
-                                buttonClassName="bg-white"
+                                buttonClassName="bg-white dark:bg-[#161724] dark:border-white/10"
                             />
                             {renderError("department_id")}
                         </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end">
+                <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end dark:border-white/10">
                     <Button type="button" variant="outline" onClick={onCancel}>
                         Cancel
                     </Button>

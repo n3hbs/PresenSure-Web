@@ -753,14 +753,14 @@ export default function SemesterForm({
                                 <ReviewItem label="Remarks" value={form.remarks || "No remarks provided"} />
                             </ReviewGroup>
 
-                            <div className="rounded-xl border border-gray-100 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-                                <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
+                            <div className="rounded-xl border border-gray-100 bg-white p-4 dark:border-white/5 dark:bg-[#12131C]">
+                                <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-slate-400 mb-3">
                                     Configured Academic Periods
                                 </h3>
 
-                                <div className="overflow-hidden rounded-xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900">
+                                <div className="overflow-hidden rounded-xl border border-gray-100 bg-white dark:border-white/5 dark:bg-[#161724]">
                                     <table className="w-full text-left text-sm">
-                                        <thead className="border-b border-gray-100 bg-gray-50/75 text-xs uppercase text-gray-500 dark:border-gray-800 dark:bg-gray-800/50">
+                                        <thead className="border-b border-gray-100 bg-gray-50/75 text-xs uppercase text-gray-500 dark:border-white/5 dark:bg-white/5 dark:text-slate-400">
                                             <tr>
                                                 <th className="px-4 py-3">Sequence</th>
                                                 <th className="px-4 py-3">Period</th>
@@ -769,33 +769,33 @@ export default function SemesterForm({
                                                 <th className="px-4 py-3">Status</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                        <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                                             {periods.map((p, idx) => {
                                                 const label = p.name.charAt(0).toUpperCase() + p.name.slice(1);
                                                 const isConfigured = p.enabled && p.period_start && p.period_end;
 
                                                 return (
                                                     <tr key={p.name}>
-                                                        <td className="px-4 py-3 font-semibold text-gray-400">
+                                                        <td className="px-4 py-3 font-semibold text-gray-400 dark:text-slate-500">
                                                             #{idx + 1}
                                                         </td>
                                                         <td className="px-4 py-3 font-bold text-gray-900 dark:text-white">
                                                             {label}
                                                         </td>
-                                                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
+                                                        <td className="px-4 py-3 text-gray-600 dark:text-slate-300">
                                                             {isConfigured ? p.period_start : "—"}
                                                         </td>
-                                                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
+                                                        <td className="px-4 py-3 text-gray-600 dark:text-slate-300">
                                                             {isConfigured ? p.period_end : "—"}
                                                         </td>
                                                         <td className="px-4 py-3">
                                                             {isConfigured ? (
-                                                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full dark:bg-emerald-950/40 dark:text-emerald-300">
+                                                                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full dark:bg-emerald-950/40 dark:text-emerald-300">
                                                                     <CheckCircleIcon className="h-3.5 w-3.5" />
                                                                     Configured
                                                                 </span>
                                                             ) : (
-                                                                <span className="inline-flex items-center text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full dark:bg-gray-800 dark:text-gray-400">
+                                                                <span className="inline-flex items-center text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full dark:bg-white/5 dark:text-slate-400">
                                                                     Follow up later
                                                                 </span>
                                                             )}

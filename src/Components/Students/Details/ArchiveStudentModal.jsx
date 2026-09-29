@@ -51,7 +51,7 @@ export default function ArchiveStudentModal({
             title="Archive Student"
             description="Are you sure you want to archive this student?"
             icon={<ArchiveBoxIcon className="h-6 w-6" />}
-            iconBg="bg-red-50 text-red-600"
+            iconBg="bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
             maxWidth="md"
             footer={
                 <div className="flex items-center justify-end gap-3">
@@ -59,7 +59,7 @@ export default function ArchiveStudentModal({
                         type="button"
                         disabled={submitting}
                         onClick={onClose}
-                        className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-50"
+                        className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-white/5"
                     >
                         Cancel
                     </button>
@@ -84,9 +84,9 @@ export default function ArchiveStudentModal({
                 </div>
             }
         >
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-slate-300">
                 This will mark the student as{" "}
-                <span className="font-semibold text-gray-900">Inactive</span>{" "}
+                <span className="font-semibold text-gray-900 dark:text-white">Inactive</span>{" "}
                 for the current semester and move them to the archives.
                 Their historical attendances and records will be preserved.
             </p>

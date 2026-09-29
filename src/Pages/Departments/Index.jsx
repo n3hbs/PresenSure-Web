@@ -14,6 +14,7 @@ import {
 import MainLayout from "@/Components/Layout/MainLayout";
 import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import DataTable from "@/Components/UI/DataTable";
+import StatCard from "@/Components/UI/StatCard";
 import api from "@/Services/api";
 import { getAuthToken } from "@/Services/auth";
 import { departmentsQueryKey } from "@/Services/queryKeys";
@@ -40,34 +41,6 @@ const formatDate = (dateStr) => {
     } catch {
         return dateStr;
     }
-};
-
-const StatCard = ({ icon: Icon, label, value, tone = "blue" }) => {
-    const tones = {
-        blue: "bg-blue-50 text-blue-700",
-        green: "bg-green-50 text-green-700",
-        gray: "bg-gray-100 text-gray-600",
-    };
-
-    return (
-        <div className="rounded-lg bg-white p-5 shadow-sm shadow-blue-950/5">
-            <div className="flex items-center gap-4">
-                <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-xl ${tones[tone] || tones.blue}`}
-                >
-                    <Icon className="h-6 w-6" />
-                </div>
-                <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                        {label}
-                    </p>
-                    <p className="mt-1 text-2xl font-bold text-gray-900">
-                        {value}
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
 };
 
 export default function Departments() {
@@ -151,7 +124,7 @@ export default function Departments() {
             header: "Code",
             width: "120px",
             render: (department) => (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">
                     {department.department_code}
                 </span>
             ),
@@ -161,11 +134,11 @@ export default function Departments() {
             header: "Department Name",
             render: (department) => (
                 <div>
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-gray-900 dark:text-white">
                         {department.department_name}
                     </p>
                     {department.description && (
-                        <p className="max-w-md truncate text-xs text-gray-400 mt-0.5">
+                        <p className="max-w-md truncate text-xs text-gray-400 dark:text-slate-400 mt-0.5">
                             {department.description}
                         </p>
                     )}
@@ -178,8 +151,8 @@ export default function Departments() {
             render: (department) => {
                 const count = department.programs_count ?? (department.programs?.length || 0);
                 return (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                        <AcademicCapIcon className="h-3.5 w-3.5 text-blue-600" />
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-slate-300">
+                        <AcademicCapIcon className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                         {count} {count === 1 ? "Program" : "Programs"}
                     </span>
                 );
@@ -191,7 +164,7 @@ export default function Departments() {
             render: (department) => {
                 const count = department.instructors_count || 0;
                 return (
-                    <span className="text-xs text-gray-600 font-medium">
+                    <span className="text-xs text-gray-600 dark:text-slate-300 font-medium">
                         {count} {count === 1 ? "Instructor" : "Instructors"}
                     </span>
                 );
@@ -201,7 +174,7 @@ export default function Departments() {
             key: "created_at",
             header: "Created Date",
             render: (department) => (
-                <span className="text-xs text-gray-500 whitespace-nowrap">
+                <span className="text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap">
                     {formatDate(department.created_at)}
                 </span>
             ),
@@ -297,15 +270,15 @@ export default function Departments() {
                 </div>
 
                 {/* Filter and Search Section */}
-                <section className="rounded-xl bg-white p-4 shadow-sm shadow-blue-950/5">
+                <section className="rounded-xl bg-white dark:bg-[#12131C] p-4 shadow-sm shadow-blue-950/5 border border-transparent dark:border-white/5 transition-colors duration-200">
                     <div className="relative">
-                        <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                        <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-slate-400" />
                         <input
                             type="search"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search departments by code, name, description..."
-                            className="h-11 w-full rounded-xl bg-gray-50 pl-11 pr-4 text-sm text-gray-700 shadow-sm shadow-blue-950/5 outline-none transition placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                            className="h-11 w-full rounded-xl bg-gray-50 dark:bg-[#1a1b28] pl-11 pr-4 text-sm text-gray-700 dark:text-white shadow-sm shadow-blue-950/5 outline-none transition placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#1a1b28] focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 border border-transparent dark:border-white/10"
                         />
                     </div>
                 </section>

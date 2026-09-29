@@ -128,7 +128,7 @@ export default function ArchivePage({
                             <button
                                 type="button"
                                 onClick={() => router.visit(parentHref)}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
                                 title={`Back to ${parentTitle}`}
                             >
                                 <ArrowLeftIcon className="h-4 w-4" />
@@ -137,7 +137,7 @@ export default function ArchivePage({
                                 {title}
                             </h1>
                         </div>
-                        <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
+                        <p className="mt-1 text-sm text-gray-400 dark:text-slate-400">
                             View and restore archived {parentTitle.toLowerCase()} to the active system.
                         </p>
                     </div>
@@ -159,7 +159,7 @@ export default function ArchivePage({
                 )}
 
                 {/* Search & Filters */}
-                <div className="flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm shadow-blue-950/5 sm:flex-row sm:items-center sm:justify-between dark:bg-gray-900 dark:border dark:border-gray-800">
+                <div className="flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm shadow-blue-950/5 sm:flex-row sm:items-center sm:justify-between dark:bg-[#12131C] dark:border dark:border-white/5">
                     <div className="relative flex-1 sm:max-w-md">
                         <MagnifyingGlassIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                         <input
@@ -167,7 +167,7 @@ export default function ArchivePage({
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder={`Search archived ${parentTitle.toLowerCase()}...`}
-                            className="w-full rounded-xl border border-gray-200 bg-gray-50/50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-800/40 dark:text-white dark:focus:bg-gray-800"
+                            className="w-full rounded-xl border border-gray-200 bg-gray-50/50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-[#1a1b28] dark:text-white dark:focus:bg-[#1a1b28]"
                         />
                     </div>
                     {filterComponent && (

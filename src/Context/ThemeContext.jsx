@@ -5,22 +5,15 @@ const ThemeContext = createContext();
 export function ThemeProvider({ children }) {
     const [dark, setDark] = useState(() => {
         if (typeof window === "undefined") return false;
-        return localStorage.getItem("theme") === "dark";
+        const saved = localStorage.getItem("landing_theme") ?? localStorage.getItem("theme");
+        return saved === "dark";
     });
 
     useEffect(() => {
-        // Dark mode is strictly isolated to the Landing Page.
-        // We explicitly ensure that the root html and body elements never carry the "dark" class,
-        // preventing dark mode styles from bleeding into the rest of the application.
-        if (typeof document !== "undefined") {
-            document.documentElement.classList.remove("dark");
-            document.body.classList.remove("dark");
-        }
-
         if (dark) {
-            localStorage.setItem("theme", "dark");
+            localStorage.setItem("landing_theme", "dark");
         } else {
-            localStorage.setItem("theme", "light");
+            localStorage.setItem("landing_theme", "light");
         }
     }, [dark]);
 

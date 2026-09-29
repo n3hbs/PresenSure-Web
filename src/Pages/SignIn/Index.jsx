@@ -24,6 +24,13 @@ export default function Login() {
     const [toast, setToast] = useState(null);
 
     useEffect(() => {
+        if (typeof document !== "undefined") {
+            document.documentElement.classList.remove("dark");
+            document.body.classList.remove("dark");
+        }
+    }, []);
+
+    useEffect(() => {
         if (!toast) return undefined;
         const timer = window.setTimeout(() => setToast(null), 5000);
         return () => window.clearTimeout(timer);

@@ -30,10 +30,10 @@ export default function Stepper({
 
                     const itemClass = `group flex w-full flex-col border-t-4 pt-2 text-left transition ${
                         isCompleted
-                            ? "border-blue-600 text-blue-600"
+                            ? "border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-400"
                             : isCurrent
-                            ? "border-blue-600 text-blue-600"
-                            : "border-gray-200 text-gray-400"
+                            ? "border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-400"
+                            : "border-gray-200 text-gray-400 dark:border-white/10 dark:text-slate-500"
                     } ${isClickable ? "cursor-pointer focus:outline-none" : "cursor-default"}`;
 
                     const content = (
@@ -44,8 +44,8 @@ export default function Stepper({
                             <span
                                 className={`text-sm font-medium transition-colors ${
                                     isCompleted || isCurrent
-                                        ? "text-gray-900"
-                                        : "text-gray-500"
+                                        ? "text-gray-900 dark:text-white"
+                                        : "text-gray-500 dark:text-slate-400"
                                 }`}
                             >
                                 {label}

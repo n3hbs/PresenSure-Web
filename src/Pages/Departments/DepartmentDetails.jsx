@@ -170,25 +170,25 @@ export default function DepartmentDetails({ departmentId: propDeptId }) {
 
             {/* Loading Skeleton */}
             {isLoading ? (
-                <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-6 shadow-2xs animate-pulse">
-                    <div className="h-5 w-20 rounded bg-gray-100" />
-                    <div className="h-7 w-64 rounded bg-gray-100" />
-                    <div className="h-4 w-96 rounded bg-gray-100" />
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-gray-100">
+                <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-6 shadow-2xs animate-pulse dark:border-white/5 dark:bg-[#12131C]">
+                    <div className="h-5 w-20 rounded bg-gray-100 dark:bg-white/5" />
+                    <div className="h-7 w-64 rounded bg-gray-100 dark:bg-white/5" />
+                    <div className="h-4 w-96 rounded bg-gray-100 dark:bg-white/5" />
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-gray-100 dark:border-white/5">
                         {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="h-10 rounded bg-gray-100" />
+                            <div key={i} className="h-10 rounded bg-gray-100 dark:bg-white/5" />
                         ))}
                     </div>
                 </div>
             ) : !department ? (
-                <section className="rounded-xl border border-gray-100 bg-white p-8 text-center shadow-2xs">
-                    <BuildingOffice2Icon className="mx-auto h-10 w-10 text-gray-300" />
-                    <p className="mt-2 text-sm font-semibold text-gray-700">
+                <section className="rounded-xl border border-gray-100 bg-white p-8 text-center shadow-2xs dark:border-white/5 dark:bg-[#12131C]">
+                    <BuildingOffice2Icon className="mx-auto h-10 w-10 text-gray-300 dark:text-slate-600" />
+                    <p className="mt-2 text-sm font-semibold text-gray-700 dark:text-slate-300">
                         Department not found.
                     </p>
                     <Link
                         href="/departments"
-                        className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
+                        className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
                     >
                         <ArrowLeftIcon className="h-3.5 w-3.5" />
                         Back to Departments
@@ -197,100 +197,100 @@ export default function DepartmentDetails({ departmentId: propDeptId }) {
             ) : (
                 <div className="space-y-6">
                     {/* Primary Department Card */}
-                    <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-2xs">
+                    <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-2xs dark:border-white/5 dark:bg-[#12131C]">
                         <div className="flex items-start justify-between gap-4">
                             <div className="space-y-1.5 min-w-0">
                                 <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700">
+                                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                                         {department.department_code}
                                     </span>
-                                    <span className="text-xs text-gray-400">
+                                    <span className="text-xs text-gray-400 dark:text-slate-500">
                                         #{department.department_id}
                                     </span>
                                 </div>
-                                <h1 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl truncate">
+                                <h1 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl truncate dark:text-white">
                                     {department.department_name}
                                 </h1>
                                 {department.description ? (
-                                    <p className="pt-1 text-sm text-gray-500 leading-relaxed max-w-2xl whitespace-pre-line">
+                                    <p className="pt-1 text-sm text-gray-500 leading-relaxed max-w-2xl whitespace-pre-line dark:text-slate-400">
                                         {department.description}
                                     </p>
                                 ) : (
-                                    <p className="pt-1 text-xs text-gray-400 italic">
+                                    <p className="pt-1 text-xs text-gray-400 italic dark:text-slate-500">
                                         No description provided for this department.
                                     </p>
                                 )}
                             </div>
 
-                            <div className="hidden sm:flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50/70 text-blue-600">
+                            <div className="hidden sm:flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50/70 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
                                 <BuildingOffice2Icon className="h-6 w-6" />
                             </div>
                         </div>
 
                         {/* Metric Strip */}
-                        <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-100 pt-5 sm:grid-cols-3 lg:grid-cols-5">
+                        <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-100 pt-5 sm:grid-cols-3 lg:grid-cols-5 dark:border-white/5">
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                                    Programs
-                                </p>
-                                <p className="mt-1 text-base font-bold text-gray-900">
+                                <p className="text-base font-bold text-gray-900 dark:text-white">
                                     {department.programs_count ?? department.programs?.length ?? 0}
                                 </p>
+                                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                                    Programs
+                                </p>
                             </div>
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                                    Enrolled Students
-                                </p>
-                                <p className="mt-1 text-base font-bold text-blue-600">
+                                <p className="text-base font-bold text-blue-600 dark:text-blue-400">
                                     {department.students_count ?? 0}
                                 </p>
+                                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                                    Enrolled Students
+                                </p>
                             </div>
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                                    Instructors
-                                </p>
-                                <p className="mt-1 text-base font-bold text-gray-900">
+                                <p className="text-base font-bold text-gray-900 dark:text-white">
                                     {department.instructors_count || 0}
                                 </p>
+                                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                                    Instructors
+                                </p>
                             </div>
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                                    Established
-                                </p>
-                                <p className="mt-1 text-sm font-semibold text-gray-800">
+                                <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                                     {formatDate(department.created_at)}
                                 </p>
+                                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                                    Established
+                                </p>
                             </div>
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                                    Last Updated
-                                </p>
-                                <p className="mt-1 text-sm font-semibold text-gray-800">
+                                <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                                     {formatDate(department.updated_at || department.created_at)}
+                                </p>
+                                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                                    Last Updated
                                 </p>
                             </div>
                         </div>
                     </section>
 
                     {/* Academic Programs Section */}
-                    <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-2xs">
-                        <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                    <section className="rounded-xl border border-gray-100 bg-white p-6 shadow-2xs dark:border-white/5 dark:bg-[#12131C]">
+                        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-white/5">
                             <div>
-                                <h2 className="text-sm font-bold text-gray-900">
+                                <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                                     Academic Programs
                                 </h2>
-                                <p className="text-xs text-gray-400">
+                                <p className="text-xs text-gray-400 dark:text-slate-400">
                                     Programs and curricula under {department.department_code}
                                 </p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+                                <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                                     {department.programs?.length || 0} Total
                                 </span>
                                 {(hasRole("administrator") || can("departments.manage")) && (
                                     <Link
                                         href={`/departments/edit?department_id=${department.department_id}`}
-                                        className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline ml-1"
+                                        className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline ml-1 dark:text-blue-400"
                                     >
                                         Manage &rarr;
                                     </Link>
@@ -299,29 +299,29 @@ export default function DepartmentDetails({ departmentId: propDeptId }) {
                         </div>
 
                         {department.programs && department.programs.length > 0 ? (
-                            <div className="mt-2 divide-y divide-gray-100">
+                            <div className="mt-2 divide-y divide-gray-100 dark:divide-white/5">
                                 {department.programs.map((program) => (
                                     <div
                                         key={program.program_id}
-                                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3.5 gap-2 transition hover:bg-gray-50/50 px-2 -mx-2 rounded-lg"
+                                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3.5 gap-2 transition hover:bg-gray-50/50 px-2 -mx-2 rounded-lg dark:hover:bg-white/5"
                                     >
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2">
-                                                <span className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-700">
+                                                <span className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-700 dark:bg-white/5 dark:text-slate-300">
                                                     {program.program_code}
                                                 </span>
-                                                <span className="text-xs text-gray-400">
+                                                <span className="text-xs text-gray-400 dark:text-slate-500">
                                                     {program.program_years || 4}-Year Degree
                                                 </span>
                                             </div>
-                                            <p className="text-sm font-semibold text-gray-900">
+                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
                                                 {program.program_name}
                                             </p>
                                         </div>
 
-                                        <div className="flex items-center gap-3 text-xs text-gray-500 sm:text-right">
-                                            <span className="inline-flex items-center gap-1 font-medium text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">
-                                                <UserGroupIcon className="h-3.5 w-3.5 text-blue-600" />
+                                        <div className="flex items-center gap-3 text-xs text-gray-500 sm:text-right dark:text-slate-400">
+                                            <span className="inline-flex items-center gap-1 font-medium text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100 dark:bg-white/5 dark:border-white/10 dark:text-slate-300">
+                                                <UserGroupIcon className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                                 {program.students_count ?? program.student_count ?? 0} Students
                                             </span>
                                         </div>
@@ -330,17 +330,17 @@ export default function DepartmentDetails({ departmentId: propDeptId }) {
                             </div>
                         ) : (
                             <div className="py-8 text-center">
-                                <AcademicCapIcon className="mx-auto h-8 w-8 text-gray-300" />
-                                <p className="mt-2 text-xs font-semibold text-gray-600">
+                                <AcademicCapIcon className="mx-auto h-8 w-8 text-gray-300 dark:text-slate-600" />
+                                <p className="mt-2 text-xs font-semibold text-gray-600 dark:text-slate-300">
                                     No degree programs found
                                 </p>
-                                <p className="mt-0.5 text-xs text-gray-400">
+                                <p className="mt-0.5 text-xs text-gray-400 dark:text-slate-500">
                                     No programs are currently linked to this department.
                                 </p>
                                 {(hasRole("administrator") || can("departments.manage")) && (
                                     <Link
                                         href={`/departments/edit?department_id=${department.department_id}`}
-                                        className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
+                                        className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
                                     >
                                         Add Programs via Department Edit &rarr;
                                     </Link>
@@ -362,37 +362,37 @@ export default function DepartmentDetails({ departmentId: propDeptId }) {
                 title="Archive Department"
                 description="Are you sure you want to archive this department?"
                 icon={<ArchiveBoxIcon className="h-6 w-6 text-red-600" />}
-                iconBg="bg-red-50 text-red-600"
+                iconBg="bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
                 maxWidth="md"
             >
                 {department && (
                     <div className="space-y-4 pt-2">
-                        <div className="rounded-xl border border-red-100 bg-red-50/50 p-4">
-                            <p className="text-sm font-bold text-red-900">
+                        <div className="rounded-xl border border-red-100 bg-red-50/50 p-4 dark:border-red-500/20 dark:bg-red-500/10">
+                            <p className="text-sm font-bold text-red-900 dark:text-red-400">
                                 {department.department_name} ({department.department_code})
                             </p>
                             {(department.programs_count > 0 || department.programs?.length > 0) && (
-                                <p className="mt-1 text-xs text-red-700">
+                                <p className="mt-1 text-xs text-red-700 dark:text-red-300">
                                     {department.programs_count ?? department.programs?.length} degree program(s) belong to this department.
                                 </p>
                             )}
                             {department.students_count > 0 && (
-                                <p className="mt-1 text-xs text-red-700">
+                                <p className="mt-1 text-xs text-red-700 dark:text-red-300">
                                     {department.students_count} student(s) currently enrolled in this department.
                                 </p>
                             )}
                         </div>
 
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-slate-400">
                             Archiving this department will move it to the archive records. You cannot archive a department if instructors or enrolled students are actively assigned to it.
                         </p>
 
-                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 dark:border-white/10">
                             <button
                                 type="button"
                                 onClick={() => setIsArchiveModalOpen(false)}
                                 disabled={archiveMutation.isPending}
-                                className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+                                className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
                             >
                                 Cancel
                             </button>

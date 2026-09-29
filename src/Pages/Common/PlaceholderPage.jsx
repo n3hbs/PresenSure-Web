@@ -16,18 +16,18 @@ export default function PlaceholderPage({
                     { label: title },
                 ]}
             />
-            <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 border border-amber-200/60 mb-4">
+            <div className="rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-[#12131C] p-12 text-center shadow-sm transition-colors duration-200">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-500/20 mb-4">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
                     In Progress
                 </span>
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 dark:bg-white/5 text-blue-600 dark:text-blue-400">
                     <WrenchScrewdriverIcon className="h-8 w-8" />
                 </div>
-                <h1 className="mt-4 text-xl font-bold text-gray-900">
+                <h1 className="mt-4 text-xl font-bold text-gray-900 dark:text-white">
                     {title}
                 </h1>
-                <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
+                <p className="mt-2 text-sm text-gray-500 dark:text-slate-400 max-w-md mx-auto">
                     {description}
                 </p>
                 <div className="mt-6">

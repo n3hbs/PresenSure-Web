@@ -429,13 +429,13 @@ export default function RolesIndex() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     {/* Left Column: Role Selector (4 columns) - Fixed/Sticky */}
                     <div className="lg:col-span-4 space-y-4 lg:sticky lg:-top-6 lg:-mt-6 lg:pt-6 lg:self-start z-10">
-                        <div className="rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 border border-gray-100">
+                        <div className="rounded-xl bg-white dark:bg-[#12131C] p-5 shadow-sm shadow-blue-950/5 border border-gray-100 dark:border-white/5 transition-colors duration-200">
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                                    <UserGroupIcon className="h-5 w-5 text-blue-600" />
+                                <h2 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <UserGroupIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                     System Roles
                                 </h2>
-                                <span className="text-xs bg-gray-100 text-gray-600 border border-gray-200 px-2.5 py-0.5 rounded-full font-semibold">
+                                <span className="text-xs bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-white/10 px-2.5 py-0.5 rounded-full font-semibold">
                                     {roles.length} Roles
                                 </span>
                             </div>
@@ -445,12 +445,12 @@ export default function RolesIndex() {
                                     {[1, 2, 3].map((n) => (
                                         <div
                                             key={n}
-                                            className="h-24 bg-gray-100/70 rounded-xl animate-pulse"
+                                            className="h-24 bg-gray-100/70 dark:bg-white/5 rounded-xl animate-pulse"
                                         />
                                     ))}
                                 </div>
                             ) : roles.length === 0 ? (
-                                <div className="p-4 text-center text-sm text-gray-500">
+                                <div className="p-4 text-center text-sm text-gray-500 dark:text-slate-400">
                                     No roles found in the database.
                                 </div>
                             ) : (
@@ -467,8 +467,8 @@ export default function RolesIndex() {
                                                 key={r.role_id}
                                                 onClick={() => handleSelectRole(r.role_id)}
                                                 className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer text-left relative overflow-hidden ${isSelected
-                                                    ? "bg-blue-50/50 border-blue-500 ring-2 ring-blue-500/20 shadow-sm"
-                                                    : "bg-white border-gray-200/80 hover:border-gray-300 hover:bg-gray-50/50"
+                                                    ? "bg-blue-50/50 dark:bg-blue-500/10 border-blue-500 dark:border-blue-400 ring-2 ring-blue-500/20 shadow-sm"
+                                                    : "bg-white dark:bg-white/5 border-gray-200/80 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:bg-gray-50/50 dark:hover:bg-white/10"
                                                     }`}
                                             >
                                                 {/* Selected indicator bar */}
@@ -511,22 +511,22 @@ export default function RolesIndex() {
                     {/* Right Column: Permissions Panel (8 columns) */}
                     <div className="lg:col-span-8 flex flex-col space-y-4">
                         {/* STICKY SEARCH & ROLE CONTROL PANEL */}
-                        <div className="sticky -top-6 -mt-6 pt-6 pb-2 z-20 bg-gray-100">
-                            <div className="rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 border border-gray-100 space-y-4">
+                        <div className="sticky -top-6 -mt-6 pt-6 pb-2 z-20 bg-gray-100 dark:bg-[#0b0c13] transition-colors duration-200">
+                            <div className="rounded-xl bg-white dark:bg-[#12131C] p-5 shadow-sm shadow-blue-950/5 border border-gray-100 dark:border-white/5 space-y-4 transition-colors duration-200">
                                 {/* Top row: Role title, unsaved badge, grant all, revoke all */}
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <div>
                                         <div className="flex items-center gap-2.5">
-                                            <h2 className="text-lg font-bold text-gray-900 capitalize">
+                                            <h2 className="text-lg font-bold text-gray-900 dark:text-white capitalize">
                                                 {selectedRole?.role_name || "Role"} Permissions
                                             </h2>
                                             {isDirty && (
-                                                <span className="text-[11px] bg-amber-50 text-amber-700 font-semibold px-2 py-0.5 rounded-full border border-amber-200">
+                                                <span className="text-[11px] bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 font-semibold px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/20">
                                                     Unsaved Changes
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-xs text-gray-400 mt-0.5">
+                                        <p className="text-xs text-gray-400 dark:text-slate-400 mt-0.5">
                                             Toggle modular switches to grant or revoke system capabilities for this role.
                                         </p>
                                     </div>
@@ -535,39 +535,39 @@ export default function RolesIndex() {
                                         <button
                                             type="button"
                                             onClick={handleGrantAll}
-                                            className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition shadow-2xs"
+                                            className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 text-gray-700 dark:text-slate-300 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 transition shadow-2xs"
                                         >
                                             Grant All
                                         </button>
                                         <button
                                             type="button"
                                             onClick={handleRevokeAll}
-                                            className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-red-200 text-red-700 bg-red-50 hover:bg-red-100 transition shadow-2xs"
+                                            className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 transition shadow-2xs"
                                         >
                                             Revoke All
                                         </button>
                                     </div>
                                 </div>
 
-                                {/* Search Input styled identically to Students & Instructors search box */}
+                                {/* Search Input */}
                                 <div>
-                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-400">
                                         Search Permissions
                                     </label>
                                     <div className="relative">
-                                        <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                        <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-slate-400" />
                                         <input
                                             type="search"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             placeholder="Search permissions by name or keyword..."
-                                            className="h-11 w-full rounded-xl bg-gray-50 pl-11 pr-10 text-sm text-gray-700 shadow-sm shadow-blue-950/5 outline-none transition placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                                            className="h-11 w-full rounded-xl bg-gray-50 dark:bg-[#1a1b28] pl-11 pr-10 text-sm text-gray-700 dark:text-white shadow-sm shadow-blue-950/5 outline-none transition placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#1a1b28] focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 border border-transparent dark:border-white/10"
                                         />
                                         {searchQuery && (
                                             <button
                                                 type="button"
                                                 onClick={() => setSearchQuery("")}
-                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
                                             >
                                                 <XMarkIcon className="h-4 w-4" />
                                             </button>
@@ -586,7 +586,7 @@ export default function RolesIndex() {
                                                 onClick={() => setActiveModuleFilter(tab.key)}
                                                 className={`px-3 py-1.5 rounded-lg font-medium transition whitespace-nowrap ${isActive
                                                     ? "bg-blue-600 text-white shadow-2xs font-semibold"
-                                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200/70 hover:text-gray-900 border border-transparent"
+                                                    : "bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-slate-400 hover:bg-gray-200/70 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white border border-transparent"
                                                     }`}
                                             >
                                                 {tab.label}
@@ -604,24 +604,24 @@ export default function RolesIndex() {
                                     {[1, 2, 3].map((n) => (
                                         <div
                                             key={n}
-                                            className="h-44 bg-white rounded-xl border border-gray-100 p-5 animate-pulse shadow-sm shadow-blue-950/5"
+                                            className="h-44 bg-white dark:bg-[#12131C] rounded-xl border border-gray-100 dark:border-white/5 p-5 animate-pulse shadow-sm shadow-blue-950/5"
                                         />
                                     ))}
                                 </div>
                             ) : totalMatchingPermissions === 0 ? (
-                                <div className="rounded-xl bg-white p-12 text-center shadow-sm shadow-blue-950/5 border border-gray-100">
-                                    <MagnifyingGlassIcon className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                                    <h3 className="text-sm font-semibold text-gray-700">
+                                <div className="rounded-xl bg-white dark:bg-[#12131C] p-12 text-center shadow-sm shadow-blue-950/5 border border-gray-100 dark:border-white/5">
+                                    <MagnifyingGlassIcon className="h-10 w-10 text-gray-300 dark:text-slate-600 mx-auto mb-3" />
+                                    <h3 className="text-sm font-semibold text-gray-700 dark:text-white">
                                         No matching permissions found
                                     </h3>
-                                    <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                                    <p className="text-xs text-gray-400 dark:text-slate-400 mt-1 max-w-sm mx-auto">
                                         No permissions matched your query "{searchQuery}". Try clearing the search or choosing "All Modules".
                                     </p>
                                     {searchQuery && (
                                         <button
                                             type="button"
                                             onClick={() => setSearchQuery("")}
-                                            className="mt-4 px-3.5 py-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 rounded-lg transition"
+                                            className="mt-4 px-3.5 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 bg-blue-50 dark:bg-blue-500/10 rounded-lg transition"
                                         >
                                             Clear Search
                                         </button>

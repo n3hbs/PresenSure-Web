@@ -9,23 +9,23 @@ import {
 const toastStyles = {
     success: {
         icon: CheckCircleIcon,
-        container: "border-green-100 bg-green-50 text-green-800",
-        iconClass: "text-green-600",
+        container: "border-green-100 bg-green-50 text-green-800 dark:border-emerald-500/20 dark:bg-emerald-950/80 dark:text-emerald-200",
+        iconClass: "text-green-600 dark:text-emerald-400",
     },
     warning: {
         icon: ExclamationTriangleIcon,
-        container: "border-amber-100 bg-amber-50 text-amber-800",
-        iconClass: "text-amber-600",
+        container: "border-amber-100 bg-amber-50 text-amber-800 dark:border-amber-500/20 dark:bg-amber-950/80 dark:text-amber-200",
+        iconClass: "text-amber-600 dark:text-amber-400",
     },
     error: {
         icon: XCircleIcon,
-        container: "border-red-100 bg-red-50 text-red-800",
-        iconClass: "text-red-600",
+        container: "border-red-100 bg-red-50 text-red-800 dark:border-red-500/20 dark:bg-red-950/80 dark:text-red-200",
+        iconClass: "text-red-600 dark:text-red-400",
     },
     info: {
         icon: InformationCircleIcon,
-        container: "border-blue-100 bg-blue-50 text-blue-800",
-        iconClass: "text-blue-600",
+        container: "border-blue-100 bg-blue-50 text-blue-800 dark:border-blue-500/20 dark:bg-blue-950/80 dark:text-blue-200",
+        iconClass: "text-blue-600 dark:text-blue-400",
     },
 };
 

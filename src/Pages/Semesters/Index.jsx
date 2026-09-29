@@ -168,15 +168,15 @@ export default function Semesters() {
     // Term Badge
     const renderTermBadge = (term) => {
         const styles = {
-            "First Semester": "bg-blue-50 text-blue-700 border-blue-200",
-            "Second Semester": "bg-indigo-50 text-indigo-700 border-indigo-200",
-            "Summer": "bg-amber-50 text-amber-700 border-amber-200",
+            "First Semester": "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30",
+            "Second Semester": "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-400 dark:border-indigo-900/30",
+            "Summer": "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/30",
         };
 
         return (
             <span
                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                    styles[term] || "bg-gray-100 text-gray-700 border-gray-200"
+                    styles[term] || "bg-gray-100 text-gray-700 border-gray-200 dark:bg-white/5 dark:text-slate-300 dark:border-white/10"
                 }`}
             >
                 {term}
@@ -188,7 +188,7 @@ export default function Semesters() {
     const renderStatusBadge = (item) => {
         if (item.is_active) {
             return (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/30">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Active
                 </span>
@@ -198,7 +198,7 @@ export default function Semesters() {
         const status = (item.computed_status || item.status || "inactive").toLowerCase();
         if (status === "upcoming") {
             return (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 text-sky-700 border border-sky-200">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/40 dark:text-sky-400 dark:border-sky-900/30">
                     Upcoming
                 </span>
             );
@@ -206,14 +206,14 @@ export default function Semesters() {
 
         if (status === "completed") {
             return (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200 dark:bg-white/5 dark:text-slate-400 dark:border-white/10">
                     Completed
                 </span>
             );
         }
 
         return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 dark:bg-white/5 dark:text-slate-400 dark:border-white/10">
                 Inactive
             </span>
         );
@@ -230,7 +230,7 @@ export default function Semesters() {
             key: "schoolYear",
             header: "School Year",
             render: (semester) => (
-                <span className="font-semibold text-gray-800">
+                <span className="font-semibold text-gray-800 dark:text-white">
                     {semester.school_year?.year_range || "N/A"}
                 </span>
             ),
@@ -239,7 +239,7 @@ export default function Semesters() {
             key: "duration",
             header: "Duration",
             render: (semester) => (
-                <span className="text-xs font-medium text-gray-700 whitespace-nowrap">
+                <span className="text-xs font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap">
                     {formatDate(semester.semester_start)} — {formatDate(semester.semester_end)}
                 </span>
             ),
@@ -260,19 +260,19 @@ export default function Semesters() {
 
                 if (semester.is_active) {
                     return formatted ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/30">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                             {formatted} Period
                         </span>
                     ) : (
-                        <span className="text-xs text-amber-600 font-medium">
+                        <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
                             No active period today
                         </span>
                     );
                 }
 
                 return (
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-gray-400 dark:text-slate-400">
                         {semester.periods?.length
                             ? `${semester.periods.length} periods defined`
                             : "No periods"}
@@ -285,7 +285,7 @@ export default function Semesters() {
             header: "Remarks",
             render: (semester) => (
                 <span
-                    className="block max-w-xs truncate text-xs text-gray-500"
+                    className="block max-w-xs truncate text-xs text-gray-500 dark:text-slate-400"
                     title={semester.remarks || ""}
                 >
                     {semester.remarks || "—"}
@@ -388,20 +388,20 @@ export default function Semesters() {
                 </div>
 
                 {/* Filter and Search Section */}
-                <section className="rounded-xl bg-white p-4 shadow-sm shadow-blue-950/5">
+                <section className="rounded-xl bg-white dark:bg-[#12131C] p-4 shadow-sm shadow-blue-950/5 border border-transparent dark:border-white/5 transition-colors duration-200">
                     <div className="grid gap-3 lg:grid-cols-[1.5fr_repeat(3,minmax(150px,220px))]">
                         <div>
-                            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">
+                            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-400">
                                 Search
                             </label>
                             <div className="relative">
-                                <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-slate-400" />
                                 <input
                                     type="search"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Search semesters..."
-                                    className="h-11 w-full rounded-xl bg-gray-50 pl-11 pr-4 text-sm text-gray-700 shadow-sm shadow-blue-950/5 outline-none transition placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                                    className="h-11 w-full rounded-xl bg-gray-50 dark:bg-[#1a1b28] pl-11 pr-4 text-sm text-gray-700 dark:text-white shadow-sm shadow-blue-950/5 outline-none transition placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#1a1b28] focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 border border-transparent dark:border-white/10"
                                 />
                             </div>
                         </div>

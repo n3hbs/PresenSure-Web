@@ -48,14 +48,14 @@ export default function Archives() {
                     <img
                         src={row.image || NoImage}
                         alt={row.fullName}
-                        className="h-10 w-10 rounded-full object-cover border border-gray-100"
+                        className="h-10 w-10 rounded-full object-cover border border-gray-100 dark:border-white/10"
                         onError={(e) => {
                             e.target.src = NoImage;
                         }}
                     />
                     <div>
-                        <p className="font-bold text-gray-900">{row.fullName}</p>
-                        <p className="text-xs text-gray-400 font-mono">{row.userId}</p>
+                        <p className="font-bold text-gray-900 dark:text-white">{row.fullName}</p>
+                        <p className="text-xs text-gray-400 dark:text-slate-400 font-mono">{row.userId}</p>
                     </div>
                 </div>
             ),
@@ -65,7 +65,7 @@ export default function Archives() {
             label: "Sex",
             sortable: true,
             render: (row) => (
-                <span className="capitalize text-sm text-gray-600">
+                <span className="capitalize text-sm text-gray-600 dark:text-slate-300">
                     {row.sex}
                 </span>
             ),
@@ -79,7 +79,7 @@ export default function Archives() {
                     <button
                         type="button"
                         onClick={() => onRestore(row)}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-100"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
                         title="Restore Student"
                     >
                         <ArrowPathIcon className="h-3.5 w-3.5" />

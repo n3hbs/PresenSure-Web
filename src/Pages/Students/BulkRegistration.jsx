@@ -239,7 +239,7 @@ export default function BulkRegistration() {
 
                     <Link
                         href="/students"
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
                     >
                         <ArrowLeftIcon className="h-4 w-4" />
                         Back to Students
@@ -249,17 +249,17 @@ export default function BulkRegistration() {
                 {/* Grid: Template Download & File Uploader */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* Template Card */}
-                    <div className="rounded-xl bg-white p-6 shadow-sm shadow-blue-950/5 border border-gray-100 flex flex-col justify-between">
+                    <div className="rounded-xl bg-white p-6 shadow-sm shadow-blue-950/5 border border-gray-100 flex flex-col justify-between dark:border-white/5 dark:bg-[#12131C]">
                         <div>
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 mb-4">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 mb-4 dark:bg-blue-500/10 dark:text-blue-400">
                                 <DocumentTextIcon className="h-6 w-6" />
                             </div>
-                            <h2 className="text-base font-bold text-gray-900">
+                            <h2 className="text-base font-bold text-gray-900 dark:text-white">
                                 Excel / CSV Template
                             </h2>
-                            <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                            <p className="mt-1 text-xs text-gray-500 leading-relaxed dark:text-slate-400">
                                 Download our standard template with required columns:
-                                <strong className="text-gray-700"> Student ID, Full Name, Gender, Program, Year Level, Block</strong>.
+                                <strong className="text-gray-700 dark:text-slate-200"> Student ID, Full Name, Gender, Program, Year Level, Block</strong>.
                             </p>
                         </div>
 
@@ -277,8 +277,8 @@ export default function BulkRegistration() {
                     </div>
 
                     {/* File Uploader Card */}
-                    <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-sm shadow-blue-950/5 border border-gray-100">
-                        <h2 className="text-base font-bold text-gray-900 mb-4">
+                    <div className="lg:col-span-2 rounded-xl bg-white p-6 shadow-sm shadow-blue-950/5 border border-gray-100 dark:border-white/5 dark:bg-[#12131C]">
+                        <h2 className="text-base font-bold text-gray-900 mb-4 dark:text-white">
                             Upload Spreadsheet
                         </h2>
 
@@ -291,8 +291,8 @@ export default function BulkRegistration() {
                             onDrop={handleDrop}
                             onClick={() => fileInputRef.current?.click()}
                             className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center ${isDragging
-                                ? "border-blue-500 bg-blue-50/50"
-                                : "border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-blue-300"
+                                ? "border-blue-500 bg-blue-50/50 dark:border-blue-400 dark:bg-blue-500/10"
+                                : "border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-blue-300 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:hover:border-blue-400/40"
                                 }`}
                         >
                             <input
@@ -303,19 +303,19 @@ export default function BulkRegistration() {
                                 className="hidden"
                             />
 
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 mb-3">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 mb-3 dark:bg-blue-500/10 dark:text-blue-400">
                                 <DocumentArrowUpIcon className="h-6 w-6" />
                             </div>
 
-                            <p className="text-sm font-semibold text-gray-800">
+                            <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                                 {file ? file.name : "Click to browse or drag and drop file here"}
                             </p>
-                            <p className="mt-1 text-xs text-gray-400">
+                            <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">
                                 Supports Excel (.xlsx, .xls) and CSV (.csv) up to 5MB
                             </p>
 
                             {file && (
-                                <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                                <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                                     <span>{(file.size / 1024).toFixed(1)} KB</span>
                                     <button
                                         type="button"
@@ -323,7 +323,7 @@ export default function BulkRegistration() {
                                             e.stopPropagation();
                                             setFile(null);
                                         }}
-                                        className="text-blue-500 hover:text-blue-700"
+                                        className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                                     >
                                         <XMarkIcon className="h-3.5 w-3.5" />
                                     </button>
@@ -353,16 +353,16 @@ export default function BulkRegistration() {
 
                 {/* Preview & Categorization Section */}
                 {hasExtractedData && (
-                    <div className="rounded-xl bg-white shadow-sm shadow-blue-950/5 border border-gray-100 overflow-hidden">
+                    <div className="rounded-xl bg-white shadow-sm shadow-blue-950/5 border border-gray-100 overflow-hidden dark:border-white/5 dark:bg-[#12131C]">
                         {/* Header & Tabs */}
-                        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 dark:border-white/10">
                             <div className="flex items-center gap-2 overflow-x-auto">
                                 <button
                                     type="button"
                                     onClick={() => setActiveTab("to_enroll")}
                                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 ${activeTab === "to_enroll"
                                         ? "bg-blue-600 text-white shadow-sm shadow-blue-200"
-                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
                                         }`}
                                 >
                                     <span>To Enroll</span>
@@ -376,7 +376,7 @@ export default function BulkRegistration() {
                                     onClick={() => setActiveTab("already_enrolled")}
                                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 ${activeTab === "already_enrolled"
                                         ? "bg-blue-600 text-white shadow-sm shadow-blue-200"
-                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
                                         }`}
                                 >
                                     <span>Already Enrolled</span>
@@ -391,7 +391,7 @@ export default function BulkRegistration() {
                                         onClick={() => setActiveTab("invalid")}
                                         className={`px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 ${activeTab === "invalid"
                                             ? "bg-red-600 text-white shadow-sm shadow-red-200"
-                                            : "bg-red-50 text-red-700 hover:bg-red-100"
+                                            : "bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
                                             }`}
                                     >
                                         <span>Invalid Rows</span>
@@ -408,7 +408,7 @@ export default function BulkRegistration() {
                                     placeholder="Search preview..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                    className="h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-[#161724] dark:text-white dark:placeholder:text-slate-500"
                                 />
 
                                 {activeTab === "to_enroll" && extractedData.to_enroll.length > 0 && (
@@ -428,12 +428,12 @@ export default function BulkRegistration() {
                         {/* Table */}
                         <div className="overflow-x-auto">
                             {filteredList.length === 0 ? (
-                                <div className="p-8 text-center text-sm text-gray-400">
+                                <div className="p-8 text-center text-sm text-gray-400 dark:text-slate-500">
                                     No records found in this category.
                                 </div>
                             ) : (
-                                <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
-                                    <thead className="bg-gray-50 text-xs font-semibold uppercase text-gray-500 tracking-wider">
+                                <table className="min-w-full divide-y divide-gray-200 text-left text-sm dark:divide-white/5">
+                                    <thead className="bg-gray-50 text-xs font-semibold uppercase text-gray-500 tracking-wider dark:bg-[#161724] dark:text-slate-400">
                                         <tr>
                                             <th className="px-4 py-3">ID Number</th>
                                             <th className="px-4 py-3">Full Name</th>
@@ -455,27 +455,27 @@ export default function BulkRegistration() {
                                             )}
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-100 bg-white">
+                                    <tbody className="divide-y divide-gray-100 bg-white dark:divide-white/5 dark:bg-[#12131C]">
                                         {filteredList.map((item, idx) => (
-                                            <tr key={item.user_id + idx} className="hover:bg-blue-50/40 transition">
-                                                <td className="px-4 py-3 font-mono font-medium text-gray-800 text-xs">
+                                            <tr key={item.user_id + idx} className="hover:bg-blue-50/40 transition dark:hover:bg-white/5">
+                                                <td className="px-4 py-3 font-mono font-medium text-gray-800 text-xs dark:text-slate-200">
                                                     {item.user_id}
                                                 </td>
-                                                <td className="px-4 py-3 font-medium text-gray-900">
+                                                <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">
                                                     {item.full_name || `${item.last_name}, ${item.first_name}`}
                                                 </td>
                                                 {activeTab !== "invalid" ? (
                                                     <>
-                                                        <td className="px-4 py-3 text-gray-600 text-xs">
+                                                        <td className="px-4 py-3 text-gray-600 text-xs dark:text-slate-400">
                                                             {item.sex}
                                                         </td>
-                                                        <td className="px-4 py-3 text-gray-800 font-medium text-xs">
+                                                        <td className="px-4 py-3 text-gray-800 font-medium text-xs dark:text-slate-200">
                                                             {item.program_code}
                                                         </td>
-                                                        <td className="px-4 py-3 text-gray-600 text-xs">
+                                                        <td className="px-4 py-3 text-gray-600 text-xs dark:text-slate-400">
                                                             {item.year}
                                                         </td>
-                                                        <td className="px-4 py-3 text-gray-600 text-xs">
+                                                        <td className="px-4 py-3 text-gray-600 text-xs dark:text-slate-400">
                                                             {item.block}
                                                         </td>
                                                         {activeTab === "to_enroll" && (
@@ -483,7 +483,7 @@ export default function BulkRegistration() {
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => handleRemoveRow(idx)}
-                                                                    className="rounded p-1 text-gray-400 hover:text-red-600 transition"
+                                                                    className="rounded p-1 text-gray-400 hover:text-red-600 transition dark:text-slate-500 dark:hover:text-red-400"
                                                                     title="Remove from batch"
                                                                 >
                                                                     <TrashIcon className="h-4 w-4" />
@@ -493,10 +493,10 @@ export default function BulkRegistration() {
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <td className="px-4 py-3 text-gray-500 font-mono text-xs">
+                                                        <td className="px-4 py-3 text-gray-500 font-mono text-xs dark:text-slate-400">
                                                             Row {item.row}
                                                         </td>
-                                                        <td className="px-4 py-3 text-red-600 text-xs font-medium">
+                                                        <td className="px-4 py-3 text-red-600 text-xs font-medium dark:text-red-400">
                                                             {item.reason}
                                                         </td>
                                                     </>
@@ -518,7 +518,7 @@ export default function BulkRegistration() {
                 title="Confirm Bulk Registration"
                 description={`Are you sure you want to register and enroll ${extractedData.to_enroll.length} students into the active semester?`}
                 icon={<UsersIcon className="h-6 w-6 text-blue-600" />}
-                iconBg="bg-blue-50 text-blue-600"
+                iconBg="bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
                 footer={
                     <>
                         <Button
@@ -547,7 +547,7 @@ export default function BulkRegistration() {
                 title="Bulk Enrollment Completed"
                 description="Students have been successfully registered and enrolled."
                 icon={<CheckCircleIcon className="h-6 w-6 text-green-600" />}
-                iconBg="bg-green-50 text-green-600"
+                iconBg="bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400"
                 footer={
                     <>
                         <Button
@@ -572,23 +572,23 @@ export default function BulkRegistration() {
                 }
             >
                 {saveResult && (
-                    <div className="rounded-xl bg-gray-50 p-4 border border-gray-100 space-y-2 text-xs">
+                    <div className="rounded-xl bg-gray-50 p-4 border border-gray-100 space-y-2 text-xs dark:border-white/10 dark:bg-white/5">
                         <div className="flex justify-between">
-                            <span className="text-gray-500">Successfully Enrolled:</span>
-                            <span className="font-bold text-green-600">
+                            <span className="text-gray-500 dark:text-slate-400">Successfully Enrolled:</span>
+                            <span className="font-bold text-green-600 dark:text-emerald-400">
                                 {saveResult.enrolled_count}
                             </span>
                         </div>
                         {saveResult.skipped_count > 0 && (
                             <div className="flex justify-between">
-                                <span className="text-gray-500">Skipped (Already enrolled):</span>
-                                <span className="font-bold text-gray-600">
+                                <span className="text-gray-500 dark:text-slate-400">Skipped (Already enrolled):</span>
+                                <span className="font-bold text-gray-600 dark:text-slate-300">
                                     {saveResult.skipped_count}
                                 </span>
                             </div>
                         )}
                         {saveResult.errors && saveResult.errors.length > 0 && (
-                            <div className="mt-2 text-red-600 font-medium">
+                            <div className="mt-2 text-red-600 font-medium dark:text-red-400">
                                 Warnings: {saveResult.errors.join(", ")}
                             </div>
                         )}

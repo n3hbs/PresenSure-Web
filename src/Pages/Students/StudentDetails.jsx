@@ -146,9 +146,9 @@ export default function StudentDetails({ userId: propUserId }) {
             {isLoading ? (
                 <StudentDetailsSkeleton />
             ) : !data ? (
-                <section className="rounded-xl bg-white p-8 text-center shadow-sm shadow-blue-950/5">
-                    <UserCircleIcon className="mx-auto h-12 w-12 text-gray-300" />
-                    <p className="mt-3 text-sm font-semibold text-gray-700">
+                <section className="rounded-xl bg-white p-8 text-center shadow-sm shadow-blue-950/5 dark:bg-[#12131C] dark:border dark:border-white/5">
+                    <UserCircleIcon className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
+                    <p className="mt-3 text-sm font-semibold text-gray-700 dark:text-slate-300">
                         Student not found.
                     </p>
                 </section>

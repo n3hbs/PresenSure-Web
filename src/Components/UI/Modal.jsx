@@ -71,13 +71,13 @@ export default function Modal({
             role="presentation"
         >
             <div
-                className={`relative flex flex-col w-full ${widthClass} overflow-hidden rounded-xl bg-white shadow-2xl shadow-blue-950/20 ${className}`}
+                className={`relative flex flex-col w-full ${widthClass} overflow-hidden rounded-xl bg-white dark:bg-[#161724] border border-transparent dark:border-white/10 shadow-2xl shadow-blue-950/20 text-gray-900 dark:text-white transition-colors duration-200 ${className}`}
                 role="dialog"
                 aria-modal="true"
             >
                 {/* Header (Title, Icon, Close Button) */}
                 {(title || icon || (shouldShowClose && onClose)) && (
-                    <div className="shrink-0 flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                    <div className="shrink-0 flex items-center justify-between border-b border-gray-200 dark:border-white/10 px-6 py-4">
                         <div className="flex items-center gap-3">
                             {icon && (
                                 <div
@@ -87,7 +87,7 @@ export default function Modal({
                                 </div>
                             )}
                             {title && (
-                                <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                                <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                                     {title}
                                 </h2>
                             )}
@@ -97,7 +97,7 @@ export default function Modal({
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
+                                className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-600 dark:hover:text-white transition"
                                 aria-label="Close modal"
                             >
                                 <XMarkIcon className="h-5 w-5" />
@@ -108,9 +108,9 @@ export default function Modal({
 
                 {/* Body (Description & Children) */}
                 {(description || children) && (
-                    <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 text-sm text-gray-600">
+                    <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 text-sm text-gray-600 dark:text-slate-300">
                         {description && (
-                            <p className={children ? "mb-3 text-gray-600 leading-relaxed" : "text-gray-600 leading-relaxed"}>
+                            <p className={children ? "mb-3 text-gray-600 dark:text-slate-300 leading-relaxed" : "text-gray-600 dark:text-slate-300 leading-relaxed"}>
                                 {description}
                             </p>
                         )}
@@ -120,7 +120,7 @@ export default function Modal({
 
                 {/* Footer (Buttons) */}
                 {footer && (
-                    <div className="shrink-0 flex flex-col-reverse gap-3 border-t border-gray-200 bg-gray-50/50 px-6 py-4 sm:flex-row sm:justify-end">
+                    <div className="shrink-0 flex flex-col-reverse gap-3 border-t border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 px-6 py-4 sm:flex-row sm:justify-end">
                         {footer}
                     </div>
                 )}

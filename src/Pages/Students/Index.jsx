@@ -266,7 +266,7 @@ export default function Students() {
             header: "Profile",
             width: "86px",
             render: (student) => (
-                <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-blue-50 text-sm font-bold text-blue-700">
+                <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-blue-50 text-sm font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
                     {student.image ? (
                         <img
                             src={student.image}
@@ -289,10 +289,10 @@ export default function Students() {
             minWidth: "240px",
             render: (student) => (
                 <div>
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-gray-900 dark:text-white">
                         {student.fullName}
                     </p>
-                    <p className="text-xs text-gray-400">{student.userId}</p>
+                    <p className="text-xs text-gray-400 dark:text-slate-400">{student.userId}</p>
                 </div>
             ),
         },
@@ -302,11 +302,11 @@ export default function Students() {
             minWidth: "120px",
             render: (student) => (
                 <div>
-                    <p className="font-medium text-gray-800">
+                    <p className="font-medium text-gray-800 dark:text-slate-200">
                         {student.programCode}
                     </p>
                     {student.programName && (
-                        <p className="max-w-44 truncate text-xs text-gray-400">
+                        <p className="max-w-44 truncate text-xs text-gray-400 dark:text-slate-400">
                             {student.programName}
                         </p>
                     )}
@@ -414,14 +414,14 @@ export default function Students() {
                 />
             </div>
 
-            <section className="rounded-xl bg-white p-4 shadow-sm shadow-blue-950/5">
+            <section className="rounded-xl bg-white dark:bg-[#12131C] p-4 shadow-sm shadow-blue-950/5 border border-transparent dark:border-white/5 transition-colors duration-200">
                 <div className="grid gap-3 lg:grid-cols-[1.2fr_repeat(4,minmax(130px,180px))]">
                     <div>
-                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">
+                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-400">
                             Search
                         </label>
                         <div className="relative">
-                            <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                            <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-slate-400" />
                             <input
                                 type="search"
                                 value={search}
@@ -429,7 +429,7 @@ export default function Students() {
                                     setSearch(event.target.value)
                                 }
                                 placeholder="Search students..."
-                                className="h-11 w-full rounded-xl bg-gray-50 pl-11 pr-4 text-sm text-gray-700 shadow-sm shadow-blue-950/5 outline-none transition placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                                className="h-11 w-full rounded-xl bg-gray-50 dark:bg-[#1a1b28] pl-11 pr-4 text-sm text-gray-700 dark:text-white shadow-sm shadow-blue-950/5 outline-none transition placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#1a1b28] focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 border border-transparent dark:border-white/10"
                             />
                         </div>
                     </div>

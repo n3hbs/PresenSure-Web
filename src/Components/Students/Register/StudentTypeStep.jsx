@@ -15,12 +15,12 @@ export default function StudentTypeStep({
     onCheckExisting,
 }) {
     return (
-        <section className="rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5">
-            <div className="border-b border-gray-100 pb-4">
-                <h1 className="text-lg font-bold text-gray-900">
+        <section className="rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+            <div className="border-b border-gray-100 pb-4 dark:border-white/10">
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white">
                     Select Student Type
                 </h1>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-400 dark:text-slate-400">
                     Choose whether this student needs a new account or already
                     has one.
                 </p>
@@ -30,17 +30,17 @@ export default function StudentTypeStep({
                 <button
                     type="button"
                     onClick={onSelectNew}
-                    className="rounded-xl border border-blue-100 bg-blue-50 p-5 text-left transition hover:border-blue-300 hover:bg-blue-100/70"
+                    className="rounded-xl border border-blue-100 bg-blue-50 p-5 text-left transition hover:border-blue-300 hover:bg-blue-100/70 dark:border-blue-500/20 dark:bg-blue-500/10 dark:hover:border-blue-400/40 dark:hover:bg-blue-500/20"
                 >
                     <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-blue-700 shadow-sm shadow-blue-950/5">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-blue-700 shadow-sm shadow-blue-950/5 dark:bg-white/10 dark:text-blue-400">
                             <UserPlusIcon className="h-6 w-6" />
                         </div>
                         <div>
-                            <h2 className="font-bold text-gray-900">
+                            <h2 className="font-bold text-gray-900 dark:text-white">
                                 New Student
                             </h2>
-                            <p className="mt-1 text-sm text-gray-500">
+                            <p className="mt-1 text-sm text-gray-500 dark:text-slate-300">
                                 Create a new account and enroll the student in
                                 the active semester.
                             </p>
@@ -48,16 +48,16 @@ export default function StudentTypeStep({
                     </div>
                 </button>
 
-                <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+                <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-white/5 dark:bg-[#161724]">
                     <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-gray-600 shadow-sm shadow-blue-950/5">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-gray-600 shadow-sm shadow-blue-950/5 dark:bg-white/10 dark:text-slate-300">
                             <UserIcon className="h-6 w-6" />
                         </div>
                         <div className="min-w-0 flex-1">
-                            <h2 className="font-bold text-gray-900">
+                            <h2 className="font-bold text-gray-900 dark:text-white">
                                 Existing Student
                             </h2>
-                            <p className="mt-1 text-sm text-gray-500">
+                            <p className="mt-1 text-sm text-gray-500 dark:text-slate-300">
                                 Check an existing account, then enroll it for
                                 the active semester.
                             </p>

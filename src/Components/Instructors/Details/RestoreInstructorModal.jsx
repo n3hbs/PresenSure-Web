@@ -55,7 +55,7 @@ export default function RestoreInstructorModal({
             title="Restore Instructor"
             description="Are you sure you want to restore this instructor to active status?"
             icon={<ArrowPathIcon className="h-6 w-6" />}
-            iconBg="bg-blue-50 text-blue-600"
+            iconBg="bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
             maxWidth="md"
             footer={
                 <div className="flex items-center justify-end gap-3">
@@ -63,7 +63,7 @@ export default function RestoreInstructorModal({
                         type="button"
                         disabled={submitting}
                         onClick={onClose}
-                        className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-50"
+                        className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-white/5"
                     >
                         Cancel
                     </button>
@@ -88,13 +88,13 @@ export default function RestoreInstructorModal({
                 </div>
             }
         >
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-slate-300">
                 This will mark{" "}
-                <span className="font-semibold text-gray-900">
+                <span className="font-semibold text-gray-900 dark:text-white">
                     {user.first_name} {user.last_name}
                 </span>{" "}
                 ({user.user_id}) as{" "}
-                <span className="font-semibold text-emerald-600">Active</span> and
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400">Active</span> and
                 return them to the active instructor roster.
             </p>
         </Modal>

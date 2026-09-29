@@ -7,7 +7,6 @@ import {
     PhotoIcon,
     TrashIcon,
     XMarkIcon,
-    ExclamationTriangleIcon,
     InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 
@@ -216,7 +215,7 @@ export default function BulkImageUploadPage({ type = "student" }) {
 
                     <Link
                         href={basePath}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
                     >
                         <ArrowLeftIcon className="h-4 w-4" />
                         Back to {entityPlural}
@@ -224,48 +223,48 @@ export default function BulkImageUploadPage({ type = "student" }) {
                 </div>
 
                 {/* Guidelines & Options Card */}
-                <div className="rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 border border-gray-100">
+                <div className="rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 border border-gray-100 dark:border-white/5 dark:bg-[#12131C]">
                     <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
                             <InformationCircleIcon className="h-6 w-6" />
                         </div>
                         <div className="flex-1">
-                            <h2 className="text-base font-bold text-gray-900">
+                            <h2 className="text-base font-bold text-gray-900 dark:text-white">
                                 Instructions & File Naming
                             </h2>
-                            <p className="mt-1 text-sm text-gray-600 leading-relaxed">
+                            <p className="mt-1 text-sm text-gray-600 leading-relaxed dark:text-slate-300">
                                 Image file names must be formatted strictly by {entityLabel} User ID like{" "}
-                                <strong className="text-gray-900 font-mono">C-0000-0000</strong> or{" "}
-                                <strong className="text-gray-900 font-mono">0000-0000</strong> so they can be matched
+                                <strong className="text-gray-900 font-mono dark:text-white">C-0000-0000</strong> or{" "}
+                                <strong className="text-gray-900 font-mono dark:text-white">0000-0000</strong> so they can be matched
                                 with existing users in the system.
                             </p>
 
                             <div className="mt-3 flex flex-wrap gap-2 text-xs font-mono">
-                                <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-blue-700 border border-blue-100 font-semibold">
+                                <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-blue-700 border border-blue-100 font-semibold dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">
                                     Format: C-0000-0000 (e.g. C-2022-0138.jpg)
                                 </span>
-                                <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-blue-700 border border-blue-100 font-semibold">
+                                <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-blue-700 border border-blue-100 font-semibold dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">
                                     Format: 0000-0000 (e.g. 2022-0138.png)
                                 </span>
-                                <span className="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1 text-gray-600 border border-gray-200">
+                                <span className="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1 text-gray-600 border border-gray-200 dark:bg-white/5 dark:text-slate-400 dark:border-white/10">
                                     Formats: JPG, JPEG, PNG, WEBP (Max 5MB each)
                                 </span>
                             </div>
 
                             {/* Overwrite Checkbox */}
-                            <div className="mt-4 pt-3 border-t border-gray-100">
-                                <label className="inline-flex items-center gap-2 cursor-pointer text-sm text-gray-700 select-none">
+                            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/5">
+                                <label className="inline-flex items-center gap-2 cursor-pointer text-sm text-gray-700 select-none dark:text-slate-300">
                                     <input
                                         type="checkbox"
                                         checked={overwrite}
                                         onChange={(e) => setOverwrite(e.target.checked)}
-                                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-white/20 dark:bg-[#161724]"
                                     />
                                     <span className="font-medium">
                                         Overwrite existing profile photos
                                     </span>
                                 </label>
-                                <p className="ml-6 text-xs text-gray-500">
+                                <p className="ml-6 text-xs text-gray-500 dark:text-slate-400">
                                     If checked, users who already have an image will have it replaced. Otherwise, existing photos are preserved.
                                 </p>
                             </div>
@@ -274,7 +273,7 @@ export default function BulkImageUploadPage({ type = "student" }) {
                 </div>
 
                 {/* Dropzone & Preview Card */}
-                <div className="rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 border border-gray-100 space-y-5">
+                <div className="rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 border border-gray-100 dark:border-white/5 dark:bg-[#12131C] space-y-5">
                     {/* Drag & Drop Area */}
                     <div
                         onDragOver={(e) => {
@@ -286,8 +285,8 @@ export default function BulkImageUploadPage({ type = "student" }) {
                         onClick={() => fileInputRef.current?.click()}
                         className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center ${
                             isDragging
-                                ? "border-blue-500 bg-blue-50/50"
-                                : "border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-blue-300"
+                                ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/30"
+                                : "border-gray-200 bg-gray-50/50 hover:bg-gray-50 hover:border-blue-300 dark:border-white/10 dark:bg-[#161724]/40 dark:hover:bg-[#161724] dark:hover:border-blue-500/50"
                         }`}
                     >
                         <input
@@ -299,14 +298,14 @@ export default function BulkImageUploadPage({ type = "student" }) {
                             onChange={handleFileChange}
                         />
 
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 mb-3">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 mb-3">
                             <CloudArrowUpIcon className="h-8 w-8" />
                         </div>
 
-                        <p className="text-sm font-semibold text-gray-700">
+                        <p className="text-sm font-semibold text-gray-700 dark:text-slate-200">
                             Click to select or drag and drop image files
                         </p>
-                        <p className="mt-1 text-xs text-gray-500">
+                        <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
                             Select multiple images at once (named as C-0000-0000 or 0000-0000)
                         </p>
                     </div>
@@ -314,19 +313,19 @@ export default function BulkImageUploadPage({ type = "student" }) {
                     {/* Previews Grid */}
                     {selectedFiles.length > 0 && (
                         <div className="space-y-4 pt-2">
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 dark:border-white/5 pb-3">
                                 <div>
                                     <div className="flex items-center gap-2">
-                                        <h3 className="text-sm font-bold text-gray-800">
+                                        <h3 className="text-sm font-bold text-gray-800 dark:text-white">
                                             Selected Images ({selectedFiles.length})
                                         </h3>
                                         {invalidFormatCount > 0 && (
-                                            <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">
+                                            <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/30">
                                                 {invalidFormatCount} invalid ID format
                                             </span>
                                         )}
                                     </div>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-gray-500 dark:text-slate-400">
                                         Total size: {formatBytes(totalSizeBytes)}
                                     </p>
                                 </div>
@@ -353,11 +352,11 @@ export default function BulkImageUploadPage({ type = "student" }) {
                                             key={`${file.name}-${index}`}
                                             className={`group relative rounded-lg border overflow-hidden shadow-sm hover:shadow transition ${
                                                 isValidFormat
-                                                    ? "border-gray-200 bg-white"
-                                                    : "border-amber-400 bg-amber-50/20"
+                                                    ? "border-gray-200 bg-white dark:border-white/10 dark:bg-[#161724]"
+                                                    : "border-amber-400 bg-amber-50/20 dark:border-amber-500/40 dark:bg-amber-950/20"
                                             }`}
                                         >
-                                            <div className="relative aspect-square w-full bg-gray-100">
+                                            <div className="relative aspect-square w-full bg-gray-100 dark:bg-[#1a1b2e]">
                                                 {previewUrl ? (
                                                     <img
                                                         src={previewUrl}
@@ -365,7 +364,7 @@ export default function BulkImageUploadPage({ type = "student" }) {
                                                         className="h-full w-full object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="flex h-full w-full items-center justify-center text-gray-300">
+                                                    <div className="flex h-full w-full items-center justify-center text-gray-300 dark:text-slate-600">
                                                         <PhotoIcon className="h-8 w-8" />
                                                     </div>
                                                 )}
@@ -385,7 +384,7 @@ export default function BulkImageUploadPage({ type = "student" }) {
                                                 <div className="flex items-center justify-between gap-1">
                                                     <p
                                                         className={`truncate text-xs font-mono font-bold ${
-                                                            isValidFormat ? "text-gray-800" : "text-amber-800"
+                                                            isValidFormat ? "text-gray-800 dark:text-slate-200" : "text-amber-800 dark:text-amber-300"
                                                         }`}
                                                         title={userId}
                                                     >
@@ -393,7 +392,7 @@ export default function BulkImageUploadPage({ type = "student" }) {
                                                     </p>
                                                     {!isValidFormat && (
                                                         <span
-                                                            className="shrink-0 rounded bg-amber-100 px-1 py-0.2 text-[9px] font-semibold text-amber-800"
+                                                            className="shrink-0 rounded bg-amber-100 px-1 py-0.2 text-[9px] font-semibold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
                                                             title="Must be formatted as C-0000-0000 or 0000-0000"
                                                         >
                                                             Invalid ID
@@ -401,7 +400,7 @@ export default function BulkImageUploadPage({ type = "student" }) {
                                                     )}
                                                 </div>
                                                 <p
-                                                    className="truncate text-[10px] text-gray-400"
+                                                    className="truncate text-[10px] text-gray-400 dark:text-slate-400"
                                                     title={file.name}
                                                 >
                                                     {formatBytes(file.size)}
@@ -413,7 +412,7 @@ export default function BulkImageUploadPage({ type = "student" }) {
                             </div>
 
                             {/* Submit Button */}
-                            <div className="flex justify-end pt-4 border-t border-gray-100">
+                            <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-white/5">
                                 <Button
                                     type="button"
                                     onClick={handleUpload}

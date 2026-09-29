@@ -5,19 +5,19 @@ import Button from "@/Components/UI/Button";
 const fallback = "N/A";
 
 const ReviewItem = ({ label, value }) => (
-    <div className="rounded-lg bg-gray-50 px-4 py-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+    <div className="rounded-lg bg-gray-50 px-4 py-3 dark:bg-white/5">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-400">
             {label}
         </p>
-        <p className="mt-1 wrap-break-word text-sm font-semibold text-gray-900">
+        <p className="mt-1 wrap-break-word text-sm font-semibold text-gray-900 dark:text-white">
             {value || fallback}
         </p>
     </div>
 );
 
 const ReviewGroup = ({ title, children }) => (
-    <div className="rounded-xl border border-gray-100 bg-white p-4">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">
+    <div className="rounded-xl border border-gray-100 bg-white p-4 dark:border-white/5 dark:bg-[#161724]">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-slate-400">
             {title}
         </h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -47,18 +47,18 @@ export default function StudentRegistrationReview({
     const isExisting = registrationType === "existing";
 
     return (
-        <section className="rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-700">
+        <section className="rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+            <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-white/10">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400">
                     <CheckCircleIcon className="h-6 w-6" />
                 </div>
                 <div>
-                    <h1 className="text-lg font-bold text-gray-900">
+                    <h1 className="text-lg font-bold text-gray-900 dark:text-white">
                         {registrationType === "edit"
                             ? "Review Student Updates"
                             : "Review Registration"}
                     </h1>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-gray-400 dark:text-slate-400">
                         {registrationType === "edit"
                             ? "Confirm the updated student information before saving."
                             : "Confirm the student information before submitting."}
@@ -110,8 +110,8 @@ export default function StudentRegistrationReview({
                     </ReviewGroup>
                 </div>
 
-                <div className="h-fit rounded-xl bg-gray-50 p-4">
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <div className="h-fit rounded-xl bg-gray-50 p-4 dark:bg-white/5">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-400">
                         Profile Image
                     </p>
                     {imagePreview ? (
@@ -121,7 +121,7 @@ export default function StudentRegistrationReview({
                             className="aspect-square w-full rounded-xl object-cover"
                         />
                     ) : (
-                        <div className="flex aspect-square w-full items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white px-4 text-center text-sm font-medium text-gray-400">
+                        <div className="flex aspect-square w-full items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white px-4 text-center text-sm font-medium text-gray-400 dark:border-white/10 dark:bg-[#161724] dark:text-slate-500">
                             {isExisting
                                 ? "Existing account image will be used if available."
                                 : "No image selected."}
@@ -130,7 +130,7 @@ export default function StudentRegistrationReview({
                 </div>
             </div>
 
-            <div className="mt-6 flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end">
+            <div className="mt-6 flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end dark:border-white/10">
                 <Button type="button" variant="outline" onClick={onBack}>
                     Back
                 </Button>

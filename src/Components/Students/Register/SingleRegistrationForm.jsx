@@ -44,9 +44,9 @@ export default function SingleRegistrationForm({
                     : "grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]"
             }
         >
-            <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5">
-                <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+            <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-white/10">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                         {registrationType === "edit" ? (
                             <PencilSquareIcon className="h-6 w-6" />
                         ) : (
@@ -54,12 +54,12 @@ export default function SingleRegistrationForm({
                         )}
                     </div>
                     <div>
-                        <h1 className="text-lg font-bold text-gray-900">
+                        <h1 className="text-lg font-bold text-gray-900 dark:text-white">
                             {registrationType === "edit"
                                 ? "Edit Student Information"
                                 : "Student Registration"}
                         </h1>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-gray-400 dark:text-slate-400">
                             {registrationType === "edit"
                                 ? "Update the student personal and academic details."
                                 : existingStudent
@@ -70,7 +70,7 @@ export default function SingleRegistrationForm({
                 </div>
 
                 <div>
-                    <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500">
+                    <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-slate-400">
                         Personal Information
                     </h2>
                     <div className="grid gap-4 md:grid-cols-2">
@@ -112,7 +112,7 @@ export default function SingleRegistrationForm({
                                         buttonClassName={
                                             fieldErrors.sex?.[0]
                                                 ? "border border-red-500 bg-red-50/20"
-                                                : "border border-gray-200/80 bg-white"
+                                                : "border border-gray-200/80 bg-white dark:border-white/10 dark:bg-[#161724] dark:text-white"
                                         }
                                     />
                                     {renderError("sex")}
@@ -167,7 +167,7 @@ export default function SingleRegistrationForm({
                 </div>
 
                 <div>
-                    <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500">
+                    <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-slate-400">
                         Academic Information
                     </h2>
                     <div className="grid gap-4 md:grid-cols-2">
@@ -187,7 +187,7 @@ export default function SingleRegistrationForm({
                                 buttonClassName={
                                     fieldErrors.department_id?.[0]
                                         ? "border border-red-500 bg-red-50/20"
-                                        : "border border-gray-200/80 bg-white"
+                                        : "border border-gray-200/80 bg-white dark:border-white/10 dark:bg-[#161724] dark:text-white"
                                 }
                             />
                             {renderError("department_id")}
@@ -204,7 +204,7 @@ export default function SingleRegistrationForm({
                                 buttonClassName={
                                     fieldErrors.program_id?.[0]
                                         ? "border border-red-500 bg-red-50/20"
-                                        : "border border-gray-200/80 bg-white"
+                                        : "border border-gray-200/80 bg-white dark:border-white/10 dark:bg-[#161724] dark:text-white"
                                 }
                             />
                             {renderError("program_id")}
@@ -221,7 +221,7 @@ export default function SingleRegistrationForm({
                                 buttonClassName={
                                     fieldErrors.year?.[0]
                                         ? "border border-red-500 bg-red-50/20"
-                                        : "border border-gray-200/80 bg-white"
+                                        : "border border-gray-200/80 bg-white dark:border-white/10 dark:bg-[#161724] dark:text-white"
                                 }
                             />
                             {renderError("year")}
@@ -238,7 +238,7 @@ export default function SingleRegistrationForm({
                                 buttonClassName={
                                     fieldErrors.block?.[0]
                                         ? "border border-red-500 bg-red-50/20"
-                                        : "border border-gray-200/80 bg-white"
+                                        : "border border-gray-200/80 bg-white dark:border-white/10 dark:bg-[#161724] dark:text-white"
                                 }
                             />
                             {renderError("block")}
@@ -256,7 +256,7 @@ export default function SingleRegistrationForm({
                                     buttonClassName={
                                         fieldErrors.status?.[0]
                                             ? "border border-red-500 bg-red-50/20"
-                                            : "border border-gray-200/80 bg-white"
+                                            : "border border-gray-200/80 bg-white dark:border-white/10 dark:bg-[#161724] dark:text-white"
                                     }
                                 />
                                 {renderError("status")}
@@ -265,7 +265,7 @@ export default function SingleRegistrationForm({
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end">
+                <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end dark:border-white/10">
                     {onBack && (
                         <Button type="button" variant="outline" onClick={onBack}>
                             Back

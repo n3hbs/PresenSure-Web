@@ -15,6 +15,7 @@ import MainLayout from "@/Components/Layout/MainLayout";
 import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import DataTable from "@/Components/UI/DataTable";
 import Modal from "@/Components/UI/Modal";
+import StatCard from "@/Components/UI/StatCard";
 import api from "@/Services/api";
 import { getAuthToken } from "@/Services/auth";
 import { departmentsQueryKey, activeStudentsQueryKey } from "@/Services/queryKeys";
@@ -25,35 +26,6 @@ const getCollection = (response) => {
     if (Array.isArray(response?.data?.data)) return response.data.data;
     if (Array.isArray(response?.data)) return response.data;
     return [];
-};
-
-const StatCard = ({ icon: Icon, label, value, tone = "blue" }) => {
-    const tones = {
-        blue: "bg-blue-50 text-blue-700",
-        green: "bg-green-50 text-green-700",
-        purple: "bg-purple-50 text-purple-700",
-        gray: "bg-gray-100 text-gray-600",
-    };
-
-    return (
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-2xs">
-            <div className="flex items-center gap-4">
-                <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-xl ${
-                        tones[tone] || tones.blue
-                    }`}
-                >
-                    <Icon className="h-6 w-6" />
-                </div>
-                <div>
-                    <p className="text-2xl font-bold tracking-tight text-gray-900">
-                        {value}
-                    </p>
-                    <p className="text-xs font-medium text-gray-500">{label}</p>
-                </div>
-            </div>
-        </div>
-    );
 };
 
 export default function ProgramsIndex() {
@@ -210,13 +182,13 @@ export default function ProgramsIndex() {
     const columns = [
         {
             key: "program_code",
-            title: "Program Code",
-            render: (_, row) => (
+            header: "Program Code",
+            render: (row) => (
                 <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
+                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
                         {row.program_code}
                     </span>
-                    <span className="text-xs text-gray-400">#{row.program_id}</span>
+                    <span className="text-xs text-gray-400 dark:text-slate-500">#{row.program_id}</span>
                 </div>
             ),
             sorter: (a, b) =>
@@ -224,13 +196,13 @@ export default function ProgramsIndex() {
         },
         {
             key: "program_name",
-            title: "Program Name & Degree",
-            render: (_, row) => (
+            header: "Program Name & Degree",
+            render: (row) => (
                 <div>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
                         {row.program_name}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-400 dark:text-slate-400">
                         {row.program_years || 4}-Year Degree Curriculum
                     </p>
                 </div>
@@ -240,17 +212,17 @@ export default function ProgramsIndex() {
         },
         {
             key: "department",
-            title: "Department",
-            render: (_, row) => (
+            header: "Department",
+            render: (row) => (
                 <Link
                     href={`/departments/department-details?department_id=${row.department_id}`}
                     className="group inline-flex items-center gap-1.5"
                     title={`View ${row.department_name}`}
                 >
-                    <span className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-700 group-hover:bg-blue-50 group-hover:text-blue-700 transition">
+                    <span className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-700 group-hover:bg-blue-50 group-hover:text-blue-700 transition dark:bg-white/5 dark:text-slate-300 dark:group-hover:bg-blue-900/30 dark:group-hover:text-blue-400">
                         {row.department_code}
                     </span>
-                    <span className="text-xs text-gray-500 group-hover:text-blue-600 transition truncate max-w-xs">
+                    <span className="text-xs text-gray-500 group-hover:text-blue-600 transition truncate max-w-xs dark:text-slate-400 dark:group-hover:text-blue-400">
                         {row.department_name}
                     </span>
                 </Link>
@@ -260,10 +232,10 @@ export default function ProgramsIndex() {
         },
         {
             key: "students_count",
-            title: "Enrolled Students",
-            render: (_, row) => (
-                <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 border border-gray-100">
-                    <UserGroupIcon className="h-3.5 w-3.5 text-blue-600" />
+            header: "Enrolled Students",
+            render: (row) => (
+                <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 border border-gray-100 dark:bg-white/5 dark:text-slate-300 dark:border-white/5">
+                    <UserGroupIcon className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                     <span>{row.students_count ?? 0} Students</span>
                 </span>
             ),
@@ -271,13 +243,13 @@ export default function ProgramsIndex() {
         },
         {
             key: "actions",
-            title: "Actions",
+            header: "Actions",
             align: "right",
-            render: (_, row) => (
+            render: (row) => (
                 <div className="flex items-center justify-end gap-2">
                     <Link
                         href={`/departments/department-details?department_id=${row.department_id}`}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition dark:text-blue-400 dark:hover:text-blue-300"
                     >
                         <span>Details</span>
                         <ArrowRightIcon className="h-3 w-3" />
@@ -285,7 +257,7 @@ export default function ProgramsIndex() {
                     {(hasRole("administrator") || can("departments.manage")) && (
                         <Link
                             href={`/departments/edit?department_id=${row.department_id}`}
-                            className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-medium text-gray-600 shadow-2xs hover:bg-gray-50 hover:text-blue-600 transition"
+                            className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-medium text-gray-600 shadow-2xs hover:bg-gray-50 hover:text-blue-600 transition dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-blue-400"
                             title="Edit program under its parent department"
                         >
                             <span>Edit via Dept</span>
@@ -351,17 +323,17 @@ export default function ProgramsIndex() {
                 </div>
 
                 {/* Filter and Search Bar */}
-                <div className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-2xs sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-2xs dark:border-white/5 dark:bg-[#12131C] sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
                         {/* Search Input */}
                         <div className="relative flex-1">
-                            <MagnifyingGlassIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                            <MagnifyingGlassIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
                             <input
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search by program code, title, or department..."
-                                className="h-10 w-full rounded-lg border border-gray-200 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                className="h-10 w-full rounded-lg border border-gray-200 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-[#161724] dark:text-white dark:placeholder-slate-500"
                             />
                         </div>
 
@@ -370,7 +342,7 @@ export default function ProgramsIndex() {
                             <select
                                 value={selectedDeptId}
                                 onChange={(e) => setSelectedDeptId(e.target.value)}
-                                className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-[#161724] dark:text-white"
                             >
                                 <option value="all">All Departments ({departments.length})</option>
                                 {departments.map((dept) => (
@@ -386,7 +358,7 @@ export default function ProgramsIndex() {
                         <button
                             type="button"
                             onClick={() => setSearch("")}
-                            className="text-xs font-semibold text-gray-500 hover:text-blue-600 transition"
+                            className="text-xs font-semibold text-gray-500 hover:text-blue-600 transition dark:text-slate-400 dark:hover:text-blue-400"
                         >
                             Clear Search
                         </button>
@@ -414,23 +386,23 @@ export default function ProgramsIndex() {
                 onClose={() => setIsAddModalOpen(false)}
                 title="Add Academic Degree Program"
                 description="Degree programs are administered under their parent academic department."
-                icon={<AcademicCapIcon className="h-6 w-6 text-blue-600" />}
-                iconBg="bg-blue-50 text-blue-600"
+                icon={<AcademicCapIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+                iconBg="bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400"
                 maxWidth="md"
             >
                 <div className="space-y-4 pt-2">
-                    <p className="text-xs text-gray-500 leading-relaxed">
+                    <p className="text-xs text-gray-500 leading-relaxed dark:text-slate-400">
                         Select an existing department to add programs to its academic curriculum, or create a brand new department.
                     </p>
 
                     <div>
-                        <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                        <label className="block text-xs font-semibold text-gray-700 mb-1.5 dark:text-slate-300">
                             Target Academic Department
                         </label>
                         <select
                             value={targetDeptId}
                             onChange={(e) => setTargetDeptId(e.target.value)}
-                            className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                            className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-[#161724] dark:text-white"
                         >
                             <option value="">-- Select a department --</option>
                             {departments.map((dept) => (
@@ -441,15 +413,15 @@ export default function ProgramsIndex() {
                         </select>
                     </div>
 
-                    <div className="rounded-lg border border-blue-100 bg-blue-50/50 p-3 text-xs text-blue-700">
+                    <div className="rounded-lg border border-blue-100 bg-blue-50/50 p-3 text-xs text-blue-700 dark:border-blue-900/30 dark:bg-blue-950/30 dark:text-blue-300">
                         💡 <strong>Tip:</strong> In the department editor, you can manage and add degree programs in Step 2 of the form.
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                    <div className="flex flex-col sm:flex-row items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-white/5">
                         <Link
                             href="/departments/create"
                             onClick={() => setIsAddModalOpen(false)}
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
                         >
                             <span>+ Create New Department</span>
                         </Link>

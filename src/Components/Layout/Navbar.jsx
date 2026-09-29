@@ -6,10 +6,13 @@ import {
     ChevronDownIcon,
     DocumentCheckIcon,
     LockClosedIcon,
+    MoonIcon,
     PowerIcon,
+    SunIcon,
 } from "@heroicons/react/24/outline";
 
 import api from "@/Services/api";
+import { useSystemTheme } from "@/Context/SystemThemeContext";
 import {
     getStoredUser,
     getAuthToken,
@@ -123,6 +126,7 @@ const getSchoolYearLabel = (schoolYear) => {
 export default function TopNavbar({ onMenu }) {
     const { url, props } = usePage();
     const queryClient = useQueryClient();
+    const { isDark, toggleTheme } = useSystemTheme();
     const dropdownRef = useRef(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -223,19 +227,19 @@ export default function TopNavbar({ onMenu }) {
     };
 
     return (
-        <header className="relative z-40 flex h-20 items-center justify-between bg-white/95 px-4 shadow-sm shadow-blue-950/5 backdrop-blur md:px-6">
+        <header className="relative z-40 flex h-20 items-center justify-between bg-white/95 dark:bg-[#12131C]/95 border-b border-gray-100 dark:border-white/5 px-4 shadow-sm shadow-blue-950/5 backdrop-blur md:px-6 transition-colors duration-200">
             <div className="flex min-w-0 items-center gap-3">
                 <button
                     type="button"
                     onClick={onMenu}
-                    className="rounded-full p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-700"
+                    className="rounded-full p-2 text-gray-500 dark:text-slate-300 transition hover:bg-blue-50 dark:hover:bg-white/10 hover:text-blue-700 dark:hover:text-white"
                     aria-label="Toggle sidebar"
                 >
                     <Bars3Icon className="h-6 w-6" />
                 </button>
 
                 <div className="min-w-0">
-                    <h2 className="truncate text-xl font-bold text-gray-900">
+                    <h2 className="truncate text-xl font-bold text-gray-900 dark:text-white">
                         {pageTitle} Management
                     </h2>
                 </div>
@@ -246,17 +250,17 @@ export default function TopNavbar({ onMenu }) {
                 <div className="hidden text-right sm:block sm:pr-4">
                     {isAcademicLoading ? (
                         <div className="flex flex-col items-end gap-1 animate-pulse">
-                            <div className="h-3.5 w-24 rounded bg-gray-100" />
-                            <div className="h-4 w-36 rounded bg-gray-100" />
+                            <div className="h-3.5 w-24 rounded bg-gray-100 dark:bg-white/10" />
+                            <div className="h-4 w-36 rounded bg-gray-100 dark:bg-white/10" />
                         </div>
                     ) : (
                         <div>
                             {schoolYearLabel && (
-                                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-400">
                                     {schoolYearLabel}
                                 </p>
                             )}
-                            <p className="text-sm font-semibold text-gray-800">
+                            <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                                 {semesterAndPeriod || "No active semester"}
                             </p>
                         </div>
@@ -265,7 +269,7 @@ export default function TopNavbar({ onMenu }) {
 
                 {/* Vertical Separator between Academic Info and Profile */}
                 <div
-                    className="hidden h-8 w-px bg-gray-200 sm:block sm:mx-3"
+                    className="hidden h-8 w-px bg-gray-200 dark:bg-white/10 sm:block sm:mx-3"
                     aria-hidden="true"
                 />
 
@@ -275,8 +279,8 @@ export default function TopNavbar({ onMenu }) {
                         onClick={() => setDropdownOpen((open) => !open)}
                         className={`flex items-center gap-2.5 rounded-2xl p-1.5 pr-3 transition-all ${
                             dropdownOpen
-                                ? "bg-blue-50/90 ring-1 ring-blue-200 shadow-2xs"
-                                : "hover:bg-blue-50/60"
+                                ? "bg-blue-50/90 dark:bg-white/10 ring-1 ring-blue-200 dark:ring-white/10 shadow-2xs"
+                                : "hover:bg-blue-50/60 dark:hover:bg-white/5"
                         }`}
                         aria-expanded={dropdownOpen}
                     >
@@ -285,32 +289,32 @@ export default function TopNavbar({ onMenu }) {
                         </div>
 
                         <div className="hidden min-w-0 text-left md:block">
-                            <p className="max-w-36 truncate text-sm font-semibold text-gray-800">
+                            <p className="max-w-36 truncate text-sm font-semibold text-gray-800 dark:text-slate-200">
                                 {userName}
                             </p>
-                            <p className="text-xs capitalize text-gray-400">
+                            <p className="text-xs capitalize text-gray-400 dark:text-slate-400">
                                 {role}
                             </p>
                         </div>
 
                         <ChevronDownIcon
-                            className={`hidden h-4 w-4 text-gray-400 transition-transform md:block ${
+                            className={`hidden h-4 w-4 text-gray-400 dark:text-slate-400 transition-transform md:block ${
                                 dropdownOpen ? "rotate-180" : ""
                             }`}
                         />
                     </button>
 
                     {dropdownOpen && (
-                        <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-2xl bg-white p-2 shadow-2xl shadow-blue-950/15 border border-gray-100 ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1 duration-150">
-                            <div className="flex items-center gap-3 rounded-xl bg-blue-50/60 px-3 py-2.5 mb-1.5 border border-blue-100/60">
+                        <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-2xl bg-white dark:bg-[#161724] p-2 shadow-2xl shadow-blue-950/15 border border-gray-100 dark:border-white/10 ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1 duration-150">
+                            <div className="flex items-center gap-3 rounded-xl bg-blue-50/60 dark:bg-white/5 px-3 py-2.5 mb-1.5 border border-blue-100/60 dark:border-white/10">
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white shadow-sm shadow-blue-200">
                                     {getInitials(userName)}
                                 </div>
                                 <div className="min-w-0 flex-1 text-left">
-                                    <p className="truncate text-sm font-bold text-gray-900">
+                                    <p className="truncate text-sm font-bold text-gray-900 dark:text-white">
                                         {userName}
                                     </p>
-                                    <p className="truncate text-xs font-semibold text-blue-600 capitalize">
+                                    <p className="truncate text-xs font-semibold text-blue-600 dark:text-blue-400 capitalize">
                                         {role}
                                     </p>
                                 </div>
@@ -318,40 +322,65 @@ export default function TopNavbar({ onMenu }) {
 
                             {/* Academic Period & School Year on Mobile */}
                             {(semesterAndPeriod || schoolYearLabel) && (
-                                <div className="border-y border-gray-100 px-3 py-2.5 sm:hidden">
+                                <div className="border-y border-gray-100 dark:border-white/10 px-3 py-2.5 sm:hidden">
                                     {schoolYearLabel && (
-                                        <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-400">
                                             {schoolYearLabel}
                                         </p>
                                     )}
-                                    <p className="mt-0.5 text-xs font-semibold text-gray-800">
+                                    <p className="mt-0.5 text-xs font-semibold text-gray-800 dark:text-slate-200">
                                         {semesterAndPeriod}
                                     </p>
                                 </div>
                             )}
 
+                            {/* Dark / Light Mode Switch */}
                             <button
                                 type="button"
-                                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-blue-50 hover:text-blue-700"
+                                onClick={toggleTheme}
+                                className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 dark:text-slate-200 transition hover:bg-blue-50 dark:hover:bg-white/5 hover:text-blue-700 dark:hover:text-white"
                             >
-                                <LockClosedIcon className="h-4 w-4 text-gray-400" />
+                                <div className="flex items-center gap-2.5">
+                                    {isDark ? (
+                                        <SunIcon className="h-4 w-4 text-white" />
+                                    ) : (
+                                        <MoonIcon className="h-4 w-4 text-gray-400 dark:text-slate-400" />
+                                    )}
+                                    <span>{isDark ? "Light Mode" : "Dark Mode"}</span>
+                                </div>
+                                <span
+                                    className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-wide ${
+                                        isDark
+                                            ? "bg-amber-400/10 text-white"
+                                            : "bg-gray-100 text-gray-600"
+                                    }`}
+                                >
+                                    {isDark ? "Dark" : "Light"}
+                                </span>
+                            </button>
+
+                            <button
+                                type="button"
+                                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 dark:text-slate-200 transition hover:bg-blue-50 dark:hover:bg-white/5 hover:text-blue-700 dark:hover:text-white"
+                            >
+                                <LockClosedIcon className="h-4 w-4 text-gray-400 dark:text-slate-400" />
                                 Change Password
                             </button>
 
                             <button
                                 type="button"
-                                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-blue-50 hover:text-blue-700"
+                                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 dark:text-slate-200 transition hover:bg-blue-50 dark:hover:bg-white/5 hover:text-blue-700 dark:hover:text-white"
                             >
-                                <DocumentCheckIcon className="h-4 w-4 text-gray-400" />
+                                <DocumentCheckIcon className="h-4 w-4 text-gray-400 dark:text-slate-400" />
                                 Policy
                             </button>
 
-                            <div className="my-1 border-t border-gray-100" />
+                            <div className="my-1 border-t border-gray-100 dark:border-white/10" />
 
                             <button
                                 type="button"
                                 onClick={handleLogout}
-                                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-600 dark:text-red-400 transition hover:bg-red-50 dark:hover:bg-red-500/10"
                             >
                                 <PowerIcon className="h-4 w-4 text-red-500" />
                                 Log Out

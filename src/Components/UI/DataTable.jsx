@@ -57,14 +57,14 @@ export default function DataTable({
     const skeletonRows = Array.from({ length: pageSizeOptions[0] || 5 });
 
     return (
-        <section className="rounded-xl bg-white p-4 shadow-sm shadow-blue-950/5">
+        <section className="rounded-xl bg-white dark:bg-[#12131C] p-4 shadow-sm shadow-blue-950/5 border border-transparent dark:border-white/5 transition-colors duration-200">
             {(sortOptions.length > 0 || pageSizeOptions.length > 0) && (
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <p className="text-sm font-semibold text-gray-900">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
                             Showing {sortedData.length} records
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-gray-400 dark:text-slate-400">
                             Sort and page controls are reusable per table.
                         </p>
                     </div>
@@ -101,11 +101,11 @@ export default function DataTable({
             <div className="overflow-x-auto">
                 <table className="min-w-full table-fixed">
                     <thead>
-                        <tr className="bg-blue-50 text-left">
+                        <tr className="bg-blue-50 dark:bg-white/5 text-left">
                             {columns.map((column) => (
                                 <th
                                     key={column.key}
-                                    className={`px-4 py-3 text-xs font-bold uppercase tracking-wide text-blue-700 first:rounded-l-2xl last:rounded-r-2xl ${
+                                    className={`px-4 py-3 text-xs font-bold uppercase tracking-wide text-blue-700 dark:text-blue-400 first:rounded-l-2xl last:rounded-r-2xl ${
                                         column.className || ""
                                     }`}
                                     style={{
@@ -113,13 +113,13 @@ export default function DataTable({
                                         minWidth: column.minWidth,
                                     }}
                                 >
-                                    {column.header}
+                                    {column.header || column.title || column.label}
                                 </th>
                             ))}
                         </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                         {loading &&
                             skeletonRows.map((_, rowIndex) => (
                                 <tr key={rowIndex}>
@@ -128,7 +128,7 @@ export default function DataTable({
                                             key={column.key}
                                             className="px-4 py-4"
                                         >
-                                            <div className="h-4 w-full animate-pulse rounded-full bg-gray-100" />
+                                            <div className="h-4 w-full animate-pulse rounded-full bg-gray-100 dark:bg-white/5" />
                                         </td>
                                     ))}
                                 </tr>
@@ -138,12 +138,12 @@ export default function DataTable({
                             visibleRows.map((row, rowIndex) => (
                                 <tr
                                     key={getRowKey(row, rowIndex)}
-                                    className="transition hover:bg-blue-50/40"
+                                    className="transition hover:bg-blue-50/40 dark:hover:bg-white/5"
                                 >
                                     {columns.map((column) => (
                                         <td
                                             key={column.key}
-                                            className={`px-4 py-4 text-sm text-gray-600 ${
+                                            className={`px-4 py-4 text-sm text-gray-700 dark:text-slate-200 ${
                                                 column.cellClassName || ""
                                             }`}
                                             style={{
@@ -152,8 +152,8 @@ export default function DataTable({
                                             }}
                                         >
                                             {column.render
-                                                ? column.render(row, rowIndex)
-                                                : row[column.key] || "N/A"}
+                                                ? column.render(row, rowIndex, row)
+                                                : (row[column.key] ?? "N/A")}
                                         </td>
                                     ))}
                                 </tr>
@@ -164,7 +164,7 @@ export default function DataTable({
 
             {!loading && sortedData.length === 0 && (
                 <div className="py-12 text-center">
-                    <p className="text-sm font-medium text-gray-500">
+                    <p className="text-sm font-medium text-gray-500 dark:text-slate-400">
                         {emptyMessage}
                     </p>
                 </div>
@@ -172,7 +172,7 @@ export default function DataTable({
 
             {!loading && sortedData.length > 0 && (
                 <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-gray-400 dark:text-slate-400">
                         Page {currentPage} of {totalPages}
                     </p>
 
@@ -181,7 +181,7 @@ export default function DataTable({
                             type="button"
                             onClick={() => setPage((value) => value - 1)}
                             disabled={currentPage === 1}
-                            className="inline-flex h-9 items-center gap-2 rounded-xl bg-gray-100 px-3 text-sm font-medium text-gray-600 transition hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="inline-flex h-9 items-center gap-2 rounded-xl bg-gray-100 dark:bg-white/5 px-3 text-sm font-medium text-gray-600 dark:text-slate-300 transition hover:bg-blue-50 dark:hover:bg-white/10 hover:text-blue-700 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             <ChevronLeftIcon className="h-4 w-4" />
                             Prev
@@ -191,7 +191,7 @@ export default function DataTable({
                             type="button"
                             onClick={() => setPage((value) => value + 1)}
                             disabled={currentPage === totalPages}
-                            className="inline-flex h-9 items-center gap-2 rounded-xl bg-gray-100 px-3 text-sm font-medium text-gray-600 transition hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="inline-flex h-9 items-center gap-2 rounded-xl bg-gray-100 dark:bg-white/5 px-3 text-sm font-medium text-gray-600 dark:text-slate-300 transition hover:bg-blue-50 dark:hover:bg-white/10 hover:text-blue-700 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             Next
                             <ChevronRightIcon className="h-4 w-4" />

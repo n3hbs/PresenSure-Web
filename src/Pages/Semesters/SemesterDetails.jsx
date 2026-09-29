@@ -238,31 +238,31 @@ export default function SemesterDetails({ semesterId: propSemId }) {
             {/* Loading Skeleton */}
             {isLoading ? (
                 <div className="space-y-6">
-                    <div className="rounded-2xl border border-gray-200/80 bg-white p-6 sm:p-8 shadow-sm shadow-blue-950/5 animate-pulse">
+                    <div className="rounded-2xl border border-gray-200/80 dark:border-white/5 bg-white dark:bg-[#12131C] p-6 sm:p-8 shadow-sm shadow-blue-950/5 animate-pulse">
                         <div className="space-y-4">
                             <div className="flex gap-2">
-                                <div className="h-6 w-24 rounded-full bg-gray-100" />
-                                <div className="h-6 w-20 rounded-full bg-gray-100" />
+                                <div className="h-6 w-24 rounded-full bg-gray-100 dark:bg-white/10" />
+                                <div className="h-6 w-20 rounded-full bg-gray-100 dark:bg-white/10" />
                             </div>
-                            <div className="h-8 w-64 rounded bg-gray-100" />
-                            <div className="h-5 w-96 rounded bg-gray-100" />
+                            <div className="h-8 w-64 rounded bg-gray-100 dark:bg-white/10" />
+                            <div className="h-5 w-96 rounded bg-gray-100 dark:bg-white/10" />
                         </div>
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="h-44 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 animate-pulse border border-gray-100" />
+                            <div key={i} className="h-44 rounded-xl bg-white dark:bg-[#12131C] p-5 shadow-sm shadow-blue-950/5 animate-pulse border border-gray-100 dark:border-white/5" />
                         ))}
                     </div>
                 </div>
             ) : !semester ? (
-                <section className="rounded-xl bg-white p-8 text-center shadow-sm shadow-blue-950/5">
-                    <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-300" />
-                    <p className="mt-3 text-sm font-semibold text-gray-700">
+                <section className="rounded-xl bg-white dark:bg-[#12131C] border border-transparent dark:border-white/5 p-8 text-center shadow-sm shadow-blue-950/5 transition-colors duration-200">
+                    <CalendarDaysIcon className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
+                    <p className="mt-3 text-sm font-semibold text-gray-700 dark:text-white">
                         Semester not found.
                     </p>
                     <Link
                         href="/semesters"
-                        className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
+                        className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
                     >
                         <ArrowLeftIcon className="h-4 w-4" />
                         Back to Semesters
@@ -271,50 +271,50 @@ export default function SemesterDetails({ semesterId: propSemId }) {
             ) : (
                 <div className="space-y-6">
                     {/* Primary Overview Container (Maximized Full-Width Layout) */}
-                    <section className="rounded-2xl border border-gray-200/80 bg-white p-6 sm:p-8 shadow-sm shadow-blue-950/5">
+                    <section className="rounded-2xl border border-gray-200/80 dark:border-white/5 bg-white dark:bg-[#12131C] p-6 sm:p-8 shadow-sm shadow-blue-950/5 transition-colors duration-200">
                         {/* Top Row: Title, Badges, and Academic Year */}
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-6">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-gray-100 dark:border-white/5 pb-6">
                             <div className="space-y-2">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 border border-blue-200/70">
+                                    <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-400 border border-blue-200/70 dark:border-blue-500/20">
                                         {semester.term}
                                     </span>
 
                                     {semester.is_active ? (
-                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200/70">
+                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-500/20">
                                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                             Active Semester
                                         </span>
                                     ) : (
-                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 border border-gray-200">
+                                        <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-white/10 px-3 py-1 text-xs font-medium text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-white/10">
                                             {(semester.status || "Inactive").charAt(0).toUpperCase() +
                                                 (semester.status || "Inactive").slice(1)}
                                         </span>
                                     )}
 
                                     {semester.active_period && (
-                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700 border border-teal-200/70">
+                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 dark:bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-700 dark:text-teal-400 border border-teal-200/70 dark:border-teal-500/20">
                                             <span className="h-1.5 w-1.5 rounded-full bg-teal-500 animate-pulse" />
                                             Active Period: {semester.active_period.name.charAt(0).toUpperCase() + semester.active_period.name.slice(1)}
                                         </span>
                                     )}
                                 </div>
 
-                                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                                <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
                                     {semester.term}
                                 </h1>
                             </div>
 
                             {/* Academic Year Badge / Box */}
-                            <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3 border border-gray-100 shrink-0">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
+                            <div className="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-white/5 px-4 py-3 border border-gray-100 dark:border-white/5 shrink-0">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400">
                                     <AcademicCapIcon className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                                    <p className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-slate-400">
                                         Academic Year
                                     </p>
-                                    <p className="text-sm font-bold text-gray-900">
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white">
                                         A.Y. {semester.school_year?.year_range || "N/A"}
                                     </p>
                                 </div>
@@ -324,68 +324,68 @@ export default function SemesterDetails({ semesterId: propSemId }) {
                         {/* Schedule Metric Cards Bar (Spanning Full Container Width) */}
                         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             {/* Semester Start Date */}
-                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20">
+                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20 dark:border-white/5 dark:bg-[#161724] dark:hover:border-white/10 dark:hover:bg-[#1a1b2a]">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
                                         <CalendarDaysIcon className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            Start Date
-                                        </p>
-                                        <p className="mt-0.5 text-sm font-bold text-gray-900">
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white">
                                             {formatDate(semester.semester_start)}
+                                        </p>
+                                        <p className="mt-0.5 text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-slate-400">
+                                            Start Date
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Semester End Date */}
-                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20">
+                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20 dark:border-white/5 dark:bg-[#161724] dark:hover:border-white/10 dark:hover:bg-[#1a1b2a]">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
                                         <CalendarDaysIcon className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            End Date
-                                        </p>
-                                        <p className="mt-0.5 text-sm font-bold text-gray-900">
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white">
                                             {formatDate(semester.semester_end)}
+                                        </p>
+                                        <p className="mt-0.5 text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-slate-400">
+                                            End Date
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Total Duration */}
-                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20">
+                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20 dark:border-white/5 dark:bg-[#161724] dark:hover:border-white/10 dark:hover:bg-[#1a1b2a]">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-400">
                                         <ClockIcon className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            Total Duration
-                                        </p>
-                                        <p className="mt-0.5 text-sm font-bold text-gray-900">
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white">
                                             {semesterDuration ? semesterDuration.text : "—"}
+                                        </p>
+                                        <p className="mt-0.5 text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-slate-400">
+                                            Total Duration
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Configured Periods */}
-                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20">
+                            <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 transition hover:border-blue-100 hover:bg-blue-50/20 dark:border-white/5 dark:bg-[#161724] dark:hover:border-white/10 dark:hover:bg-[#1a1b2a]">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
                                         <CheckCircleIcon className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            Evaluation Periods
-                                        </p>
-                                        <p className="mt-0.5 text-sm font-bold text-gray-900">
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white">
                                             {semester.periods?.length || 0} / 4 Configured
+                                        </p>
+                                        <p className="mt-0.5 text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-slate-400">
+                                            Evaluation Periods
                                         </p>
                                     </div>
                                 </div>
@@ -411,17 +411,17 @@ export default function SemesterDetails({ semesterId: propSemId }) {
                     </section>
 
                     {/* Periods Breakdown Section (Maximized Card Container) */}
-                    <section className="rounded-2xl border border-gray-200/80 bg-white p-6 sm:p-8 shadow-sm shadow-blue-950/5">
-                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-4">
+                    <section className="rounded-2xl border border-gray-200/80 bg-white p-6 sm:p-8 shadow-sm shadow-blue-950/5 dark:border-white/5 dark:bg-[#12131C]">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 dark:border-white/5 pb-4">
                             <div>
-                                <h2 className="text-lg font-bold text-gray-900">
+                                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                                     Academic Evaluation Periods
                                 </h2>
-                                <p className="text-xs text-gray-400">
+                                <p className="text-xs text-gray-400 dark:text-slate-400">
                                     Chronological evaluation milestones and grading dates for this semester
                                 </p>
                             </div>
-                            <span className="mt-1 sm:mt-0 inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+                            <span className="mt-1 sm:mt-0 inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 dark:border dark:border-blue-500/20">
                                 4 Periods Standard
                             </span>
                         </div>
@@ -442,14 +442,14 @@ export default function SemesterDetails({ semesterId: propSemId }) {
                                         key={periodKey}
                                         className={`flex flex-col justify-between rounded-xl border p-5 shadow-sm transition hover:shadow-md ${
                                             statusInfo.active
-                                                ? "border-emerald-300 bg-emerald-50/20 ring-2 ring-emerald-500/20 shadow-emerald-950/5"
-                                                : "border-gray-200/90 bg-white shadow-blue-950/5"
+                                                ? "border-emerald-300 bg-emerald-50/20 ring-2 ring-emerald-500/20 shadow-emerald-950/5 dark:border-emerald-500/30 dark:bg-emerald-500/10"
+                                                : "border-gray-200/90 bg-white shadow-blue-950/5 dark:border-white/5 dark:bg-[#161724]"
                                         }`}
                                     >
                                         <div>
                                             {/* Period Tag & Status Badge */}
                                             <div className="flex items-center justify-between gap-2">
-                                                <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-600">
+                                                <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-600 dark:bg-white/5 dark:text-slate-300">
                                                     Period {index + 1}
                                                 </span>
 
@@ -457,10 +457,10 @@ export default function SemesterDetails({ semesterId: propSemId }) {
                                                     <span
                                                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                                                             statusInfo.tone === "green"
-                                                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
                                                                 : statusInfo.tone === "blue"
-                                                                ? "bg-sky-50 text-sky-700 border border-sky-200"
-                                                                : "bg-gray-100 text-gray-600 border border-gray-200"
+                                                                ? "bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20"
+                                                                : "bg-gray-100 text-gray-600 border border-gray-200 dark:bg-white/5 dark:text-slate-400 dark:border-white/10"
                                                         }`}
                                                     >
                                                         {statusInfo.active && (
@@ -469,41 +469,41 @@ export default function SemesterDetails({ semesterId: propSemId }) {
                                                         {statusInfo.label}
                                                     </span>
                                                 ) : (
-                                                    <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-400">
+                                                    <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-400 dark:bg-white/5 dark:text-slate-500">
                                                         Not Set
                                                     </span>
                                                 )}
                                             </div>
 
                                             {/* Period Title */}
-                                            <h3 className="mt-3 text-lg font-bold text-gray-900">
+                                            <h3 className="mt-3 text-lg font-bold text-gray-900 dark:text-white">
                                                 {PERIOD_LABELS[periodKey]}
                                             </h3>
 
                                             {/* Dates Breakdown */}
                                             {found ? (
-                                                <div className="mt-4 space-y-2.5 border-t border-gray-100 pt-3">
+                                                <div className="mt-4 space-y-2.5 border-t border-gray-100 dark:border-white/5 pt-3">
                                                     <div>
-                                                        <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                                                        <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
                                                             Start Date
                                                         </span>
-                                                        <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                                        <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">
                                                             {formatDate(found.period_start)}
                                                         </p>
                                                     </div>
 
                                                     <div>
-                                                        <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                                                        <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
                                                             End Date
                                                         </span>
-                                                        <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                                        <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">
                                                             {formatDate(found.period_end)}
                                                         </p>
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className="mt-4 border-t border-gray-100 pt-3">
-                                                    <p className="text-xs text-gray-400 italic">
+                                                <div className="mt-4 border-t border-gray-100 dark:border-white/5 pt-3">
+                                                    <p className="text-xs text-gray-400 dark:text-slate-500 italic">
                                                         No schedule configured for this period.
                                                     </p>
                                                 </div>
@@ -512,7 +512,7 @@ export default function SemesterDetails({ semesterId: propSemId }) {
 
                                         {/* Duration Footer Tag */}
                                         {found && periodDuration && (
-                                            <div className="mt-4 rounded-lg bg-gray-50 p-2 text-center text-xs font-medium text-gray-600 border border-gray-100">
+                                            <div className="mt-4 rounded-lg bg-gray-50 p-2 text-center text-xs font-medium text-gray-600 border border-gray-100 dark:bg-white/5 dark:border-white/5 dark:text-slate-300">
                                                 {periodDuration.days} Days Duration
                                             </div>
                                         )}
@@ -523,15 +523,15 @@ export default function SemesterDetails({ semesterId: propSemId }) {
                     </section>
 
                     {/* System Metadata Footer (Spanning Full Container Width) */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200/60 bg-gray-50/50 px-6 py-4 text-xs text-gray-500">
+                    <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200/60 bg-gray-50/50 px-6 py-4 text-xs text-gray-500 dark:border-white/5 dark:bg-[#12131C] dark:text-slate-400">
                         <div className="flex items-center gap-2">
                             <HashtagIcon className="h-4 w-4 text-gray-400" />
-                            <span>Semester Reference ID: <strong className="text-gray-700">{semester.semester_id}</strong></span>
+                            <span>Semester Reference ID: <strong className="text-gray-700 dark:text-slate-200">{semester.semester_id}</strong></span>
                         </div>
                         <div className="flex flex-wrap items-center gap-4">
-                            <span>Created: <strong className="text-gray-700">{formatDate(semester.created_at)}</strong></span>
+                            <span>Created: <strong className="text-gray-700 dark:text-slate-200">{formatDate(semester.created_at)}</strong></span>
                             {semester.updated_at && (
-                                <span>Last Updated: <strong className="text-gray-700">{formatDate(semester.updated_at)}</strong></span>
+                                <span>Last Updated: <strong className="text-gray-700 dark:text-slate-200">{formatDate(semester.updated_at)}</strong></span>
                             )}
                         </div>
                     </div>
@@ -549,30 +549,30 @@ export default function SemesterDetails({ semesterId: propSemId }) {
                 title="Archive Semester"
                 description="Are you sure you want to archive this semester?"
                 icon={<ArchiveBoxIcon className="h-6 w-6 text-red-600" />}
-                iconBg="bg-red-50 text-red-600"
+                iconBg="bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
                 maxWidth="md"
             >
                 {semester && (
                     <div className="space-y-4 pt-2">
-                        <div className="rounded-xl border border-red-100 bg-red-50/50 p-4">
-                            <p className="text-sm font-bold text-red-900">
+                        <div className="rounded-xl border border-red-100 bg-red-50/50 p-4 dark:border-red-500/20 dark:bg-red-500/10">
+                            <p className="text-sm font-bold text-red-900 dark:text-red-400">
                                 {semester.term} — A.Y. {semester.school_year?.year_range || "N/A"}
                             </p>
-                            <p className="mt-1 text-xs text-red-700">
+                            <p className="mt-1 text-xs text-red-700 dark:text-red-300">
                                 Duration: {formatDate(semester.semester_start)} to {formatDate(semester.semester_end)}
                             </p>
                         </div>
 
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-slate-400">
                             Archiving this semester will move it to the archive records. You cannot archive a semester if students, course sections, or attendance sessions are actively associated with it.
                         </p>
 
-                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 dark:border-white/10">
                             <button
                                 type="button"
                                 onClick={() => setIsArchiveModalOpen(false)}
                                 disabled={archiveMutation.isPending}
-                                className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+                                className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
                             >
                                 Cancel
                             </button>

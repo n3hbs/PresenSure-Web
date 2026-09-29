@@ -497,17 +497,17 @@ export default function UserPermissionsModal({
                                         return (
                                             <div
                                                 key={moduleKey}
-                                                className="border border-gray-200/90 rounded-2xl overflow-hidden bg-white shadow-2xs flex flex-col"
+                                                className="border border-gray-200/90 dark:border-white/5 rounded-2xl overflow-hidden bg-white dark:bg-[#12131C] shadow-2xs flex flex-col transition-colors duration-200"
                                             >
                                                 {/* Card Header */}
-                                                <div className="bg-gray-50/80 px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-3">
+                                                <div className="bg-gray-50/80 dark:bg-white/5 px-4 py-3 border-b border-gray-100 dark:border-white/5 flex items-center justify-between gap-3">
                                                     <div className="flex items-center gap-2.5 min-w-0">
                                                         <div
                                                             className={`h-8 w-8 rounded-xl flex items-center justify-center border shrink-0 ${config.iconBg}`}
                                                         >
                                                             <Icon className="h-4 w-4" />
                                                         </div>
-                                                        <span className="text-xs font-bold text-gray-900 truncate">
+                                                        <span className="text-xs font-bold text-gray-900 dark:text-white truncate">
                                                             {config.title}
                                                         </span>
                                                     </div>
@@ -520,16 +520,16 @@ export default function UserPermissionsModal({
                                                 </div>
 
                                                 {/* Permission switches list */}
-                                                <div className="p-3 divide-y divide-gray-100 flex-1">
+                                                <div className="p-3 divide-y divide-gray-100 dark:divide-white/5 flex-1">
                                                     {perms.map((perm) => {
                                                         const isInherited =
                                                             inheritedIds.has(
                                                                 perm.permission_id
-                                                            );
+                                                             );
                                                         const isDirectlyGranted =
                                                             selectedDirectIds.includes(
                                                                 perm.permission_id
-                                                            );
+                                                             );
                                                         const isGranted =
                                                             isInherited ||
                                                             isDirectlyGranted;
@@ -544,27 +544,27 @@ export default function UserPermissionsModal({
                                                                 }
                                                                 className={`py-2.5 px-2 rounded-xl transition-all flex items-start justify-between gap-3 ${
                                                                     isInherited
-                                                                        ? "bg-gray-50/70 cursor-not-allowed opacity-90"
+                                                                        ? "bg-gray-50/70 dark:bg-white/5 cursor-not-allowed opacity-90"
                                                                         : isDirectlyGranted
-                                                                        ? "bg-blue-50/60 cursor-pointer"
-                                                                        : "hover:bg-gray-50/70 cursor-pointer"
+                                                                        ? "bg-blue-50/60 dark:bg-blue-500/10 cursor-pointer"
+                                                                        : "hover:bg-gray-50/70 dark:hover:bg-white/5 cursor-pointer"
                                                                 }`}
                                                             >
                                                                 <div className="min-w-0 flex-1">
                                                                     <div className="flex items-center gap-1.5 flex-wrap">
-                                                                        <span className="text-xs font-bold text-gray-900">
+                                                                        <span className="text-xs font-bold text-gray-900 dark:text-white">
                                                                             {getPermissionTitle(
                                                                                 perm.permission_name
                                                                             )}
                                                                         </span>
-                                                                        <code className="text-[10px] font-mono text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded">
+                                                                        <code className="text-[10px] font-mono text-gray-400 dark:text-slate-400 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 px-1.5 py-0.5 rounded">
                                                                             {perm.permission_name}
                                                                         </code>
 
                                                                         {isInherited && (
                                                                             <span
                                                                                 title="Granted automatically via role assignment"
-                                                                                className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-gray-200/80 text-gray-600 font-medium"
+                                                                                className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-gray-200/80 dark:bg-white/10 text-gray-600 dark:text-slate-300 font-medium"
                                                                             >
                                                                                 <LockClosedIcon className="h-2.5 w-2.5" />
                                                                                 Role Default
@@ -572,13 +572,13 @@ export default function UserPermissionsModal({
                                                                         )}
 
                                                                         {isDirectlyGranted && (
-                                                                            <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-bold border border-blue-200">
+                                                                            <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/30">
                                                                                 <SparklesIcon className="h-2.5 w-2.5" />
                                                                                 Custom Override
                                                                             </span>
                                                                         )}
                                                                     </div>
-                                                                    <p className="text-[11px] text-gray-500 mt-0.5 leading-snug">
+                                                                    <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 leading-snug">
                                                                         {perm.description}
                                                                     </p>
                                                                 </div>
@@ -591,7 +591,7 @@ export default function UserPermissionsModal({
                                                                                 ? "bg-blue-400 justify-end"
                                                                                 : isDirectlyGranted
                                                                                 ? "bg-blue-600 justify-end"
-                                                                                : "bg-gray-200"
+                                                                                : "bg-gray-200 dark:bg-white/20"
                                                                         }`}
                                                                     >
                                                                         <div className="h-3.5 w-3.5 rounded-full bg-white shadow-xs" />

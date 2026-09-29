@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import {
     CheckCircleIcon,
     ExclamationCircleIcon,
-    ExclamationTriangleIcon,
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import Modal from "@/Components/UI/Modal";
@@ -12,12 +11,9 @@ export default function UploadResultsModal({
     isOpen,
     onClose,
     results,
-    type = "student",
 }) {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
-
-    const label = type === "student" ? "Student" : "Instructor";
 
     const allItems = useMemo(() => {
         if (!results) return [];
@@ -170,34 +166,34 @@ export default function UploadResultsModal({
             <div className="flex flex-col h-full space-y-4">
                 {/* Summary badges */}
                 <div className="shrink-0 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <div className="rounded-lg bg-gray-50 p-2.5 text-center border border-gray-100">
-                        <span className="block text-xs font-medium text-gray-500">Total</span>
-                        <span className="text-lg font-bold text-gray-800">{summary.total}</span>
+                    <div className="rounded-lg bg-gray-50 p-2.5 text-center border border-gray-100 dark:bg-white/5 dark:border-white/5">
+                        <span className="block text-xs font-medium text-gray-500 dark:text-slate-400">Total</span>
+                        <span className="text-lg font-bold text-gray-800 dark:text-white">{summary.total}</span>
                     </div>
-                    <div className="rounded-lg bg-green-50 p-2.5 text-center border border-green-100">
-                        <span className="block text-xs font-medium text-green-600">Uploaded</span>
-                        <span className="text-lg font-bold text-green-700">{summary.uploaded}</span>
+                    <div className="rounded-lg bg-green-50 p-2.5 text-center border border-green-100 dark:bg-emerald-950/40 dark:border-emerald-900/30">
+                        <span className="block text-xs font-medium text-green-600 dark:text-emerald-400">Uploaded</span>
+                        <span className="text-lg font-bold text-green-700 dark:text-emerald-300">{summary.uploaded}</span>
                     </div>
-                    <div className="rounded-lg bg-amber-50 p-2.5 text-center border border-amber-100">
-                        <span className="block text-xs font-medium text-amber-600">Skipped</span>
-                        <span className="text-lg font-bold text-amber-700">{summary.skipped}</span>
+                    <div className="rounded-lg bg-amber-50 p-2.5 text-center border border-amber-100 dark:bg-amber-950/40 dark:border-amber-900/30">
+                        <span className="block text-xs font-medium text-amber-600 dark:text-amber-400">Skipped</span>
+                        <span className="text-lg font-bold text-amber-700 dark:text-amber-300">{summary.skipped}</span>
                     </div>
-                    <div className="rounded-lg bg-red-50 p-2.5 text-center border border-red-100">
-                        <span className="block text-xs font-medium text-red-600">Failed</span>
-                        <span className="text-lg font-bold text-red-700">{summary.failed}</span>
+                    <div className="rounded-lg bg-red-50 p-2.5 text-center border border-red-100 dark:bg-red-950/40 dark:border-red-900/30">
+                        <span className="block text-xs font-medium text-red-600 dark:text-red-400">Failed</span>
+                        <span className="text-lg font-bold text-red-700 dark:text-red-300">{summary.failed}</span>
                     </div>
                 </div>
 
                 {/* Filters */}
                 <div className="shrink-0 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="relative flex-1">
-                        <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                        <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
                         <input
                             type="text"
                             placeholder="Filter by ID, Name, or Role..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="h-9 w-full rounded-lg border border-gray-200 pl-9 pr-3 text-xs text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="h-9 w-full rounded-lg border border-gray-200 pl-9 pr-3 text-xs text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-[#161724] dark:text-white dark:placeholder-slate-500"
                         />
                     </div>
 
@@ -215,7 +211,7 @@ export default function UploadResultsModal({
                                 className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
                                     statusFilter === filter.key
                                         ? "bg-blue-600 text-white shadow-sm"
-                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
                                 }`}
                             >
                                 {filter.label}
@@ -225,9 +221,9 @@ export default function UploadResultsModal({
                 </div>
 
                 {/* Results Table (stretches to fill fixed modal height) */}
-                <div className="flex-1 min-h-0 overflow-y-auto rounded-lg border border-gray-200">
+                <div className="flex-1 min-h-0 overflow-y-auto rounded-lg border border-gray-200 dark:border-white/10">
                     <table className="w-full text-left text-xs">
-                        <thead className="sticky top-0 bg-gray-50 border-b border-gray-200 text-gray-600 shadow-xs">
+                        <thead className="sticky top-0 bg-gray-50 border-b border-gray-200 text-gray-600 shadow-xs dark:bg-[#161724] dark:border-white/10 dark:text-slate-300">
                             <tr>
                                 <th className="px-3 py-2 font-semibold">User ID</th>
                                 <th className="px-3 py-2 font-semibold">Full Name</th>
@@ -236,23 +232,23 @@ export default function UploadResultsModal({
                                 <th className="px-3 py-2 font-semibold">Detail</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 bg-white">
+                        <tbody className="divide-y divide-gray-100 bg-white dark:divide-white/5 dark:bg-[#12131C]">
                             {filteredItems.map((item, index) => (
-                                <tr key={index} className="hover:bg-gray-50/50">
-                                    <td className="px-3 py-2 font-mono font-medium text-gray-900 whitespace-nowrap">
+                                <tr key={index} className="hover:bg-gray-50/50 dark:hover:bg-white/5">
+                                    <td className="px-3 py-2 font-mono font-medium text-gray-900 dark:text-white whitespace-nowrap">
                                         {item.userId}
                                     </td>
-                                    <td className="px-3 py-2 text-gray-700 whitespace-nowrap">
+                                    <td className="px-3 py-2 text-gray-700 dark:text-slate-200 whitespace-nowrap">
                                         {item.fullName || (
-                                            <span className="text-gray-400 italic">N/A</span>
+                                            <span className="text-gray-400 dark:text-slate-500 italic">N/A</span>
                                         )}
                                     </td>
                                     <td className="px-3 py-2 whitespace-nowrap">
                                         <span
                                             className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
                                                 item.role === "Instructor"
-                                                    ? "bg-purple-50 text-purple-700 border border-purple-200"
-                                                    : "bg-blue-50 text-blue-700 border border-blue-200"
+                                                    ? "bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/40 dark:text-purple-400 dark:border-purple-900/30"
+                                                    : "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30"
                                             }`}
                                         >
                                             {item.role}
@@ -262,16 +258,16 @@ export default function UploadResultsModal({
                                         <span
                                             className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                                                 item.category === "success"
-                                                    ? "bg-green-50 text-green-700 border border-green-200"
+                                                    ? "bg-green-50 text-green-700 border border-green-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/30"
                                                     : item.category === "skipped"
-                                                      ? "bg-amber-50 text-amber-700 border border-amber-200"
-                                                      : "bg-red-50 text-red-700 border border-red-200"
+                                                      ? "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/30"
+                                                      : "bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/30"
                                             }`}
                                         >
                                             {item.status}
                                         </span>
                                     </td>
-                                    <td className="px-3 py-2 text-gray-500 max-w-xs truncate" title={item.detail}>
+                                    <td className="px-3 py-2 text-gray-500 dark:text-slate-400 max-w-xs truncate" title={item.detail}>
                                         {item.detail}
                                     </td>
                                 </tr>
@@ -279,7 +275,7 @@ export default function UploadResultsModal({
 
                             {filteredItems.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="p-8 text-center text-gray-400">
+                                    <td colSpan={5} className="p-8 text-center text-gray-400 dark:text-slate-500">
                                         No items match the current filter.
                                     </td>
                                 </tr>
