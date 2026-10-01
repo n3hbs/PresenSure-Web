@@ -18,7 +18,10 @@ import Modal from "@/Components/UI/Modal";
 import StatCard from "@/Components/UI/StatCard";
 import api from "@/Services/api";
 import { getAuthToken } from "@/Services/auth";
-import { departmentsQueryKey, activeStudentsQueryKey } from "@/Services/queryKeys";
+import {
+    departmentsQueryKey,
+    activeStudentsQueryKey,
+} from "@/Services/queryKeys";
 import { notify } from "@/Services/toast";
 import usePermission from "@/Hooks/usePermission";
 
@@ -58,7 +61,7 @@ export default function ProgramsIndex() {
     });
 
     // Query active enrolled students to ensure accurate count per program
-    const { data: rawStudents = [] } = useQuery({
+    const { data: rawStudents = [], isLoading: isLoadingStudents } = useQuery({
         queryKey: activeStudentsQueryKey,
         queryFn: async () => {
             const res = await api.get("/student/getByActiveSemester");
@@ -70,7 +73,8 @@ export default function ProgramsIndex() {
     const isUnauthenticated = error?.response?.status === 401;
     const errorMessage = isUnauthenticated
         ? ""
-        : error?.response?.data?.message || "Unable to load programs right now.";
+        : error?.response?.data?.message ||
+          "Unable to load programs right now.";
 
     useEffect(() => {
         if (isError && !isUnauthenticated && errorMessage) {
@@ -83,7 +87,8 @@ export default function ProgramsIndex() {
         const counts = {};
         rawStudents.forEach((rec) => {
             const student =
-                (Array.isArray(rec.student) ? rec.student[0] : rec.student) || {};
+                (Array.isArray(rec.student) ? rec.student[0] : rec.student) ||
+                {};
             const prog = student.program || rec.program || {};
             const progId = prog.program_id || rec.program_id;
             const progCode = (
@@ -135,7 +140,7 @@ export default function ProgramsIndex() {
         const totalDepartments = departments.length;
         const totalStudents = allPrograms.reduce(
             (acc, p) => acc + (p.students_count || 0),
-            0
+            0,
         );
         return { totalPrograms, totalDepartments, totalStudents };
     }, [allPrograms, departments]);
@@ -146,7 +151,7 @@ export default function ProgramsIndex() {
 
         if (selectedDeptId !== "all") {
             list = list.filter(
-                (p) => String(p.department_id) === String(selectedDeptId)
+                (p) => String(p.department_id) === String(selectedDeptId),
             );
         }
 
@@ -188,7 +193,6 @@ export default function ProgramsIndex() {
                     <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
                         {row.program_code}
                     </span>
-                    <span className="text-xs text-gray-400 dark:text-slate-500">#{row.program_id}</span>
                 </div>
             ),
             sorter: (a, b) =>
@@ -228,7 +232,9 @@ export default function ProgramsIndex() {
                 </Link>
             ),
             sorter: (a, b) =>
-                (a.department_code || "").localeCompare(b.department_code || ""),
+                (a.department_code || "").localeCompare(
+                    b.department_code || "",
+                ),
         },
         {
             key: "students_count",
@@ -244,9 +250,8 @@ export default function ProgramsIndex() {
         {
             key: "actions",
             header: "Actions",
-            align: "right",
             render: (row) => (
-                <div className="flex items-center justify-end gap-2">
+                <div className="inline-flex items-center gap-2">
                     <Link
                         href={`/departments/department-details?department_id=${row.department_id}`}
                         className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition dark:text-blue-400 dark:hover:text-blue-300"
@@ -254,7 +259,8 @@ export default function ProgramsIndex() {
                         <span>Details</span>
                         <ArrowRightIcon className="h-3 w-3" />
                     </Link>
-                    {(hasRole("administrator") || can("departments.manage")) && (
+                    {(hasRole("administrator") ||
+                        can("departments.manage")) && (
                         <Link
                             href={`/departments/edit?department_id=${row.department_id}`}
                             className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-medium text-gray-600 shadow-2xs hover:bg-gray-50 hover:text-blue-600 transition dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-blue-400"
@@ -280,13 +286,18 @@ export default function ProgramsIndex() {
                         <Breadcrumbs
                             crumbs={[
                                 { label: "Dashboard", href: "/dashboard" },
-                                { label: "Departments & Programs", href: "/departments" },
+                                {
+                                    label: "Departments & Programs",
+                                    href: "/departments",
+                                },
                                 { label: "Programs" },
                             ]}
                         />
                     </div>
 
-                    {(hasRole("administrator") || can("departments.manage") || can("programs.manage")) && (
+                    {(hasRole("administrator") ||
+                        can("departments.manage") ||
+                        can("programs.manage")) && (
                         <div className="flex gap-2">
                             <button
                                 type="button"
@@ -307,18 +318,21 @@ export default function ProgramsIndex() {
                         label="Total Degree Programs"
                         value={stats.totalPrograms}
                         tone="blue"
+                        loading={isLoading || isLoadingStudents}
                     />
                     <StatCard
                         icon={BuildingOffice2Icon}
                         label="Academic Departments"
                         value={stats.totalDepartments}
                         tone="green"
+                        loading={isLoading || isLoadingStudents}
                     />
                     <StatCard
                         icon={UserGroupIcon}
                         label="Total Enrolled Students"
                         value={stats.totalStudents}
                         tone="purple"
+                        loading={isLoading || isLoadingStudents}
                     />
                 </div>
 
@@ -341,28 +355,24 @@ export default function ProgramsIndex() {
                         <div className="w-full sm:w-64">
                             <select
                                 value={selectedDeptId}
-                                onChange={(e) => setSelectedDeptId(e.target.value)}
+                                onChange={(e) =>
+                                    setSelectedDeptId(e.target.value)
+                                }
                                 className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-[#161724] dark:text-white"
                             >
-                                <option value="all">All Departments ({departments.length})</option>
+                                <option value="all">All Departments</option>
                                 {departments.map((dept) => (
-                                    <option key={dept.department_id} value={dept.department_id}>
-                                        {dept.department_code} - {dept.department_name}
+                                    <option
+                                        key={dept.department_id}
+                                        value={dept.department_id}
+                                    >
+                                        {dept.department_code} -{" "}
+                                        {dept.department_name}
                                     </option>
                                 ))}
                             </select>
                         </div>
                     </div>
-
-                    {search && (
-                        <button
-                            type="button"
-                            onClick={() => setSearch("")}
-                            className="text-xs font-semibold text-gray-500 hover:text-blue-600 transition dark:text-slate-400 dark:hover:text-blue-400"
-                        >
-                            Clear Search
-                        </button>
-                    )}
                 </div>
 
                 {/* Main Data Table */}
@@ -386,13 +396,16 @@ export default function ProgramsIndex() {
                 onClose={() => setIsAddModalOpen(false)}
                 title="Add Academic Degree Program"
                 description="Degree programs are administered under their parent academic department."
-                icon={<AcademicCapIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+                icon={
+                    <AcademicCapIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                }
                 iconBg="bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400"
                 maxWidth="md"
             >
                 <div className="space-y-4 pt-2">
                     <p className="text-xs text-gray-500 leading-relaxed dark:text-slate-400">
-                        Select an existing department to add programs to its academic curriculum, or create a brand new department.
+                        Select an existing department to add programs to its
+                        academic curriculum, or create a brand new department.
                     </p>
 
                     <div>
@@ -406,15 +419,21 @@ export default function ProgramsIndex() {
                         >
                             <option value="">-- Select a department --</option>
                             {departments.map((dept) => (
-                                <option key={dept.department_id} value={dept.department_id}>
-                                    {dept.department_code} — {dept.department_name}
+                                <option
+                                    key={dept.department_id}
+                                    value={dept.department_id}
+                                >
+                                    {dept.department_code} —{" "}
+                                    {dept.department_name}
                                 </option>
                             ))}
                         </select>
                     </div>
 
                     <div className="rounded-lg border border-blue-100 bg-blue-50/50 p-3 text-xs text-blue-700 dark:border-blue-900/30 dark:bg-blue-950/30 dark:text-blue-300">
-                        💡 <strong>Tip:</strong> In the department editor, you can manage and add degree programs in Step 2 of the form.
+                        💡 <strong>Tip:</strong> In the department editor, you
+                        can manage and add degree programs in Step 2 of the
+                        form.
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-white/5">

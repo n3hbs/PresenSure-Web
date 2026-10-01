@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Head, router } from "@inertiajs/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeftIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 
 import MainLayout from "@/Components/Layout/MainLayout";
@@ -21,6 +21,7 @@ import {
 import { notify } from "@/Services/toast";
 import usePermission from "@/Hooks/usePermission";
 import useFetchData from "@/Hooks/useFetchData";
+import useFormDiscardWarning from "@/Hooks/useFormDiscardWarning";
 
 const yearOptions = [
     { label: "First Year", value: "First Year" },
@@ -44,35 +45,33 @@ const editSteps = [
     { number: 2, label: "Review" },
 ];
 
-const getCollection = (response) => {
-    if (Array.isArray(response?.data?.data)) return response.data.data;
-    if (Array.isArray(response?.data)) return response.data;
-    return [];
-};
-
-import { useLocation } from "react-router-dom";
-
 const getAuthHeaders = () => {
     const token = getAuthToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-export default function Edit({ userId: propUserId }) {
+export default function Edit() {
     const { can } = usePermission();
     const queryClient = useQueryClient();
-    const location = useLocation();
-    const params = new URLSearchParams(location.search || window.location.search);
-    const userId = propUserId || params.get("user_id") || params.get("id");
+    const [currentStep, setCurrentStep] = useState(1);
+    const [isFormInitialized, setIsFormInitialized] = useState(false);
 
+    // Get userId from URL query parameter
+    const searchParams = new URLSearchParams(window.location.search);
+    const userId = searchParams.get("user_id") || "";
+
+    // Permission guard
     useEffect(() => {
         if (!can("students.edit")) {
-            notify.error("Access Denied", "You do not have permission to edit students.");
+            notify.error(
+                "Access Denied",
+                "You do not have permission to edit student records."
+            );
             router.visit("/students");
         }
     }, [can]);
 
-    const allowNavigationRef = useRef(false);
-    const [currentStep, setCurrentStep] = useState(1);
+    // Form state
     const [form, setForm] = useState({
         user_id: "",
         first_name: "",
@@ -91,9 +90,6 @@ export default function Edit({ userId: propUserId }) {
     const [submitting, setSubmitting] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
     const [toast, setToast] = useState(null);
-    const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
-    const [pendingNavigationUrl, setPendingNavigationUrl] = useState(null);
-    const [isFormInitialized, setIsFormInitialized] = useState(false);
 
     const showToast = useCallback((type, title, message = "") => {
         setToast({ type, title, message, id: Date.now() });
@@ -103,8 +99,6 @@ export default function Edit({ userId: propUserId }) {
     const {
         data: studentData,
         isLoading: loadingStudent,
-        isError: studentError,
-        error: studentRequestError,
     } = useFetchData(["student-details", userId], () => `/student/${userId}`, {
         enabled: Boolean(userId),
     });
@@ -169,22 +163,42 @@ export default function Edit({ userId: propUserId }) {
         return () => window.clearTimeout(timeout);
     }, [toast]);
 
+    const defaultDiscardUrl = useMemo(
+        () => (userId ? `/students/student-details?user_id=${userId}` : "/students"),
+        [userId]
+    );
+
     const isDirty = useMemo(() => {
-        if (!isFormInitialized) return false;
-        return currentStep > 1 || Boolean(image);
-    }, [currentStep, image, isFormInitialized]);
+        if (!isFormInitialized || !studentData) return false;
+        const user = studentData.user || {};
+        const student = studentData.student?.[0] || {};
+        const deptId =
+            student.program?.department_id ||
+            student.program?.department?.department_id ||
+            "";
+        const progId = student.program_id || student.program?.program_id || "";
 
-    useEffect(() => {
-        const handleBeforeUnload = (event) => {
-            if (!isDirty) return;
-            event.preventDefault();
-            event.returnValue = "";
-        };
+        const formChanged =
+            form.first_name !== (user.first_name || "") ||
+            form.middle_initial !== (user.middle_initial || "") ||
+            form.last_name !== (user.last_name || "") ||
+            form.suffix !== (user.suffix || "") ||
+            form.sex !== (user.sex?.toLowerCase() || "") ||
+            String(form.department_id) !== String(deptId || "") ||
+            String(form.program_id) !== String(progId || "") ||
+            String(form.year) !== String(student.year || "") ||
+            String(form.block) !== String(student.block || "");
 
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        return () =>
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-    }, [isDirty]);
+        return currentStep > 1 || Boolean(image) || formChanged;
+    }, [currentStep, image, isFormInitialized, studentData, form]);
+
+    const {
+        confirmDiscardOpen,
+        cancelDiscard,
+        proceedWithDiscard,
+        triggerDiscard,
+        allowNavigation,
+    } = useFormDiscardWarning(isDirty, defaultDiscardUrl);
 
     // Department options
     const departmentOptions = useMemo(
@@ -341,6 +355,7 @@ export default function Edit({ userId: propUserId }) {
                 },
             });
 
+            allowNavigation();
             notify.success(
                 "Student Updated",
                 response.data?.message || "Student details updated successfully.",
@@ -353,8 +368,7 @@ export default function Edit({ userId: propUserId }) {
                 queryKey: activeStudentsQueryKey,
             });
 
-            allowNavigationRef.current = true;
-            router.visit(`/students/student-details?user_id=${userId}`);
+            router.visit(`/students/student-details?user_id=${userId}`, { force: true });
         } catch (error) {
             if (error.response?.status === 422) {
                 const errors = error.response.data?.errors || {};
@@ -377,25 +391,6 @@ export default function Edit({ userId: propUserId }) {
         }
     };
 
-    const requestPage = (url) => {
-        if (isDirty) {
-            setPendingNavigationUrl(url);
-            setConfirmDiscardOpen(true);
-            return;
-        }
-        router.visit(url);
-    };
-
-    const discardAndLeave = () => {
-        const targetUrl =
-            pendingNavigationUrl ||
-            `/students/student-details?user_id=${userId}`;
-        setConfirmDiscardOpen(false);
-        setPendingNavigationUrl(null);
-        allowNavigationRef.current = true;
-        router.visit(targetUrl);
-    };
-
     const user = studentData?.user || {};
     const fullName = [
         user.first_name,
@@ -414,9 +409,11 @@ export default function Edit({ userId: propUserId }) {
                 onClose={() => setToast(null)}
             />
             <DiscardRegistrationModal
-                open={confirmDiscardOpen}
-                onKeepEditing={() => setConfirmDiscardOpen(false)}
-                onDiscard={discardAndLeave}
+                isOpen={confirmDiscardOpen}
+                onClose={cancelDiscard}
+                onDiscard={proceedWithDiscard}
+                title="Discard Changes?"
+                description="Are you sure you want to discard your edits? Any unsaved modifications to this student record will be lost."
             />
 
             <div className="space-y-6">
@@ -437,15 +434,11 @@ export default function Edit({ userId: propUserId }) {
 
                     <button
                         type="button"
-                        onClick={() =>
-                            requestPage(
-                                `/students/student-details?user_id=${userId}`,
-                            )
-                        }
+                        onClick={() => triggerDiscard(defaultDiscardUrl)}
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
                     >
                         <ArrowLeftIcon className="h-4 w-4" />
-                        Back to Student Details
+                        <span>Back to Details</span>
                     </button>
                 </div>
 
@@ -454,15 +447,18 @@ export default function Edit({ userId: propUserId }) {
                 ) : !studentData ? (
                     <section className="rounded-xl bg-white p-8 text-center shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
                         <UserCircleIcon className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
-                        <p className="mt-3 text-sm font-semibold text-gray-700 dark:text-slate-200">
-                            Student not found.
+                        <h2 className="mt-3 text-base font-bold text-gray-900 dark:text-white">
+                            Student Record Not Found
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
+                            The requested student profile could not be loaded.
                         </p>
                         <button
                             type="button"
                             onClick={() => router.visit("/students")}
-                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
                         >
-                            Return to Students
+                            Return to Student Roster
                         </button>
                     </section>
                 ) : (
@@ -498,11 +494,7 @@ export default function Edit({ userId: propUserId }) {
                                     setImage(null);
                                     setImagePreview("");
                                 }}
-                                onCancel={() =>
-                                    requestPage(
-                                        `/students/student-details?user_id=${userId}`,
-                                    )
-                                }
+                                onCancel={() => triggerDiscard(defaultDiscardUrl)}
                             />
                         )}
 

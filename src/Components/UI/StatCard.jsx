@@ -1,4 +1,25 @@
-export default function StatCard({ icon: Icon, label, value, subtext, tone = "blue" }) {
+export function StatCardSkeleton() {
+    return (
+        <div className="rounded-lg bg-white dark:bg-[#12131C] p-5 shadow-sm shadow-blue-950/5 border border-gray-100 dark:border-white/5 animate-pulse transition-colors duration-200">
+            <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-white/5 shrink-0" />
+                <div className="flex-1 space-y-2">
+                    <div className="h-7 w-20 rounded-md bg-gray-200 dark:bg-white/10" />
+                    <div className="h-4 w-32 rounded-md bg-gray-100 dark:bg-white/5" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default function StatCard({
+    icon: Icon,
+    label,
+    value,
+    subtext,
+    tone = "blue",
+    loading = false,
+}) {
     const tones = {
         blue: "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400",
         green: "bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400",
@@ -6,6 +27,10 @@ export default function StatCard({ icon: Icon, label, value, subtext, tone = "bl
         purple: "bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400",
         gray: "bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-slate-300",
     };
+
+    if (loading) {
+        return <StatCardSkeleton />;
+    }
 
     return (
         <div className="rounded-lg bg-white dark:bg-[#12131C] p-5 shadow-sm shadow-blue-950/5 border border-gray-100 dark:border-white/5 transition-colors duration-200">

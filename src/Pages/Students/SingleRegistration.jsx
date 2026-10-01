@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Head, router } from "@inertiajs/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 import MainLayout from "@/Components/Layout/MainLayout";
@@ -21,6 +21,7 @@ import {
 import { notify } from "@/Services/toast";
 import usePermission from "@/Hooks/usePermission";
 import useFetchData from "@/Hooks/useFetchData";
+import useFormDiscardWarning from "@/Hooks/useFormDiscardWarning";
 
 const emptyForm = {
     user_id: "",
@@ -45,11 +46,7 @@ const sexOptions = [
     { label: "Female", value: "female" },
 ];
 
-const getCollection = (response) => {
-    if (Array.isArray(response?.data?.data)) return response.data.data;
-    if (Array.isArray(response?.data)) return response.data;
-    return [];
-};
+
 
 const makeStudentId = (value) => {
     const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 8);
@@ -70,7 +67,6 @@ const getAuthHeaders = () => {
 export default function SingleRegistration() {
     const { can } = usePermission();
     const queryClient = useQueryClient();
-    const allowNavigationRef = useRef(false);
     const [currentStep, setCurrentStep] = useState(1);
 
     useEffect(() => {
@@ -92,8 +88,6 @@ export default function SingleRegistration() {
     const [submitting, setSubmitting] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
     const [toast, setToast] = useState(null);
-    const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
-    const [pendingNavigationUrl, setPendingNavigationUrl] = useState(null);
 
     const showToast = useCallback((type, title, message = "") => {
         setToast({ type, title, message, id: Date.now() });
@@ -132,56 +126,12 @@ export default function SingleRegistration() {
         return () => window.clearTimeout(timeout);
     }, [toast]);
 
-    useEffect(() => {
-        const handleBeforeUnload = (event) => {
-            if (!isDirty) return;
-
-            event.preventDefault();
-            event.returnValue = "";
-        };
-
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        return () =>
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-    }, [isDirty]);
-
-    useEffect(() => {
-        const getPathFromUrl = (url) => {
-            if (!url) return null;
-
-            try {
-                const parsedUrl =
-                    url instanceof URL
-                        ? url
-                        : new URL(String(url), window.location.origin);
-
-                return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
-            } catch {
-                return String(url);
-            }
-        };
-
-        const removeBeforeListener = router.on("before", (event) => {
-            if (!isDirty) return undefined;
-
-            if (allowNavigationRef.current) {
-                allowNavigationRef.current = false;
-                return undefined;
-            }
-
-            const targetUrl = getPathFromUrl(event.detail.visit.url);
-            const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-
-            if (!targetUrl || targetUrl === currentUrl) return undefined;
-
-            setPendingNavigationUrl(targetUrl);
-            setConfirmDiscardOpen(true);
-
-            return false;
-        });
-
-        return () => removeBeforeListener();
-    }, [isDirty]);
+    const {
+        confirmDiscardOpen,
+        cancelDiscard,
+        proceedWithDiscard,
+        triggerDiscard,
+    } = useFormDiscardWarning(isDirty, "/students");
 
     useEffect(() => {
         if (
@@ -622,30 +572,6 @@ export default function SingleRegistration() {
         }
     };
 
-    const requestPage = (url) => {
-        if (isDirty) {
-            setPendingNavigationUrl(url);
-            setConfirmDiscardOpen(true);
-            return;
-        }
-
-        router.visit(url);
-    };
-
-    const discardAndLeave = () => {
-        const targetUrl = pendingNavigationUrl || "/students";
-
-        setConfirmDiscardOpen(false);
-        setPendingNavigationUrl(null);
-        allowNavigationRef.current = true;
-        router.visit(targetUrl);
-    };
-
-    const keepEditing = () => {
-        setConfirmDiscardOpen(false);
-        setPendingNavigationUrl(null);
-    };
-
     return (
         <>
             <Head title="Single Registration" />
@@ -654,9 +580,9 @@ export default function SingleRegistration() {
                 onClose={() => setToast(null)}
             />
             <DiscardRegistrationModal
-                open={confirmDiscardOpen}
-                onKeepEditing={keepEditing}
-                onDiscard={discardAndLeave}
+                isOpen={confirmDiscardOpen}
+                onClose={cancelDiscard}
+                onDiscard={proceedWithDiscard}
             />
 
             <div className="space-y-6">
@@ -673,7 +599,7 @@ export default function SingleRegistration() {
 
                     <button
                         type="button"
-                        onClick={() => requestPage("/students")}
+                        onClick={() => triggerDiscard("/students")}
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
                     >
                         <ArrowLeftIcon className="h-4 w-4" />
@@ -720,7 +646,7 @@ export default function SingleRegistration() {
                         onImageChange={handleImageChange}
                         onRemoveImage={() => setImage(null)}
                         onBack={() => setCurrentStep(1)}
-                        onCancel={() => requestPage("/students")}
+                        onCancel={() => triggerDiscard("/students")}
                     />
                 )}
 

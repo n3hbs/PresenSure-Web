@@ -9,19 +9,29 @@ export default function SingleInstructorRegistrationForm({
     form,
     image,
     imagePreview,
-    fieldErrors,
-    sexOptions,
-    departmentOptions,
-    loadingDepartments,
+    fieldErrors = {},
+    sexOptions = [],
+    departmentOptions = [],
+    loadingDepartments = false,
     registrationType = "create",
+    isEdit: isEditProp,
     onSubmit,
+    onNext,
     onTextChange,
+    onChange,
     onSelectChange,
     onImageChange,
     onRemoveImage,
     onCancel,
+    onDiscard,
 }) {
-    const isEdit = registrationType === "edit";
+    const isEdit = isEditProp ?? registrationType === "edit";
+    const handleSubmit = onSubmit || onNext;
+    const handleTextChange = onTextChange || onChange;
+    const handleSelect =
+        onSelectChange ||
+        ((name, val) => onChange?.({ target: { name, value: val } }));
+    const handleCancel = onCancel || onDiscard;
 
     const renderError = (name) =>
         fieldErrors[name]?.[0] ? (
@@ -32,7 +42,10 @@ export default function SingleInstructorRegistrationForm({
 
     return (
         <form
-            onSubmit={onSubmit}
+            onSubmit={(e) => {
+                if (e?.preventDefault) e.preventDefault();
+                handleSubmit?.(e);
+            }}
             className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]"
         >
             <section className="space-y-6 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
@@ -66,7 +79,7 @@ export default function SingleInstructorRegistrationForm({
                                 label="Instructor ID"
                                 name="user_id"
                                 value={form.user_id}
-                                onChange={onTextChange}
+                                onChange={handleTextChange}
                                 required
                                 maxLength={9}
                                 placeholder="0000-0000"
@@ -80,7 +93,7 @@ export default function SingleInstructorRegistrationForm({
                                 options={sexOptions}
                                 value={form.sex}
                                 onChange={(value) =>
-                                    onSelectChange("sex", value)
+                                    handleSelect("sex", value)
                                 }
                                 placeholder="Select sex"
                                 buttonClassName="bg-white dark:bg-[#161724] dark:border-white/10"
@@ -92,7 +105,7 @@ export default function SingleInstructorRegistrationForm({
                                 label="First Name"
                                 name="first_name"
                                 value={form.first_name}
-                                onChange={onTextChange}
+                                onChange={handleTextChange}
                                 required
                             />
                             {renderError("first_name")}
@@ -102,7 +115,7 @@ export default function SingleInstructorRegistrationForm({
                                 label="Last Name"
                                 name="last_name"
                                 value={form.last_name}
-                                onChange={onTextChange}
+                                onChange={handleTextChange}
                                 required
                             />
                             {renderError("last_name")}
@@ -112,7 +125,7 @@ export default function SingleInstructorRegistrationForm({
                                 label="Middle Initial"
                                 name="middle_initial"
                                 value={form.middle_initial}
-                                onChange={onTextChange}
+                                onChange={handleTextChange}
                                 maxLength={5}
                             />
                             {renderError("middle_initial")}
@@ -122,7 +135,7 @@ export default function SingleInstructorRegistrationForm({
                                 label="Suffix"
                                 name="suffix"
                                 value={form.suffix}
-                                onChange={onTextChange}
+                                onChange={handleTextChange}
                                 maxLength={10}
                                 placeholder="e.g. Jr., III"
                             />
@@ -142,7 +155,7 @@ export default function SingleInstructorRegistrationForm({
                                 options={departmentOptions}
                                 value={form.department_id}
                                 onChange={(value) =>
-                                    onSelectChange("department_id", value)
+                                    handleSelect("department_id", value)
                                 }
                                 placeholder={
                                     loadingDepartments
@@ -157,7 +170,7 @@ export default function SingleInstructorRegistrationForm({
                 </div>
 
                 <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end dark:border-white/10">
-                    <Button type="button" variant="outline" onClick={onCancel}>
+                    <Button type="button" variant="outline" onClick={handleCancel}>
                         Cancel
                     </Button>
                     <Button type="submit">Review</Button>

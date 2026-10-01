@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Head, router } from "@inertiajs/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
@@ -12,13 +12,11 @@ import StudentRegistrationToast from "@/Components/Students/Register/StudentRegi
 import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import DiscardRegistrationModal from "@/Components/UI/DiscardRegistrationModal";
 import api from "@/Services/api";
-import {
-    departmentsQueryKey,
-    instructorsQueryKey,
-} from "@/Services/queryKeys";
+import { departmentsQueryKey, instructorsQueryKey } from "@/Services/queryKeys";
 import { notify } from "@/Services/toast";
 import usePermission from "@/Hooks/usePermission";
 import useFetchData from "@/Hooks/useFetchData";
+import useFormDiscardWarning from "@/Hooks/useFormDiscardWarning";
 
 const emptyForm = {
     user_id: "",
@@ -57,11 +55,13 @@ export default function InstructorForm({
 
     // Permission guard
     useEffect(() => {
-        const requiredPermission = isEdit ? "instructors.edit" : "instructors.create";
+        const requiredPermission = isEdit
+            ? "instructors.edit"
+            : "instructors.create";
         if (!can(requiredPermission)) {
             notify.error(
                 "Access Denied",
-                `You do not have permission to ${isEdit ? "edit instructor records" : "register instructors"}.`
+                `You do not have permission to ${isEdit ? "edit instructor records" : "register instructors"}.`,
             );
             router.visit("/instructors");
         }
@@ -73,17 +73,14 @@ export default function InstructorForm({
     const [submitting, setSubmitting] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
     const [toast, setToast] = useState(null);
-    const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
 
     const showToast = useCallback((type, title, message = "") => {
         setToast({ type, title, message, id: Date.now() });
     }, []);
 
     // Fetch departments using useFetchData
-    const { data: departments = [], isLoading: loadingDepartments } = useFetchData(
-        departmentsQueryKey,
-        "/department"
-    );
+    const { data: departments = [], isLoading: loadingDepartments } =
+        useFetchData(departmentsQueryKey, "/department");
 
     // Populate form in edit mode
     useEffect(() => {
@@ -100,7 +97,9 @@ export default function InstructorForm({
             last_name: user.last_name || "",
             suffix: user.suffix || "",
             sex: user.sex || "",
-            department_id: instructor.department_id ? String(instructor.department_id) : "",
+            department_id: instructor.department_id
+                ? String(instructor.department_id)
+                : "",
         });
 
         if (profile.image_link || profile.imagelink) {
@@ -110,13 +109,43 @@ export default function InstructorForm({
         setIsInitialized(true);
     }, [isEdit, initialData, isInitialized]);
 
-    const isDirty = useMemo(
+    const defaultDiscardUrl = useMemo(
         () =>
+            isEdit && userId
+                ? `/instructors/instructor-details?user_id=${userId}`
+                : "/instructors",
+        [isEdit, userId]
+    );
+
+    const isDirty = useMemo(() => {
+        if (isEdit && initialData) {
+            const user = initialData.user || {};
+            const instructor = initialData.instructor || {};
+            return (
+                currentStep > 1 ||
+                Boolean(image) ||
+                form.first_name !== (user.first_name || "") ||
+                form.middle_initial !== (user.middle_initial || "") ||
+                form.last_name !== (user.last_name || "") ||
+                form.suffix !== (user.suffix || "") ||
+                form.sex !== (user.sex || "") ||
+                String(form.department_id) !== String(instructor.department_id || "")
+            );
+        }
+        return (
             currentStep > 1 ||
             Object.values(form).some((value) => String(value || "").trim()) ||
-            Boolean(image),
-        [currentStep, form, image]
-    );
+            Boolean(image)
+        );
+    }, [currentStep, form, image, isEdit, initialData]);
+
+    const {
+        confirmDiscardOpen,
+        cancelDiscard,
+        proceedWithDiscard,
+        triggerDiscard,
+        allowNavigation,
+    } = useFormDiscardWarning(isDirty, defaultDiscardUrl);
 
     const departmentOptions = useMemo(
         () =>
@@ -124,12 +153,13 @@ export default function InstructorForm({
                 label: `${dept.department_code} - ${dept.department_name}`,
                 value: String(dept.department_id),
             })),
-        [departments]
+        [departments],
     );
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        const nextValue = name === "user_id" && !isEdit ? makeInstructorId(value) : value;
+        const nextValue =
+            name === "user_id" && !isEdit ? makeInstructorId(value) : value;
 
         setForm((prev) => ({ ...prev, [name]: nextValue }));
 
@@ -173,15 +203,23 @@ export default function InstructorForm({
 
     const handleNext = () => {
         const errors = {};
-        if (!isEdit && !form.user_id.trim()) errors.user_id = ["Employee ID is required."];
-        if (!form.first_name.trim()) errors.first_name = ["First name is required."];
-        if (!form.last_name.trim()) errors.last_name = ["Last name is required."];
+        if (!isEdit && !form.user_id.trim())
+            errors.user_id = ["Employee ID is required."];
+        if (!form.first_name.trim())
+            errors.first_name = ["First name is required."];
+        if (!form.last_name.trim())
+            errors.last_name = ["Last name is required."];
         if (!form.sex) errors.sex = ["Sex is required."];
-        if (!form.department_id) errors.department_id = ["Department is required."];
+        if (!form.department_id)
+            errors.department_id = ["Department is required."];
 
         if (Object.keys(errors).length > 0) {
             setFieldErrors(errors);
-            showToast("error", "Validation Error", "Please fill in all required fields.");
+            showToast(
+                "error",
+                "Validation Error",
+                "Please fill in all required fields.",
+            );
             return;
         }
 
@@ -216,33 +254,46 @@ export default function InstructorForm({
                 await api.post(`/instructor/${userId}`, formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
-                queryClient.invalidateQueries({ queryKey: ["instructor-details", userId] });
-                notify.success("Instructor Updated", "Instructor profile has been updated successfully.");
-                router.visit(`/instructors/instructor-details?user_id=${userId}`);
+                allowNavigation();
+                queryClient.invalidateQueries({
+                    queryKey: ["instructor-details", userId],
+                });
+                notify.success(
+                    "Instructor Updated",
+                    "Instructor profile has been updated successfully.",
+                );
+                router.visit(
+                    `/instructors/instructor-details?user_id=${userId}`,
+                    { force: true }
+                );
             } else {
                 await api.post("/instructor", formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
-                queryClient.invalidateQueries({ queryKey: instructorsQueryKey });
-                notify.success("Instructor Registered", "New instructor has been successfully registered.");
-                router.visit("/instructors");
+                allowNavigation();
+                queryClient.invalidateQueries({
+                    queryKey: instructorsQueryKey,
+                });
+                notify.success(
+                    "Instructor Registered",
+                    "New instructor has been successfully registered.",
+                );
+                router.visit("/instructors", { force: true });
             }
         } catch (err) {
             const errors = err.response?.data?.errors || {};
             setFieldErrors(errors);
-            const msg = err.response?.data?.message || `Failed to ${isEdit ? "update" : "register"} instructor.`;
-            showToast("error", isEdit ? "Update Failed" : "Registration Failed", msg);
+            const msg =
+                err.response?.data?.message ||
+                `Failed to ${isEdit ? "update" : "register"} instructor.`;
+            showToast(
+                "error",
+                isEdit ? "Update Failed" : "Registration Failed",
+                msg,
+            );
             setCurrentStep(1);
         } finally {
             setSubmitting(false);
-        }
-    };
-
-    const handleDiscard = () => {
-        if (isDirty) {
-            setConfirmDiscardOpen(true);
-        } else {
-            router.visit(isEdit && userId ? `/instructors/instructor-details?user_id=${userId}` : "/instructors");
         }
     };
 
@@ -253,7 +304,9 @@ export default function InstructorForm({
 
     if (isLoadingData) {
         return (
-            <MainLayout title={isEdit ? "Edit Instructor" : "Register Instructor"}>
+            <MainLayout
+                title={isEdit ? "Edit Instructor" : "Register Instructor"}
+            >
                 <div className="py-8">
                     <InstructorDetailsSkeleton />
                 </div>
@@ -265,30 +318,49 @@ export default function InstructorForm({
         <MainLayout title={isEdit ? "Edit Instructor" : "Register Instructor"}>
             <Head title={isEdit ? "Edit Instructor" : "Register Instructor"} />
 
-            <StudentRegistrationToast toast={toast} onClose={() => setToast(null)} />
+            <StudentRegistrationToast
+                toast={toast}
+                onClose={() => setToast(null)}
+            />
 
             <DiscardRegistrationModal
                 isOpen={confirmDiscardOpen}
-                onClose={() => setConfirmDiscardOpen(false)}
-                onDiscard={() => router.visit(isEdit && userId ? `/instructors/instructor-details?user_id=${userId}` : "/instructors")}
+                onClose={cancelDiscard}
+                onDiscard={proceedWithDiscard}
                 title={isEdit ? "Discard Changes?" : "Discard Registration?"}
                 description={
                     isEdit
                         ? "Are you sure you want to discard your edits? Unsaved changes will be lost."
-                        : "Are you sure you want to cancel? Any information entered will be lost."
+                        : "You have filled up inputs already. Leaving this page will clear the registration form."
                 }
             />
 
             <div className="space-y-6">
-                <Breadcrumbs
-                    items={[
-                        { label: "Instructors", href: "/instructors" },
-                        ...(isEdit && userId
-                            ? [{ label: "Instructor Details", href: `/instructors/instructor-details?user_id=${userId}` }]
-                            : []),
-                        { label: isEdit ? "Edit" : "Single Registration" },
-                    ]}
-                />
+                <div className="flex min-h-10 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <Breadcrumbs
+                        items={[
+                            { label: "Dashboard", href: "/dashboard" },
+                            { label: "Instructors", href: "/instructors" },
+                            ...(isEdit && userId
+                                ? [
+                                      {
+                                          label: userId || "Instructor Details",
+                                          href: `/instructors/instructor-details?user_id=${userId}`,
+                                      },
+                                  ]
+                                : []),
+                            { label: isEdit ? "Edit" : "Single Registration" },
+                        ]}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => triggerDiscard(defaultDiscardUrl)}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                    >
+                        <ArrowLeftIcon className="h-4 w-4" />
+                        <span>{isEdit ? "Back to Details" : "Back to Instructors"}</span>
+                    </button>
+                </div>
 
                 <InstructorRegistrationStepper
                     steps={steps}
@@ -308,7 +380,7 @@ export default function InstructorForm({
                         onImageChange={handleImageChange}
                         onRemoveImage={handleRemoveImage}
                         onNext={handleNext}
-                        onDiscard={handleDiscard}
+                        onDiscard={() => triggerDiscard(defaultDiscardUrl)}
                         isEdit={isEdit}
                     />
                 )}

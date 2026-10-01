@@ -51,9 +51,15 @@ const DepartmentsEdit = lazy(() => import("@/Pages/Departments/Edit"));
 const DepartmentsArchives = lazy(() => import("@/Pages/Departments/Archives"));
 const DepartmentsDetails = lazy(() => import("@/Pages/Departments/DepartmentDetails"));
 
+// Courses
+const CoursesIndex = lazy(() => import("@/Pages/Courses/Index"));
+const CoursesCreate = lazy(() => import("@/Pages/Courses/Create"));
+const CoursesEdit = lazy(() => import("@/Pages/Courses/Edit"));
+const CoursesArchives = lazy(() => import("@/Pages/Courses/Archives"));
+const CoursesDetails = lazy(() => import("@/Pages/Courses/CourseDetails"));
+
 // In-Progress Modules
 const ProgramsIndex = lazy(() => import("@/Pages/Programs/Index"));
-const CoursesIndex = lazy(() => import("@/Pages/Courses/Index"));
 const FacilitiesIndex = lazy(() => import("@/Pages/Facilities/Index"));
 const SchedulesIndex = lazy(() => import("@/Pages/Schedules/Index"));
 const MySchedulesIndex = lazy(() => import("@/Pages/MySchedules/Index"));
@@ -69,6 +75,11 @@ function SemesterEditRoute() {
 function DepartmentEditRoute() {
     const { department } = useParams();
     return <DepartmentsEdit departmentId={department} />;
+}
+
+function CourseEditRoute() {
+    const { course } = useParams();
+    return <CoursesEdit courseId={course} />;
 }
 
 // Global navigator bridge
@@ -133,9 +144,16 @@ export default function App() {
                             <Route path="/departments/archives" element={<DepartmentsArchives />} />
                             <Route path="/departments/department-details" element={<DepartmentsDetails />} />
 
+                            {/* Courses */}
+                            <Route path="/courses" element={<CoursesIndex />} />
+                            <Route path="/courses/create" element={<CoursesCreate />} />
+                            <Route path="/courses/edit" element={<CoursesEdit />} />
+                            <Route path="/courses/:course/edit" element={<CourseEditRoute />} />
+                            <Route path="/courses/archives" element={<CoursesArchives />} />
+                            <Route path="/courses/course-details" element={<CoursesDetails />} />
+
                             {/* In-Progress Modules */}
                             <Route path="/programs" element={<ProgramsIndex />} />
-                            <Route path="/courses" element={<CoursesIndex />} />
                             <Route path="/facilities" element={<FacilitiesIndex />} />
                             <Route path="/schedules" element={<SchedulesIndex />} />
                             <Route path="/my-schedules" element={<MySchedulesIndex />} />

@@ -1,16 +1,24 @@
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-
 import Button from "@/Components/UI/Button";
 
 export default function DiscardRegistrationModal({
     open,
+    isOpen,
     onKeepEditing,
+    onClose,
     onDiscard,
+    title = "Discard registration?",
+    description = "You have filled up inputs already. Leaving this page will clear the form.",
+    discardLabel = "Discard",
+    keepEditingLabel = "Keep Editing",
 }) {
-    if (!open) return null;
+    const show = open !== undefined ? open : isOpen;
+    const handleClose = onKeepEditing || onClose;
+
+    if (!show) return null;
 
     return (
-        <div className="fixed inset-0 z-90 flex items-center justify-center bg-gray-950/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-90 flex items-center justify-center bg-gray-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
             <div
                 className="w-full max-w-md overflow-hidden rounded-xl bg-white shadow-2xl shadow-blue-950/20 dark:bg-[#12131C] dark:border dark:border-white/10"
                 role="dialog"
@@ -26,25 +34,24 @@ export default function DiscardRegistrationModal({
                         id="discard-registration-title"
                         className="text-base sm:text-lg font-bold text-gray-900 dark:text-white"
                     >
-                        Discard registration?
+                        {title}
                     </h2>
                 </div>
 
                 {/* Body */}
                 <div className="px-6 py-5 text-sm text-gray-600 dark:text-slate-300">
                     <p className="leading-relaxed">
-                        You have filled up inputs already. Leaving this page
-                        will clear the registration form.
+                        {description}
                     </p>
                 </div>
 
                 {/* Footer (Buttons) */}
                 <div className="flex flex-col-reverse gap-3 border-t border-gray-200 bg-gray-50/50 px-6 py-4 sm:flex-row sm:justify-end dark:border-white/10 dark:bg-[#161724]">
                     <Button type="button" variant="danger-outline" onClick={onDiscard}>
-                        Discard
+                        {discardLabel}
                     </Button>
-                    <Button type="button" onClick={onKeepEditing}>
-                        Keep Editing
+                    <Button type="button" onClick={handleClose}>
+                        {keepEditingLabel}
                     </Button>
                 </div>
             </div>

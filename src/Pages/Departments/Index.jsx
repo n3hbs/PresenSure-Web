@@ -254,18 +254,21 @@ export default function Departments() {
                         icon={BuildingOffice2Icon}
                         label="Total Departments"
                         value={counts.total}
+                        loading={loading}
                     />
                     <StatCard
                         icon={AcademicCapIcon}
                         label="Offered Programs"
                         value={counts.totalPrograms}
                         tone="blue"
+                        loading={loading}
                     />
                     <StatCard
                         icon={UsersIcon}
                         label="Faculty Members"
                         value={counts.totalInstructors}
                         tone="gray"
+                        loading={loading}
                     />
                 </div>
 

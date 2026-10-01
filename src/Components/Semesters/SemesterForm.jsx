@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Head, Link, router } from "@inertiajs/react";
+import { useEffect, useMemo, useState } from "react";
+import { Head, router } from "@inertiajs/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     ArrowLeftIcon,
@@ -27,6 +27,7 @@ import {
 } from "@/Services/queryKeys";
 import usePermission from "@/Hooks/usePermission";
 import useFetchData from "@/Hooks/useFetchData";
+import useFormDiscardWarning from "@/Hooks/useFormDiscardWarning";
 
 const PERIOD_CONFIG = [
     { key: "prelim", label: "Prelim", placeholder: "First examination period" },
@@ -89,7 +90,6 @@ export default function SemesterForm({
     ]);
 
     const [fieldErrors, setFieldErrors] = useState({});
-    const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
 
     // Populate initial data when editing
     useEffect(() => {
@@ -144,6 +144,44 @@ export default function SemesterForm({
         return schoolYears.find((sy) => String(sy.school_year_id) === String(form.school_year_id));
     }, [schoolYears, form.school_year_id]);
 
+    const defaultDiscardUrl = useMemo(
+        () => (isEdit && semesterId ? `/semesters/semester-details?semester_id=${semesterId}` : "/semesters"),
+        [isEdit, semesterId]
+    );
+
+    const isFormDirty = useMemo(() => {
+        if (!isEdit) {
+            return (
+                currentStep > 1 ||
+                Boolean(form.semester_start) ||
+                Boolean(form.semester_end) ||
+                Boolean(form.remarks) ||
+                periods.some((p) => p.enabled)
+            );
+        }
+        if (initialData) {
+            const startChanged = form.semester_start !== (initialData.semester_start || "");
+            const endChanged = form.semester_end !== (initialData.semester_end || "");
+            const remarksChanged = (form.remarks || "") !== (initialData.remarks || "");
+            const periodsChanged = periods.some((p) => {
+                const orig = (initialData.periods || []).find((op) => op.name?.toLowerCase() === p.name?.toLowerCase());
+                if (!orig && p.enabled) return true;
+                if (orig && (!p.enabled || p.period_start !== orig.period_start || p.period_end !== orig.period_end)) return true;
+                return false;
+            });
+            return currentStep > 1 || startChanged || endChanged || remarksChanged || periodsChanged;
+        }
+        return false;
+    }, [isEdit, initialData, currentStep, form, periods]);
+
+    const {
+        confirmDiscardOpen,
+        cancelDiscard,
+        proceedWithDiscard,
+        triggerDiscard,
+        allowNavigation,
+    } = useFormDiscardWarning(isFormDirty, defaultDiscardUrl);
+
     // Mutation for create / update
     const formMutation = useMutation({
         mutationFn: async (payload) => {
@@ -155,6 +193,7 @@ export default function SemesterForm({
             return res.data;
         },
         onSuccess: (data) => {
+            allowNavigation();
             queryClient.invalidateQueries({ queryKey: semestersQueryKey });
             queryClient.invalidateQueries({ queryKey: activeSemesterQueryKey });
             if (isEdit && semesterId) {
@@ -167,9 +206,9 @@ export default function SemesterForm({
             );
 
             if (isEdit && semesterId) {
-                router.visit(`/semesters/semester-details?semester_id=${semesterId}`);
+                router.visit(`/semesters/semester-details?semester_id=${semesterId}`, { force: true });
             } else {
-                router.visit("/semesters");
+                router.visit("/semesters", { force: true });
             }
         },
         onError: (err) => {
@@ -202,30 +241,17 @@ export default function SemesterForm({
             if (target.hasAttendanceSessions && target.enabled) {
                 notify.warning(
                     "Action Restricted",
-                    `Cannot disable the ${target.name.toUpperCase()} period because attendance sessions have already been recorded for it.`
+                    "Cannot disable this period because attendance sessions are already registered under it."
                 );
                 return prev;
             }
 
-            const willEnable = !target.enabled;
-
-            if (!willEnable) {
-                for (let i = index; i < updated.length; i++) {
-                    if (updated[i].hasAttendanceSessions) {
-                        notify.warning(
-                            "Action Restricted",
-                            `Cannot disable subsequent period ${updated[i].name.toUpperCase()} with active attendance records.`
-                        );
-                        return prev;
-                    }
-                    updated[i].enabled = false;
-                }
-            } else {
-                for (let i = 0; i <= index; i++) {
-                    updated[i].enabled = true;
-                }
-            }
-
+            updated[index] = {
+                ...target,
+                enabled: !target.enabled,
+                period_start: !target.enabled ? form.semester_start : "",
+                period_end: !target.enabled ? form.semester_end : "",
+            };
             return updated;
         });
     };
@@ -237,20 +263,20 @@ export default function SemesterForm({
             return updated;
         });
 
-        const errKey = `periods.${index}.${field}`;
-        if (fieldErrors[errKey]) {
+        const errorKey = `periods.${index}.${field}`;
+        if (fieldErrors[errorKey]) {
             setFieldErrors((prev) => {
                 const next = { ...prev };
-                delete next[errKey];
+                delete next[errorKey];
                 return next;
             });
         }
     };
 
-    // Auto-distribute dates evenly
+    // Auto distribute dates evenly across enabled periods
     const autoDistributeDates = () => {
         if (!form.semester_start || !form.semester_end) {
-            notify.info("Dates Required", "Set both semester start and end dates first.");
+            notify.error("Missing Dates", "Please set semester start and end dates first.");
             return;
         }
 
@@ -259,7 +285,7 @@ export default function SemesterForm({
             .filter((idx) => idx !== null);
 
         if (enabledIndices.length === 0) {
-            notify.info("No Active Periods", "Enable at least one period to distribute dates.");
+            notify.warning("No Periods Enabled", "Please enable at least one academic period to distribute dates.");
             return;
         }
 
@@ -319,31 +345,25 @@ export default function SemesterForm({
         const enabledPeriods = periods.filter((p) => p.enabled);
 
         if (enabledPeriods.length === 0) {
-            errors.general = "You must enable at least one academic period (e.g., Prelim).";
+            errors.general = "Please configure at least one academic period (e.g. Midterm or Finals).";
         }
 
         periods.forEach((p, idx) => {
-            if (!p.enabled) return;
+            if (p.enabled) {
+                if (!p.period_start) {
+                    errors[`periods.${idx}.period_start`] = "Start date is required.";
+                }
+                if (!p.period_end) {
+                    errors[`periods.${idx}.period_end`] = "End date is required.";
+                } else if (p.period_start && p.period_end <= p.period_start) {
+                    errors[`periods.${idx}.period_end`] = "End date must be after start date.";
+                }
 
-            if (!p.period_start) {
-                errors[`periods.${idx}.period_start`] = `${p.name.toUpperCase()} start date is required.`;
-            } else if (form.semester_start && p.period_start < form.semester_start) {
-                errors[`periods.${idx}.period_start`] = `Cannot start before semester start (${form.semester_start}).`;
-            }
-
-            if (!p.period_end) {
-                errors[`periods.${idx}.period_end`] = `${p.name.toUpperCase()} end date is required.`;
-            } else if (p.period_start && p.period_end <= p.period_start) {
-                errors[`periods.${idx}.period_end`] = `End date must be after start date.`;
-            } else if (form.semester_end && p.period_end > form.semester_end) {
-                errors[`periods.${idx}.period_end`] = `Cannot extend beyond semester end (${form.semester_end}).`;
-            }
-
-            // Sequential checks with prior enabled period
-            const priorEnabled = periods.slice(0, idx).filter((item) => item.enabled).pop();
-            if (priorEnabled && priorEnabled.period_end && p.period_start) {
-                if (p.period_start < priorEnabled.period_end) {
-                    errors[`periods.${idx}.period_start`] = `Cannot start before prior period ends (${priorEnabled.period_end}).`;
+                if (p.period_start && (p.period_start < form.semester_start || p.period_start > form.semester_end)) {
+                    errors[`periods.${idx}.period_start`] = "Period start must fall within the semester dates.";
+                }
+                if (p.period_end && (p.period_end < form.semester_start || p.period_end > form.semester_end)) {
+                    errors[`periods.${idx}.period_end`] = "Period end must fall within the semester dates.";
                 }
             }
         });
@@ -394,26 +414,6 @@ export default function SemesterForm({
         formMutation.mutate(payload);
     };
 
-    const isFormDirty = useMemo(() => {
-        if (!isEdit) {
-            return (
-                Boolean(form.semester_start) ||
-                Boolean(form.semester_end) ||
-                Boolean(form.remarks) ||
-                periods.some((p) => p.enabled)
-            );
-        }
-        return true;
-    }, [isEdit, form, periods]);
-
-    const handleDiscard = () => {
-        if (isFormDirty) {
-            setConfirmDiscardOpen(true);
-        } else {
-            router.visit(isEdit && semesterId ? `/semesters/semester-details?semester_id=${semesterId}` : "/semesters");
-        }
-    };
-
     if (isLoadingData) {
         return (
             <MainLayout title={isEdit ? "Edit Semester" : "Create Semester"}>
@@ -433,8 +433,8 @@ export default function SemesterForm({
 
             <DiscardRegistrationModal
                 isOpen={confirmDiscardOpen}
-                onClose={() => setConfirmDiscardOpen(false)}
-                onDiscard={() => router.visit(isEdit && semesterId ? `/semesters/semester-details?semester_id=${semesterId}` : "/semesters")}
+                onClose={cancelDiscard}
+                onDiscard={proceedWithDiscard}
                 title={isEdit ? "Discard Changes?" : "Discard Semester?"}
                 description={
                     isEdit
@@ -444,30 +444,52 @@ export default function SemesterForm({
             />
 
             <div className="space-y-6">
-                <Breadcrumbs
-                    items={[
-                        { label: "Semesters", href: "/semesters" },
-                        ...(isEdit && semesterId
-                            ? [{ label: "Semester Details", href: `/semesters/semester-details?semester_id=${semesterId}` }]
-                            : []),
-                        { label: isEdit ? "Edit" : "Create" },
-                    ]}
-                />
+                <div className="flex min-h-10 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <Breadcrumbs
+                            items={[
+                                { label: "Dashboard", href: "/dashboard" },
+                                { label: "Semesters", href: "/semesters" },
+                                ...(isEdit && semesterId
+                                    ? [
+                                          {
+                                              label:
+                                                  form.term ||
+                                                  initialData?.term ||
+                                                  semesterId ||
+                                                  "Details",
+                                              href: `/semesters/semester-details?semester_id=${semesterId}`,
+                                          },
+                                      ]
+                                    : []),
+                                { label: isEdit ? "Edit" : "Create Semester" },
+                            ]}
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => triggerDiscard(defaultDiscardUrl)}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                    >
+                        <ArrowLeftIcon className="h-4 w-4" />
+                        <span>{isEdit ? "Back to Details" : "Back to Semesters"}</span>
+                    </button>
+                </div>
 
                 <Stepper steps={steps} currentStep={currentStep} onStepClick={setCurrentStep} />
 
                 {/* ================= STEP 1: SEMESTER DETAILS ================= */}
                 {currentStep === 1 && (
-                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-gray-800 dark:bg-gray-900">
-                        <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-gray-800">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+                        <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-white/10">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                                 <CalendarDaysIcon className="h-6 w-6" />
                             </div>
                             <div>
                                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                                     Semester Details
                                 </h2>
-                                <p className="text-sm text-gray-400 dark:text-gray-500">
+                                <p className="text-sm text-gray-400 dark:text-slate-400">
                                     Define the academic calendar year, term, and boundary dates.
                                 </p>
                             </div>
@@ -476,7 +498,7 @@ export default function SemesterForm({
                         <div className="grid gap-4 sm:grid-cols-2">
                             {/* School Year */}
                             <div>
-                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400">
                                     School Year <span className="text-red-500">*</span>
                                 </label>
                                 <select
@@ -484,7 +506,7 @@ export default function SemesterForm({
                                     value={form.school_year_id}
                                     onChange={handleTextChange}
                                     disabled={loadingSchoolYears || isEdit}
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-gray-800/50"
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:disabled:bg-white/5 dark:disabled:text-slate-500 disabled:bg-gray-50"
                                 >
                                     {schoolYears.map((sy) => (
                                         <option key={sy.school_year_id} value={sy.school_year_id}>
@@ -493,7 +515,7 @@ export default function SemesterForm({
                                     ))}
                                 </select>
                                 {isEdit && (
-                                    <p className="mt-1 text-xs text-gray-400">
+                                    <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">
                                         School Year cannot be altered for an existing semester.
                                     </p>
                                 )}
@@ -504,7 +526,7 @@ export default function SemesterForm({
 
                             {/* Academic Term */}
                             <div>
-                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400">
                                     Academic Term <span className="text-red-500">*</span>
                                 </label>
                                 <select
@@ -512,7 +534,7 @@ export default function SemesterForm({
                                     value={form.term}
                                     onChange={handleTextChange}
                                     disabled={isEdit}
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-gray-800/50"
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:disabled:bg-white/5 dark:disabled:text-slate-500 disabled:bg-gray-50"
                                 >
                                     {TERMS.map((t) => (
                                         <option key={t} value={t}>
@@ -521,7 +543,7 @@ export default function SemesterForm({
                                     ))}
                                 </select>
                                 {isEdit && (
-                                    <p className="mt-1 text-xs text-gray-400">
+                                    <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">
                                         Term cannot be altered for an existing semester.
                                     </p>
                                 )}
@@ -532,7 +554,7 @@ export default function SemesterForm({
 
                             {/* Start Date */}
                             <div>
-                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400">
                                     Semester Start Date <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -540,7 +562,7 @@ export default function SemesterForm({
                                     name="semester_start"
                                     value={form.semester_start}
                                     onChange={handleTextChange}
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-[#161824]"
                                 />
                                 {fieldErrors.semester_start && (
                                     <p className="mt-1 text-xs text-red-500">{fieldErrors.semester_start}</p>
@@ -549,7 +571,7 @@ export default function SemesterForm({
 
                             {/* End Date */}
                             <div>
-                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400">
                                     Semester End Date <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -558,7 +580,7 @@ export default function SemesterForm({
                                     value={form.semester_end}
                                     min={form.semester_start || (!isEdit ? todayDate : undefined)}
                                     onChange={handleTextChange}
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-[#161824]"
                                 />
                                 {fieldErrors.semester_end && (
                                     <p className="mt-1 text-xs text-red-500">{fieldErrors.semester_end}</p>
@@ -567,7 +589,7 @@ export default function SemesterForm({
 
                             {/* Remarks */}
                             <div className="sm:col-span-2">
-                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400">
                                     Remarks / Notes (Optional)
                                 </label>
                                 <textarea
@@ -576,13 +598,13 @@ export default function SemesterForm({
                                     value={form.remarks}
                                     onChange={handleTextChange}
                                     placeholder="Enter administrative notes, special academic guidelines, or orientation remarks..."
-                                    className="w-full rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                    className="w-full rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-slate-500 dark:focus:bg-[#161824]"
                                 />
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-between dark:border-gray-800">
-                            <Button type="button" variant="outline" onClick={handleDiscard}>
+                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-between dark:border-white/10">
+                            <Button type="button" variant="outline" onClick={() => triggerDiscard(defaultDiscardUrl)}>
                                 Discard
                             </Button>
                             <Button type="button" onClick={handleNext}>
@@ -594,18 +616,18 @@ export default function SemesterForm({
 
                 {/* ================= STEP 2: ACADEMIC PERIODS ================= */}
                 {currentStep === 2 && (
-                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-gray-800 dark:bg-gray-900">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-100 pb-4 dark:border-gray-800">
+                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-100 pb-4 dark:border-white/10">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400">
                                     <ClockIcon className="h-6 w-6" />
                                 </div>
                                 <div>
                                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                                        Academic Examination Periods
+                                        Academic Grading Periods
                                     </h2>
-                                    <p className="text-sm text-gray-400 dark:text-gray-500">
-                                        Configure grading milestones within the semester timeline.
+                                    <p className="text-sm text-gray-400 dark:text-slate-400">
+                                        Configure examination milestones and assessment boundaries.
                                     </p>
                                 </div>
                             </div>
@@ -616,7 +638,7 @@ export default function SemesterForm({
                                 onClick={autoDistributeDates}
                                 className="self-start sm:self-auto"
                             >
-                                <ArrowPathIcon className="h-4 w-4 mr-1.5" />
+                                <InformationCircleIcon className="h-4 w-4 mr-1.5 text-blue-500" />
                                 Auto-Distribute Dates
                             </Button>
                         </div>
@@ -629,7 +651,7 @@ export default function SemesterForm({
                         )}
 
                         <div className="space-y-3">
-                            {PERIOD_CONFIG.map(({ key, label, placeholder }, idx) => {
+                            {PERIOD_CONFIG.map(({ key, label }, idx) => {
                                 const period = periods[idx];
                                 const isEnabled = period?.enabled;
 
@@ -639,7 +661,7 @@ export default function SemesterForm({
                                         className={`rounded-xl border transition-all ${
                                             isEnabled
                                                 ? "border-blue-200 bg-blue-50/20 dark:border-blue-900/50 dark:bg-blue-950/10"
-                                                : "border-gray-100 bg-gray-50/50 opacity-60 dark:border-gray-800 dark:bg-gray-800/30"
+                                                : "border-gray-100 bg-gray-50/50 opacity-60 dark:border-white/5 dark:bg-white/[0.02]"
                                         } p-4`}
                                     >
                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
@@ -649,7 +671,7 @@ export default function SemesterForm({
                                                     id={`period-enable-${key}`}
                                                     checked={isEnabled}
                                                     onChange={() => handlePeriodToggle(idx)}
-                                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
+                                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5"
                                                 />
                                                 <label
                                                     htmlFor={`period-enable-${key}`}
@@ -664,13 +686,13 @@ export default function SemesterForm({
                                                     </span>
                                                 )}
                                             </div>
-                                            <span className="text-xs text-gray-400">Step sequence #{idx + 1}</span>
+                                            <span className="text-xs text-gray-400 dark:text-slate-500">Step sequence #{idx + 1}</span>
                                         </div>
 
                                         {isEnabled && (
-                                            <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                                            <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-gray-100 dark:border-white/10">
                                                 <div>
-                                                    <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-gray-300">
+                                                    <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-slate-400">
                                                         Start Date <span className="text-red-500">*</span>
                                                     </label>
                                                     <input
@@ -679,7 +701,7 @@ export default function SemesterForm({
                                                         min={form.semester_start}
                                                         max={form.semester_end}
                                                         onChange={(e) => handlePeriodChange(idx, "period_start", e.target.value)}
-                                                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-[#161824] dark:text-white"
                                                     />
                                                     {fieldErrors[`periods.${idx}.period_start`] && (
                                                         <p className="mt-1 text-xs text-red-500">
@@ -689,7 +711,7 @@ export default function SemesterForm({
                                                 </div>
 
                                                 <div>
-                                                    <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-gray-300">
+                                                    <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-slate-400">
                                                         End Date <span className="text-red-500">*</span>
                                                     </label>
                                                     <input
@@ -698,7 +720,7 @@ export default function SemesterForm({
                                                         min={period.period_start || form.semester_start}
                                                         max={form.semester_end}
                                                         onChange={(e) => handlePeriodChange(idx, "period_end", e.target.value)}
-                                                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-[#161824] dark:text-white"
                                                     />
                                                     {fieldErrors[`periods.${idx}.period_end`] && (
                                                         <p className="mt-1 text-xs text-red-500">
@@ -713,7 +735,7 @@ export default function SemesterForm({
                             })}
                         </div>
 
-                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-between dark:border-gray-800">
+                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-between dark:border-white/10">
                             <Button type="button" variant="outline" onClick={handleBack}>
                                 Back: Semester Details
                             </Button>
@@ -726,17 +748,17 @@ export default function SemesterForm({
 
                 {/* ================= STEP 3: REVIEW ================= */}
                 {currentStep === 3 && (
-                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-gray-800 dark:bg-gray-900">
-                        <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-gray-800">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300">
+                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+                        <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-white/10">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400">
                                 <CheckCircleIcon className="h-6 w-6" />
                             </div>
                             <div>
                                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                                     Review Semester & Periods
                                 </h2>
-                                <p className="text-sm text-gray-400 dark:text-gray-500">
-                                    Confirm the semester details and examination periods before saving.
+                                <p className="text-sm text-gray-400 dark:text-slate-400">
+                                    Confirm the academic terms and milestone boundaries before saving.
                                 </p>
                             </div>
                         </div>
@@ -790,7 +812,7 @@ export default function SemesterForm({
                                                         </td>
                                                         <td className="px-4 py-3">
                                                             {isConfigured ? (
-                                                                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full dark:bg-emerald-950/40 dark:text-emerald-300">
+                                                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full dark:bg-emerald-950/40 dark:text-emerald-300">
                                                                     <CheckCircleIcon className="h-3.5 w-3.5" />
                                                                     Configured
                                                                 </span>
@@ -809,7 +831,7 @@ export default function SemesterForm({
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end dark:border-gray-800">
+                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end dark:border-white/10">
                             <Button
                                 type="button"
                                 variant="outline"

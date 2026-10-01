@@ -410,18 +410,21 @@ export default function RolesIndex() {
                         label="Total System Roles"
                         value={roles.length}
                         tone="gray"
+                        loading={isLoadingRoles || isLoadingPermissions}
                     />
                     <StatCard
                         icon={ShieldCheckIcon}
                         label="Total Permissions"
                         value={allPermissions.length}
                         tone="blue"
+                        loading={isLoadingRoles || isLoadingPermissions}
                     />
                     <StatCard
                         icon={CheckCircleIcon}
                         label={`Active for ${selectedRole?.role_name || "Role"}`}
                         value={currentSelectedIds.length}
                         tone="green"
+                        loading={isLoadingRoles || isLoadingPermissions}
                     />
                 </div>
 

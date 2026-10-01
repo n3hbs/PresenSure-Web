@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     AcademicCapIcon,
@@ -21,6 +21,7 @@ import api from "@/Services/api";
 import { notify } from "@/Services/toast";
 import { departmentsQueryKey } from "@/Services/queryKeys";
 import usePermission from "@/Hooks/usePermission";
+import useFormDiscardWarning from "@/Hooks/useFormDiscardWarning";
 
 const steps = [
     { number: 1, label: "Department Details" },
@@ -64,7 +65,6 @@ export default function DepartmentForm({
     ]);
 
     const [errors, setErrors] = useState({});
-    const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false);
 
     // Populate initial data when editing
     useEffect(() => {
@@ -92,10 +92,38 @@ export default function DepartmentForm({
         setIsInitialized(true);
     }, [isEdit, initialData, isInitialized]);
 
+    const defaultDiscardUrl = useMemo(
+        () =>
+            isEdit && departmentId
+                ? `/departments/department-details?department_id=${departmentId}`
+                : "/departments",
+        [isEdit, departmentId]
+    );
+
     const isDirty = useMemo(() => {
-        if (form.department_code || form.department_name || form.description) return true;
-        return programs.some((p) => p.program_code || p.program_name);
-    }, [form, programs]);
+        if (isEdit && initialData) {
+            const codeChanged = form.department_code !== (initialData.department_code || "");
+            const nameChanged = form.department_name !== (initialData.department_name || "");
+            const descChanged = (form.description || "") !== (initialData.description || "");
+            const programsChanged = JSON.stringify(programs) !== JSON.stringify(initialData.programs || []);
+            return currentStep > 1 || codeChanged || nameChanged || descChanged || programsChanged;
+        }
+        return (
+            currentStep > 1 ||
+            Boolean(form.department_code.trim()) ||
+            Boolean(form.department_name.trim()) ||
+            Boolean(form.description.trim()) ||
+            programs.some((p) => p.program_code.trim() || p.program_name.trim())
+        );
+    }, [isEdit, initialData, currentStep, form, programs]);
+
+    const {
+        confirmDiscardOpen,
+        cancelDiscard,
+        proceedWithDiscard,
+        triggerDiscard,
+        allowNavigation,
+    } = useFormDiscardWarning(isDirty, defaultDiscardUrl);
 
     const handleFieldChange = (field, value) => {
         setForm((prev) => ({ ...prev, [field]: value }));
@@ -177,6 +205,7 @@ export default function DepartmentForm({
         setCurrentStep((prev) => Math.max(prev - 1, 1));
     };
 
+    // Mutation for create / update
     const formMutation = useMutation({
         mutationFn: async (payload) => {
             if (isEdit) {
@@ -187,19 +216,21 @@ export default function DepartmentForm({
             return res.data;
         },
         onSuccess: (data) => {
+            allowNavigation();
             queryClient.invalidateQueries({ queryKey: departmentsQueryKey });
             if (isEdit && departmentId) {
-                queryClient.invalidateQueries({ queryKey: ["department-details", departmentId] });
+                queryClient.invalidateQueries({ queryKey: ["departments", departmentId] });
             }
+
             notify.success(
                 isEdit ? "Department Updated" : "Department Created",
-                data?.message || (isEdit ? "Department updated successfully." : "New department added successfully.")
+                data?.message || (isEdit ? "Department and degree programs updated successfully." : "New academic department created successfully.")
             );
 
             if (isEdit && departmentId) {
-                router.visit(`/departments/department-details?department_id=${departmentId}`);
+                router.visit(`/departments/department-details?department_id=${departmentId}`, { force: true });
             } else {
-                router.visit("/departments");
+                router.visit("/departments", { force: true });
             }
         },
         onError: (err) => {
@@ -241,14 +272,6 @@ export default function DepartmentForm({
         formMutation.mutate(payload);
     };
 
-    const handleDiscard = () => {
-        if (isDirty) {
-            setIsDiscardModalOpen(true);
-        } else {
-            router.visit(isEdit && departmentId ? `/departments/department-details?department_id=${departmentId}` : "/departments");
-        }
-    };
-
     if (isLoadingData) {
         return (
             <MainLayout title={isEdit ? "Edit Department" : "Create Department"}>
@@ -267,9 +290,9 @@ export default function DepartmentForm({
             <Head title={isEdit ? "Edit Department" : "Create Department"} />
 
             <DiscardRegistrationModal
-                isOpen={isDiscardModalOpen}
-                onClose={() => setIsDiscardModalOpen(false)}
-                onDiscard={() => router.visit(isEdit && departmentId ? `/departments/department-details?department_id=${departmentId}` : "/departments")}
+                isOpen={confirmDiscardOpen}
+                onClose={cancelDiscard}
+                onDiscard={proceedWithDiscard}
                 title={isEdit ? "Discard Changes?" : "Discard Department?"}
                 description={
                     isEdit
@@ -279,30 +302,52 @@ export default function DepartmentForm({
             />
 
             <div className="space-y-6">
-                <Breadcrumbs
-                    items={[
-                        { label: "Departments", href: "/departments" },
-                        ...(isEdit && departmentId
-                            ? [{ label: "Department Details", href: `/departments/department-details?department_id=${departmentId}` }]
-                            : []),
-                        { label: isEdit ? "Edit" : "Create" },
-                    ]}
-                />
+                <div className="flex min-h-10 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <Breadcrumbs
+                            items={[
+                                { label: "Dashboard", href: "/dashboard" },
+                                { label: "Departments", href: "/departments" },
+                                ...(isEdit && departmentId
+                                    ? [
+                                          {
+                                              label:
+                                                  form.department_code ||
+                                                  initialData?.department_code ||
+                                                  departmentId ||
+                                                  "Details",
+                                              href: `/departments/department-details?department_id=${departmentId}`,
+                                          },
+                                      ]
+                                    : []),
+                                { label: isEdit ? "Edit" : "Create Department" },
+                            ]}
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => triggerDiscard(defaultDiscardUrl)}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                    >
+                        <ArrowLeftIcon className="h-4 w-4" />
+                        <span>{isEdit ? "Back to Details" : "Back to Departments"}</span>
+                    </button>
+                </div>
 
                 <Stepper steps={steps} currentStep={currentStep} onStepClick={setCurrentStep} />
 
                 {/* ================= STEP 1: DEPARTMENT DETAILS ================= */}
                 {currentStep === 1 && (
-                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-gray-800 dark:bg-gray-900">
-                        <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-gray-800">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+                        <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-white/10">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                                 <BuildingOffice2Icon className="h-6 w-6" />
                             </div>
                             <div>
                                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                                     Department Information
                                 </h2>
-                                <p className="text-sm text-gray-400 dark:text-gray-500">
+                                <p className="text-sm text-gray-400 dark:text-slate-400">
                                     Provide the academic department code, formal title, and overview.
                                 </p>
                             </div>
@@ -310,7 +355,7 @@ export default function DepartmentForm({
 
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div>
-                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400">
                                     Department Code <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -318,7 +363,7 @@ export default function DepartmentForm({
                                     value={form.department_code}
                                     onChange={(e) => handleFieldChange("department_code", e.target.value.toUpperCase())}
                                     placeholder="e.g. CCS, CBA, CAS"
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 uppercase focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 uppercase focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-slate-500 dark:focus:bg-[#161824]"
                                 />
                                 {errors.department_code && (
                                     <p className="mt-1 text-xs text-red-500">{errors.department_code}</p>
@@ -326,7 +371,7 @@ export default function DepartmentForm({
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400">
                                     Department Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -334,7 +379,7 @@ export default function DepartmentForm({
                                     value={form.department_name}
                                     onChange={(e) => handleFieldChange("department_name", e.target.value)}
                                     placeholder="e.g. College of Computer Studies"
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-slate-500 dark:focus:bg-[#161824]"
                                 />
                                 {errors.department_name && (
                                     <p className="mt-1 text-xs text-red-500">{errors.department_name}</p>
@@ -342,7 +387,7 @@ export default function DepartmentForm({
                             </div>
 
                             <div className="sm:col-span-2">
-                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400">
                                     Description / Remarks (Optional)
                                 </label>
                                 <textarea
@@ -350,13 +395,13 @@ export default function DepartmentForm({
                                     value={form.description}
                                     onChange={(e) => handleFieldChange("description", e.target.value)}
                                     placeholder="Enter academic focus, faculty profile, or departmental mission..."
-                                    className="w-full rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                    className="w-full rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-slate-500 dark:focus:bg-[#161824]"
                                 />
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-between dark:border-gray-800">
-                            <Button type="button" variant="outline" onClick={handleDiscard}>
+                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-between dark:border-white/10">
+                            <Button type="button" variant="outline" onClick={() => triggerDiscard(defaultDiscardUrl)}>
                                 Discard
                             </Button>
                             <Button type="button" onClick={handleNext}>
@@ -368,17 +413,17 @@ export default function DepartmentForm({
 
                 {/* ================= STEP 2: DEGREE PROGRAMS ================= */}
                 {currentStep === 2 && (
-                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-gray-800 dark:bg-gray-900">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-100 pb-4 dark:border-gray-800">
+                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-100 pb-4 dark:border-white/10">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
                                     <AcademicCapIcon className="h-6 w-6" />
                                 </div>
                                 <div>
                                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                                         Degree Programs Under Department
                                     </h2>
-                                    <p className="text-sm text-gray-400 dark:text-gray-500">
+                                    <p className="text-sm text-gray-400 dark:text-slate-400">
                                         Add the academic degree programs administered by this department.
                                     </p>
                                 </div>
@@ -399,10 +444,10 @@ export default function DepartmentForm({
                             {programs.map((program, idx) => (
                                 <div
                                     key={idx}
-                                    className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-800/30"
+                                    className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-white/5 dark:bg-white/[0.02]"
                                 >
                                     <div className="flex items-center justify-between mb-3">
-                                        <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                                        <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
                                             Program #{idx + 1}
                                         </span>
                                         {programs.length > 1 && (
@@ -419,7 +464,7 @@ export default function DepartmentForm({
 
                                     <div className="grid gap-3 sm:grid-cols-12">
                                         <div className="sm:col-span-3">
-                                            <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-gray-300">
+                                            <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-slate-400">
                                                 Code <span className="text-red-500">*</span>
                                             </label>
                                             <input
@@ -427,7 +472,7 @@ export default function DepartmentForm({
                                                 value={program.program_code}
                                                 onChange={(e) => handleProgramChange(idx, "program_code", e.target.value.toUpperCase())}
                                                 placeholder="e.g. BSCS"
-                                                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 uppercase focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 uppercase focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-[#161824] dark:text-white dark:placeholder:text-slate-500"
                                             />
                                             {errors[`programs.${idx}.program_code`] && (
                                                 <p className="mt-1 text-xs text-red-500">
@@ -437,7 +482,7 @@ export default function DepartmentForm({
                                         </div>
 
                                         <div className="sm:col-span-6">
-                                            <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-gray-300">
+                                            <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-slate-400">
                                                 Program Title <span className="text-red-500">*</span>
                                             </label>
                                             <input
@@ -445,7 +490,7 @@ export default function DepartmentForm({
                                                 value={program.program_name}
                                                 onChange={(e) => handleProgramChange(idx, "program_name", e.target.value)}
                                                 placeholder="e.g. Bachelor of Science in Computer Science"
-                                                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-[#161824] dark:text-white dark:placeholder:text-slate-500"
                                             />
                                             {errors[`programs.${idx}.program_name`] && (
                                                 <p className="mt-1 text-xs text-red-500">
@@ -455,13 +500,13 @@ export default function DepartmentForm({
                                         </div>
 
                                         <div className="sm:col-span-3">
-                                            <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-gray-300">
+                                            <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-slate-400">
                                                 Years Duration
                                             </label>
                                             <select
                                                 value={program.program_years}
                                                 onChange={(e) => handleProgramChange(idx, "program_years", Number(e.target.value))}
-                                                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                                                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-[#161824] dark:text-white"
                                             >
                                                 <option value={2}>2 Years (Associate)</option>
                                                 <option value={3}>3 Years</option>
@@ -474,7 +519,7 @@ export default function DepartmentForm({
                             ))}
                         </div>
 
-                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-between dark:border-gray-800">
+                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-between dark:border-white/10">
                             <Button type="button" variant="outline" onClick={handleBack}>
                                 Back: Department Details
                             </Button>
@@ -487,16 +532,16 @@ export default function DepartmentForm({
 
                 {/* ================= STEP 3: REVIEW ================= */}
                 {currentStep === 3 && (
-                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-gray-800 dark:bg-gray-900">
-                        <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-gray-800">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300">
+                    <section className="space-y-4 rounded-xl bg-white p-5 shadow-sm shadow-blue-950/5 dark:border dark:border-white/5 dark:bg-[#12131C]">
+                        <div className="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-white/10">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400">
                                 <CheckCircleIcon className="h-6 w-6" />
                             </div>
                             <div>
                                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                                     Review Department & Programs
                                 </h2>
-                                <p className="text-sm text-gray-400 dark:text-gray-500">
+                                <p className="text-sm text-gray-400 dark:text-slate-400">
                                     Confirm the departmental profile and programs before saving.
                                 </p>
                             </div>
@@ -549,7 +594,7 @@ export default function DepartmentForm({
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end dark:border-gray-800">
+                        <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end dark:border-white/10">
                             <Button
                                 type="button"
                                 variant="outline"

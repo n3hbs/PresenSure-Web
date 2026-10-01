@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Head, router } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     ArrowLeftIcon,
@@ -43,7 +43,7 @@ export default function ArchivePage({
         if (permission && !hasRole("administrator") && !can(permission)) {
             notify.error(
                 "Access Denied",
-                `You do not have permission to access archived ${parentTitle.toLowerCase()}.`
+                `You do not have permission to access archived ${parentTitle.toLowerCase()}.`,
             );
             router.visit(parentHref);
         }
@@ -67,7 +67,10 @@ export default function ArchivePage({
     // Restore mutation
     const restoreMutation = useMutation({
         mutationFn: async (id) => {
-            const url = typeof restoreEndpoint === "function" ? restoreEndpoint(id) : `${fetchUrl}/${id}/restore`;
+            const url =
+                typeof restoreEndpoint === "function"
+                    ? restoreEndpoint(id)
+                    : `${fetchUrl}/${id}/restore`;
             const res = await api.post(url);
             return res.data;
         },
@@ -78,7 +81,8 @@ export default function ArchivePage({
             });
             notify.success(
                 `${entityName} Restored`,
-                data?.message || `${entityName} has been successfully restored to active records.`
+                data?.message ||
+                    `${entityName} has been successfully restored to active records.`,
             );
             setRestoreTarget(null);
         },
@@ -93,7 +97,8 @@ export default function ArchivePage({
     const filteredItems = useMemo(() => {
         if (!Array.isArray(archivedItems)) return [];
         return archivedItems.filter((item) => {
-            const matchesSearch = search.trim() === "" || filterFn(item, search.toLowerCase());
+            const matchesSearch =
+                search.trim() === "" || filterFn(item, search.toLowerCase());
             return matchesSearch;
         });
     }, [archivedItems, search, filterFn]);
@@ -114,38 +119,29 @@ export default function ArchivePage({
             <Head title={title} />
 
             <div className="space-y-6">
-                <Breadcrumbs
-                    items={[
-                        { label: parentTitle, href: parentHref },
-                        { label: "Archives" },
-                    ]}
-                />
+                <div className="flex min-h-10 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <Breadcrumbs
+                        items={[
+                            { label: "Dashboard", href: "/dashboard" },
+                            { label: parentTitle, href: parentHref },
+                            { label: "Archives" },
+                        ]}
+                    />
 
-                {/* Header */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <div className="flex items-center gap-3">
-                            <button
-                                type="button"
-                                onClick={() => router.visit(parentHref)}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
-                                title={`Back to ${parentTitle}`}
-                            >
-                                <ArrowLeftIcon className="h-4 w-4" />
-                            </button>
-                            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                {title}
-                            </h1>
-                        </div>
-                        <p className="mt-1 text-sm text-gray-400 dark:text-slate-400">
-                            View and restore archived {parentTitle.toLowerCase()} to the active system.
-                        </p>
-                    </div>
+                    <Link
+                        href="/students"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                    >
+                        <ArrowLeftIcon className="h-4 w-4" />
+                        Back to Students
+                    </Link>
                 </div>
 
                 {/* Stat Cards */}
                 {renderedStatCards.length > 0 && (
-                    <div className={`grid gap-4 sm:grid-cols-2 lg:grid-cols-${Math.min(renderedStatCards.length, 3)}`}>
+                    <div
+                        className={`grid gap-4 sm:grid-cols-2 lg:grid-cols-${Math.min(renderedStatCards.length, 3)}`}
+                    >
                         {renderedStatCards.map((card, idx) => (
                             <StatCard
                                 key={idx}
@@ -187,8 +183,8 @@ export default function ArchivePage({
                         isError
                             ? `Failed to load archived ${parentTitle.toLowerCase()}.`
                             : search.trim()
-                            ? `No archived ${parentTitle.toLowerCase()} matched your query.`
-                            : `No archived ${parentTitle.toLowerCase()} found.`
+                              ? `No archived ${parentTitle.toLowerCase()} matched your query.`
+                              : `No archived ${parentTitle.toLowerCase()} found.`
                     }
                 />
             </div>
@@ -219,14 +215,18 @@ export default function ArchivePage({
                         </button>
                         <button
                             type="button"
-                            onClick={() => restoreMutation.mutate(restoreTarget[idField])}
+                            onClick={() =>
+                                restoreMutation.mutate(restoreTarget[idField])
+                            }
                             disabled={restoreMutation.isPending}
                             className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
                         >
                             {restoreMutation.isPending && (
                                 <ArrowPathIcon className="h-4 w-4 animate-spin" />
                             )}
-                            {restoreMutation.isPending ? "Restoring..." : `Restore ${entityName}`}
+                            {restoreMutation.isPending
+                                ? "Restoring..."
+                                : `Restore ${entityName}`}
                         </button>
                     </div>
                 </div>

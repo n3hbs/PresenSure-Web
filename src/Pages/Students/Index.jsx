@@ -399,18 +399,21 @@ export default function Students() {
                     icon={UserGroupIcon}
                     label="Total Students"
                     value={counts.total}
+                    loading={loading}
                 />
                 <StatCard
                     icon={UsersIcon}
                     label="Male"
                     value={counts.male}
                     tone="blue"
+                    loading={loading}
                 />
                 <StatCard
                     icon={UsersIcon}
                     label="Female"
                     value={counts.female}
                     tone="green"
+                    loading={loading}
                 />
             </div>
 

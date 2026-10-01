@@ -27,10 +27,10 @@ export default function PermissionModuleCard({
 
     const badgeStyle =
         selectedCount === matchingCount && matchingCount > 0
-            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
             : selectedCount > 0
-            ? "bg-blue-50 text-blue-700 border-blue-200"
-            : "bg-gray-100 text-gray-500 border-gray-200";
+            ? "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20"
+            : "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-slate-400 border-gray-200 dark:border-white/10";
 
     return (
         <div className="rounded-xl bg-white dark:bg-[#12131C] shadow-sm shadow-blue-950/5 border border-gray-100 dark:border-white/5 overflow-hidden transition-all duration-200">

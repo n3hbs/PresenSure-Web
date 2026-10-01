@@ -340,18 +340,21 @@ export default function Instructors() {
                         icon={UserGroupIcon}
                         label="Total Instructors"
                         value={counts.total}
+                        loading={loading}
                     />
                     <StatCard
                         icon={BuildingOffice2Icon}
                         label="Departments"
                         value={counts.departments}
                         tone="blue"
+                        loading={loading}
                     />
                     <StatCard
                         icon={AcademicCapIcon}
                         label="Assigned"
                         value={counts.assigned}
                         tone="green"
+                        loading={loading}
                     />
                 </div>
 

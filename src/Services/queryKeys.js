@@ -12,5 +12,9 @@ export const programsQueryKey = ["programs"];
 export const semestersQueryKey = ["semesters"];
 export const archivedSemestersQueryKey = ["semesters", "archived"];
 export const schoolYearsQueryKey = ["school-years"];
-
-
+export const coursesQueryKey = ["courses"];
+export const archivedCoursesQueryKey = ["courses", "archived"];
+export const buildingsQueryKey = ["buildings"];
+export const archivedBuildingsQueryKey = ["buildings", "archived"];
+export const roomsQueryKey = ["rooms"];
+export const archivedRoomsQueryKey = ["rooms", "archived"];

@@ -1,18 +1,13 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-    AcademicCapIcon,
     ArrowPathIcon,
-    BookOpenIcon,
     CheckCircleIcon,
-    ClipboardDocumentListIcon,
-    ClockIcon,
     LockClosedIcon,
     MagnifyingGlassIcon,
     ShieldCheckIcon,
     SparklesIcon,
     UserIcon,
-    UsersIcon,
     XMarkIcon,
 } from "@heroicons/react/24/outline";
 
@@ -259,21 +254,66 @@ export default function UserPermissionsModal({
             maxWidth="5xl"
             title="User Access Permissions"
             description="Assign or customize individual permission overrides specifically for a user."
+            icon={<ShieldCheckIcon className="h-6 w-6" />}
+            iconBg="bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+            footer={
+                selectedUserId ? (
+                    <div className="flex items-center justify-between gap-3 w-full">
+                        <button
+                            type="button"
+                            disabled={isSaving || originalDirectIds.length === 0}
+                            onClick={handleReset}
+                            className="text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 px-3 py-1.5 rounded-xl border border-transparent hover:border-red-200 dark:hover:border-red-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                        >
+                            Reset to Role Defaults
+                        </button>
+
+                        <div className="flex items-center gap-2.5">
+                            <button
+                                type="button"
+                                disabled={isSaving}
+                                onClick={onClose}
+                                className="px-4 py-2 text-xs font-semibold text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition shadow-2xs"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                disabled={isSaving || !isDirty}
+                                onClick={handleSave}
+                                className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5 active:scale-95"
+                            >
+                                {isSaving ? (
+                                    <>
+                                        <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" />
+                                        <span>Saving Changes...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircleIcon className="h-3.5 w-3.5" />
+                                        <span>Save Overrides</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                ) : null
+            }
         >
-            <div className="space-y-5 p-6 max-h-[78vh] overflow-y-auto">
+            <div className="space-y-5">
                 {/* Search Mode (if no user selected) */}
                 {!selectedUserId ? (
                     <div className="space-y-4 max-w-2xl mx-auto py-2">
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                            <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                                 Search User by ID or Name
                             </label>
-                            <p className="text-xs text-gray-500 mb-3">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 mb-3">
                                 Find any student, instructor, or administrator to inspect and configure individual access rights.
                             </p>
 
                             <div className="relative">
-                                <MagnifyingGlassIcon className="h-4 w-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                                <MagnifyingGlassIcon className="h-4 w-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                                 <input
                                     ref={searchInputRef}
                                     type="text"
@@ -281,7 +321,7 @@ export default function UserPermissionsModal({
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     onKeyDown={handleSearchKeyDown}
-                                    className="w-full pl-10 pr-10 py-3 text-sm rounded-xl border border-gray-200 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs transition"
+                                    className="w-full pl-10 pr-10 py-3 text-sm rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1a1b28] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs transition"
                                 />
 
                                 {isSearching ? (
@@ -290,7 +330,7 @@ export default function UserPermissionsModal({
                                     <button
                                         type="button"
                                         onClick={handleClearSearch}
-                                        className="h-5 w-5 text-gray-400 hover:text-gray-600 absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
+                                        className="h-5 w-5 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition"
                                     >
                                         <XMarkIcon className="h-3.5 w-3.5" />
                                     </button>
@@ -300,7 +340,7 @@ export default function UserPermissionsModal({
 
                         {/* Search Results Dropdown List */}
                         {searchResults.length > 0 && (
-                            <div className="border border-gray-200 rounded-2xl divide-y divide-gray-100 max-h-72 overflow-y-auto bg-white shadow-md">
+                            <div className="border border-gray-200 dark:border-white/10 rounded-2xl divide-y divide-gray-100 dark:divide-white/5 max-h-72 overflow-y-auto bg-white dark:bg-[#161724] shadow-md">
                                 {searchResults.map((u, index) => {
                                     const isHighlighted = index === activeResultIndex;
                                     return (
@@ -310,8 +350,8 @@ export default function UserPermissionsModal({
                                             onMouseEnter={() => setActiveResultIndex(index)}
                                             className={`p-3.5 cursor-pointer flex items-center justify-between gap-3 transition text-left ${
                                                 isHighlighted
-                                                    ? "bg-blue-50/80 ring-1 ring-blue-400/40"
-                                                    : "hover:bg-gray-50"
+                                                    ? "bg-blue-50/80 dark:bg-blue-500/20 ring-1 ring-blue-400/40"
+                                                    : "hover:bg-gray-50 dark:hover:bg-white/5"
                                             }`}
                                         >
                                             <div className="flex items-center gap-3.5 min-w-0">
@@ -319,25 +359,25 @@ export default function UserPermissionsModal({
                                                     <img
                                                         src={u.profile_picture}
                                                         alt={u.full_name}
-                                                        className="h-9 w-9 rounded-full object-cover border border-gray-200 shrink-0"
+                                                        className="h-9 w-9 rounded-full object-cover border border-gray-200 dark:border-white/10 shrink-0"
                                                     />
                                                 ) : (
-                                                    <div className="h-9 w-9 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-200">
+                                                    <div className="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-200 dark:border-blue-700/50">
                                                         {u.first_name?.charAt(0) || "U"}
                                                     </div>
                                                 )}
 
                                                 <div className="min-w-0">
                                                     <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="text-xs font-bold text-gray-900 truncate">
+                                                        <span className="text-xs font-bold text-gray-900 dark:text-white truncate">
                                                             {u.full_name || `${u.first_name} ${u.last_name}`}
                                                         </span>
-                                                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                                                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-white/10">
                                                             {u.role_name || "User"}
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center gap-2 mt-0.5">
-                                                        <span className="font-mono text-[11px] font-bold text-blue-800 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded">
+                                                        <span className="font-mono text-[11px] font-bold text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/40 px-1.5 py-0.2 rounded">
                                                             ID: {u.user_id}
                                                         </span>
                                                     </div>
@@ -358,11 +398,11 @@ export default function UserPermissionsModal({
                                     );
                                 })}
 
-                                <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+                                <div className="px-4 py-2 bg-gray-50 dark:bg-white/5 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-[11px] text-gray-400 dark:text-slate-400">
                                     <span>
-                                        Navigate with <kbd className="px-1 py-0.5 bg-white border border-gray-200 rounded text-gray-600 font-mono text-[10px]">↑</kbd> <kbd className="px-1 py-0.5 bg-white border border-gray-200 rounded text-gray-600 font-mono text-[10px]">↓</kbd> and press <kbd className="px-1 py-0.5 bg-white border border-gray-200 rounded text-gray-600 font-mono text-[10px]">Enter</kbd> to select
+                                        Navigate with <kbd className="px-1 py-0.5 bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded text-gray-600 dark:text-slate-300 font-mono text-[10px]">↑</kbd> <kbd className="px-1 py-0.5 bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded text-gray-600 dark:text-slate-300 font-mono text-[10px]">↓</kbd> and press <kbd className="px-1 py-0.5 bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded text-gray-600 dark:text-slate-300 font-mono text-[10px]">Enter</kbd> to select
                                     </span>
-                                    <span className="font-medium text-gray-500">
+                                    <span className="font-medium text-gray-500 dark:text-slate-400">
                                         {searchResults.length} {searchResults.length === 1 ? "user" : "users"} found
                                     </span>
                                 </div>
@@ -371,12 +411,12 @@ export default function UserPermissionsModal({
 
                         {/* Empty search state */}
                         {searchQuery.trim() && searchResults.length === 0 && !isSearching && (
-                            <div className="text-center py-8 px-4 bg-gray-50/70 rounded-2xl border border-gray-200/80">
-                                <MagnifyingGlassIcon className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                                <p className="text-sm font-semibold text-gray-700">
+                            <div className="text-center py-8 px-4 bg-gray-50/70 dark:bg-white/5 rounded-2xl border border-gray-200/80 dark:border-white/5">
+                                <MagnifyingGlassIcon className="h-8 w-8 text-gray-300 dark:text-slate-600 mx-auto mb-2" />
+                                <p className="text-sm font-semibold text-gray-700 dark:text-slate-300">
                                     No users found matching "{searchQuery}"
                                 </p>
-                                <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                                <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 max-w-sm mx-auto">
                                     Double-check the ID format (e.g. 2323-2323 or C-2022-0138) or search by last name.
                                 </p>
                             </div>
@@ -384,12 +424,12 @@ export default function UserPermissionsModal({
 
                         {/* Initial helper banner */}
                         {!searchQuery.trim() && (
-                            <div className="p-4 bg-blue-50/40 rounded-2xl border border-blue-100 text-center">
-                                <UserIcon className="h-6 w-6 text-blue-500 mx-auto mb-1.5" />
-                                <p className="text-xs font-semibold text-gray-800">
+                            <div className="p-4 bg-blue-50/40 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/30 text-center">
+                                <UserIcon className="h-6 w-6 text-blue-500 dark:text-blue-400 mx-auto mb-1.5" />
+                                <p className="text-xs font-semibold text-gray-800 dark:text-slate-200">
                                     Exact User ID and Name Matching
                                 </p>
-                                <p className="text-[11px] text-gray-500 mt-0.5">
+                                <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">
                                     Type an ID with or without hyphens (e.g. 23232323 or 2323-2323) to jump straight to the user.
                                 </p>
                             </div>
@@ -399,15 +439,15 @@ export default function UserPermissionsModal({
                     /* Selected User Top Banner */
                     <div>
                         {isLoadingUser ? (
-                            <div className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
+                            <div className="h-20 bg-gray-100 dark:bg-white/5 rounded-2xl animate-pulse" />
                         ) : userPermData ? (
-                            <div className="bg-blue-50/50 border border-blue-200/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-800/30 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div className="flex items-center gap-3.5">
                                     {userPermData.profile_picture ? (
                                         <img
                                             src={userPermData.profile_picture}
                                             alt={userPermData.full_name}
-                                            className="h-11 w-11 rounded-xl object-cover border border-blue-200 shadow-2xs shrink-0"
+                                            className="h-11 w-11 rounded-xl object-cover border border-blue-200 dark:border-blue-500/30 shadow-2xs shrink-0"
                                         />
                                     ) : (
                                         <div className="h-11 w-11 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-2xs shrink-0">
@@ -417,16 +457,16 @@ export default function UserPermissionsModal({
 
                                     <div>
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            <h4 className="text-base font-bold text-gray-900">
+                                            <h4 className="text-base font-bold text-gray-900 dark:text-white">
                                                 {userPermData.full_name}
                                             </h4>
-                                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+                                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30">
                                                 {userPermData.role_name}
                                             </span>
                                         </div>
-                                        <p className="text-xs text-gray-500 mt-0.5">
+                                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                                             User ID:{" "}
-                                            <span className="font-mono font-bold text-blue-800 bg-white border border-blue-200 px-2 py-0.5 rounded-md">
+                                            <span className="font-mono font-bold text-blue-800 dark:text-blue-300 bg-white dark:bg-[#12131C] border border-blue-200 dark:border-blue-800/50 px-2 py-0.5 rounded-md">
                                                 {userPermData.user_id}
                                             </span>
                                         </p>
@@ -434,11 +474,11 @@ export default function UserPermissionsModal({
                                 </div>
 
                                 <div className="flex items-center gap-3 shrink-0 flex-wrap">
-                                    <span className="bg-white px-3 py-1.5 rounded-xl border border-gray-200 text-xs text-gray-600 font-medium shadow-2xs">
-                                        Role Inherited: <strong className="text-gray-900 font-bold">{inheritedIds.size}</strong>
+                                    <span className="bg-white dark:bg-[#12131C] px-3 py-1.5 rounded-xl border border-gray-200 dark:border-white/10 text-xs text-gray-600 dark:text-slate-300 font-medium shadow-2xs">
+                                        Role Inherited: <strong className="text-gray-900 dark:text-white font-bold">{inheritedIds.size}</strong>
                                     </span>
-                                    <span className="bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200 text-xs text-blue-700 font-medium shadow-2xs">
-                                        Direct Overrides: <strong className="text-blue-900 font-bold">{selectedDirectIds.length}</strong>
+                                    <span className="bg-blue-50 dark:bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-200 dark:border-blue-500/20 text-xs text-blue-700 dark:text-blue-400 font-medium shadow-2xs">
+                                        Direct Overrides: <strong className="text-blue-900 dark:text-blue-300 font-bold">{selectedDirectIds.length}</strong>
                                     </span>
 
                                     {!initialUserId && (
@@ -449,7 +489,7 @@ export default function UserPermissionsModal({
                                                 setSearchQuery("");
                                                 setSearchResults([]);
                                             }}
-                                            className="px-3 py-1.5 text-xs font-semibold text-blue-700 bg-white border border-blue-200 hover:bg-blue-50 rounded-xl transition shadow-2xs"
+                                            className="px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-400 bg-white dark:bg-[#12131C] border border-blue-200 dark:border-blue-500/30 hover:bg-blue-50 dark:hover:bg-blue-500/20 rounded-xl transition shadow-2xs"
                                         >
                                             Change User
                                         </button>
@@ -468,7 +508,7 @@ export default function UserPermissionsModal({
                                 {[1, 2, 3, 4].map((n) => (
                                     <div
                                         key={n}
-                                        className="h-44 bg-gray-100 rounded-2xl animate-pulse"
+                                        className="h-44 bg-gray-100 dark:bg-white/5 rounded-2xl animate-pulse"
                                     />
                                 ))}
                             </div>
@@ -481,8 +521,8 @@ export default function UserPermissionsModal({
                                                 title: moduleKey,
                                                 icon: ShieldCheckIcon,
                                                 color: "blue",
-                                                badge: "bg-blue-50 text-blue-700 border-blue-200",
-                                                iconBg: "bg-blue-50 text-blue-600 border-blue-100",
+                                                badge: "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20",
+                                                iconBg: "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/20",
                                             };
                                         const Icon = config.icon;
 
@@ -525,11 +565,11 @@ export default function UserPermissionsModal({
                                                         const isInherited =
                                                             inheritedIds.has(
                                                                 perm.permission_id
-                                                             );
+                                                            );
                                                         const isDirectlyGranted =
                                                             selectedDirectIds.includes(
                                                                 perm.permission_id
-                                                             );
+                                                            );
                                                         const isGranted =
                                                             isInherited ||
                                                             isDirectlyGranted;
@@ -610,49 +650,6 @@ export default function UserPermissionsModal({
                     </>
                 )}
             </div>
-
-            {/* Footer */}
-            {selectedUserId && (
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
-                    <button
-                        type="button"
-                        disabled={isSaving || originalDirectIds.length === 0}
-                        onClick={handleReset}
-                        className="text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-xl border border-transparent hover:border-red-200 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                    >
-                        Reset to Role Defaults
-                    </button>
-
-                    <div className="flex items-center gap-2.5">
-                        <button
-                            type="button"
-                            disabled={isSaving}
-                            onClick={onClose}
-                            className="px-4 py-2 text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition shadow-2xs"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
-                            disabled={isSaving || !isDirty}
-                            onClick={handleSave}
-                            className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5 active:scale-95"
-                        >
-                            {isSaving ? (
-                                <>
-                                    <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" />
-                                    <span>Saving Changes...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <CheckCircleIcon className="h-3.5 w-3.5" />
-                                    <span>Save Overrides</span>
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
-            )}
         </Modal>
     );
 }

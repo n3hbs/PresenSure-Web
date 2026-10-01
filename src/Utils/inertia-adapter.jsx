@@ -9,15 +9,93 @@ export const setGlobalNavigate = (nav) => {
     globalNavigate = nav;
 };
 
+// Global navigation blocker (e.g. for unsaved form changes)
+let currentNavigationBlocker = null;
+
+export const setNavigationBlocker = (blockerFn) => {
+    currentNavigationBlocker = blockerFn;
+    return () => {
+        if (currentNavigationBlocker === blockerFn) {
+            currentNavigationBlocker = null;
+        }
+    };
+};
+
+// Event listeners for router.on (e.g. "before")
+const eventListeners = {
+    before: new Set(),
+};
+
+const normalizePath = (url) => {
+    if (!url) return "";
+    try {
+        const parsed = url instanceof URL ? url : new URL(String(url), window.location.origin);
+        return `${parsed.pathname}${parsed.search}`;
+    } catch {
+        return String(url);
+    }
+};
+
+const checkNavigationAllowed = (targetUrl) => {
+    const currentPath = `${window.location.pathname}${window.location.search}`;
+    const normalizedTarget = normalizePath(targetUrl);
+
+    // If staying on the exact same page, don't block
+    if (normalizedTarget && normalizedTarget === currentPath) {
+        return true;
+    }
+
+    // 1. Check registered navigation blocker
+    if (currentNavigationBlocker) {
+        const allowed = currentNavigationBlocker(normalizedTarget || targetUrl);
+        if (allowed === false) {
+            return false;
+        }
+    }
+
+    // 2. Check "before" event listeners
+    if (eventListeners.before.size > 0) {
+        const event = {
+            detail: {
+                visit: {
+                    url: targetUrl,
+                },
+            },
+        };
+        for (const listener of eventListeners.before) {
+            try {
+                const res = listener(event);
+                if (res === false) {
+                    return false;
+                }
+            } catch (err) {
+                console.error("Error in router before-navigation listener:", err);
+            }
+        }
+    }
+
+    return true;
+};
+
 export const router = {
     visit: (url, options = {}) => {
+        if (!options.force) {
+            if (!checkNavigationAllowed(url)) {
+                return;
+            }
+        }
         if (globalNavigate) {
             globalNavigate(url, { replace: options.replace || false });
         } else {
             window.location.href = url;
         }
     },
-    replace: (url) => {
+    replace: (url, options = {}) => {
+        if (!options.force) {
+            if (!checkNavigationAllowed(url)) {
+                return;
+            }
+        }
         if (globalNavigate) {
             globalNavigate(url, { replace: true });
         } else {
@@ -27,7 +105,12 @@ export const router = {
     reload: () => {
         window.location.reload();
     },
-    get: (url) => {
+    get: (url, options = {}) => {
+        if (!options.force) {
+            if (!checkNavigationAllowed(url)) {
+                return;
+            }
+        }
         if (globalNavigate) {
             globalNavigate(url);
         } else {
@@ -35,6 +118,11 @@ export const router = {
         }
     },
     post: (url, data, options = {}) => {
+        if (!options.force) {
+            if (!checkNavigationAllowed(url)) {
+                return;
+            }
+        }
         if (globalNavigate) {
             globalNavigate(url, { replace: options.replace || false });
         } else {
@@ -42,6 +130,11 @@ export const router = {
         }
     },
     put: (url, data, options = {}) => {
+        if (!options.force) {
+            if (!checkNavigationAllowed(url)) {
+                return;
+            }
+        }
         if (globalNavigate) {
             globalNavigate(url, { replace: options.replace || false });
         } else {
@@ -49,6 +142,11 @@ export const router = {
         }
     },
     patch: (url, data, options = {}) => {
+        if (!options.force) {
+            if (!checkNavigationAllowed(url)) {
+                return;
+            }
+        }
         if (globalNavigate) {
             globalNavigate(url, { replace: options.replace || false });
         } else {
@@ -56,26 +154,61 @@ export const router = {
         }
     },
     delete: (url, options = {}) => {
+        if (!options.force) {
+            if (!checkNavigationAllowed(url)) {
+                return;
+            }
+        }
         if (globalNavigate) {
             globalNavigate(url, { replace: options.replace || false });
         } else {
             window.location.href = url;
         }
     },
-    on: (_event, _callback) => {
-        // Return an unsubscribe handler
-        return () => {};
+    on: (event, callback) => {
+        if (!eventListeners[event]) {
+            eventListeners[event] = new Set();
+        }
+        eventListeners[event].add(callback);
+
+        return () => {
+            eventListeners[event]?.delete(callback);
+        };
     },
     cancel: () => {},
 };
 
 export const Link = React.forwardRef(function InertiaLink(
-    { href, to, children, ...props },
+    { href, to, onClick, children, ...props },
     ref
 ) {
     const target = to || href || "#";
+
+    const handleClick = (e) => {
+        if (onClick) {
+            onClick(e);
+        }
+        if (e.defaultPrevented) return;
+
+        // Skip external, anchors, mailto
+        if (
+            !target ||
+            target.startsWith("http://") ||
+            target.startsWith("https://") ||
+            target.startsWith("#") ||
+            target.startsWith("mailto:")
+        ) {
+            return;
+        }
+
+        // Check if navigation is blocked
+        if (!checkNavigationAllowed(target)) {
+            e.preventDefault();
+        }
+    };
+
     return (
-        <RouterLink ref={ref} to={target} {...props}>
+        <RouterLink ref={ref} to={target} onClick={handleClick} {...props}>
             {children}
         </RouterLink>
     );
@@ -112,4 +245,5 @@ export default {
     usePage,
     Head,
     setGlobalNavigate,
+    setNavigationBlocker,
 };

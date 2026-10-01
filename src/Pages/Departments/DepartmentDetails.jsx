@@ -204,9 +204,6 @@ export default function DepartmentDetails({ departmentId: propDeptId }) {
                                     <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                                         {department.department_code}
                                     </span>
-                                    <span className="text-xs text-gray-400 dark:text-slate-500">
-                                        #{department.department_id}
-                                    </span>
                                 </div>
                                 <h1 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl truncate dark:text-white">
                                     {department.department_name}
@@ -287,14 +284,6 @@ export default function DepartmentDetails({ departmentId: propDeptId }) {
                                 <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                                     {department.programs?.length || 0} Total
                                 </span>
-                                {(hasRole("administrator") || can("departments.manage")) && (
-                                    <Link
-                                        href={`/departments/edit?department_id=${department.department_id}`}
-                                        className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline ml-1 dark:text-blue-400"
-                                    >
-                                        Manage &rarr;
-                                    </Link>
-                                )}
                             </div>
                         </div>
 

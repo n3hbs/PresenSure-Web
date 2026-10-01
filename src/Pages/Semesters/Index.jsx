@@ -372,18 +372,21 @@ export default function Semesters() {
                         icon={CalendarDaysIcon}
                         label="Total Semesters"
                         value={counts.total}
+                        loading={loading}
                     />
                     <StatCard
                         icon={ClockIcon}
                         label="Upcoming Terms"
                         value={counts.upcoming}
                         tone="blue"
+                        loading={loading}
                     />
                     <StatCard
                         icon={ArchiveBoxIcon}
                         label="Completed"
                         value={counts.completed}
                         tone="gray"
+                        loading={loading}
                     />
                 </div>
 
