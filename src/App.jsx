@@ -22,18 +22,30 @@ const Roles = lazy(() => import("@/Pages/Roles/Index"));
 
 // Students
 const StudentsIndex = lazy(() => import("@/Pages/Students/Index"));
-const StudentSingleRegistration = lazy(() => import("@/Pages/Students/SingleRegistration"));
-const StudentBulkRegistration = lazy(() => import("@/Pages/Students/BulkRegistration"));
-const StudentBulkImageUpload = lazy(() => import("@/Pages/Students/BulkImageUpload"));
+const StudentSingleRegistration = lazy(
+    () => import("@/Pages/Students/SingleRegistration"),
+);
+const StudentBulkRegistration = lazy(
+    () => import("@/Pages/Students/BulkRegistration"),
+);
+const StudentBulkImageUpload = lazy(
+    () => import("@/Pages/Students/BulkImageUpload"),
+);
 const StudentDetails = lazy(() => import("@/Pages/Students/StudentDetails"));
 const StudentArchives = lazy(() => import("@/Pages/Students/Archives"));
 const StudentEdit = lazy(() => import("@/Pages/Students/Edit"));
 
 // Instructors
 const InstructorsIndex = lazy(() => import("@/Pages/Instructors/Index"));
-const InstructorSingleRegistration = lazy(() => import("@/Pages/Instructors/SingleRegistration"));
-const InstructorBulkImageUpload = lazy(() => import("@/Pages/Instructors/BulkImageUpload"));
-const InstructorDetails = lazy(() => import("@/Pages/Instructors/InstructorDetails"));
+const InstructorSingleRegistration = lazy(
+    () => import("@/Pages/Instructors/SingleRegistration"),
+);
+const InstructorBulkImageUpload = lazy(
+    () => import("@/Pages/Instructors/BulkImageUpload"),
+);
+const InstructorDetails = lazy(
+    () => import("@/Pages/Instructors/InstructorDetails"),
+);
 const InstructorArchives = lazy(() => import("@/Pages/Instructors/Archives"));
 const InstructorEdit = lazy(() => import("@/Pages/Instructors/Edit"));
 
@@ -42,14 +54,18 @@ const SemestersIndex = lazy(() => import("@/Pages/Semesters/Index"));
 const SemestersCreate = lazy(() => import("@/Pages/Semesters/Create"));
 const SemestersEdit = lazy(() => import("@/Pages/Semesters/Edit"));
 const SemestersArchives = lazy(() => import("@/Pages/Semesters/Archives"));
-const SemestersDetails = lazy(() => import("@/Pages/Semesters/SemesterDetails"));
+const SemestersDetails = lazy(
+    () => import("@/Pages/Semesters/SemesterDetails"),
+);
 
 // Departments
 const DepartmentsIndex = lazy(() => import("@/Pages/Departments/Index"));
 const DepartmentsCreate = lazy(() => import("@/Pages/Departments/Create"));
 const DepartmentsEdit = lazy(() => import("@/Pages/Departments/Edit"));
 const DepartmentsArchives = lazy(() => import("@/Pages/Departments/Archives"));
-const DepartmentsDetails = lazy(() => import("@/Pages/Departments/DepartmentDetails"));
+const DepartmentsDetails = lazy(
+    () => import("@/Pages/Departments/DepartmentDetails"),
+);
 
 // Courses
 const CoursesIndex = lazy(() => import("@/Pages/Courses/Index"));
@@ -92,19 +108,33 @@ function NavigationBridge() {
 }
 
 import PageLoader from "@/Components/UI/PageLoader";
+import { Analytics } from "@vercel/analytics/react";
 
 export default function App() {
     return (
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <NavigationBridge />
-                <Suspense fallback={<PageLoader fullScreen message="Loading PresenSure..." />}>
+                <Suspense
+                    fallback={
+                        <PageLoader
+                            fullScreen
+                            message="Loading PresenSure..."
+                        />
+                    }
+                >
                     <Routes>
                         {/* Public Pages (Outside MainLayout) */}
                         <Route path="/" element={<LandingPage />} />
                         <Route path="/signin" element={<SignIn />} />
-                        <Route path="/signIn" element={<Navigate to="/signin" replace />} />
-                        <Route path="/login" element={<Navigate to="/signin" replace />} />
+                        <Route
+                            path="/signIn"
+                            element={<Navigate to="/signin" replace />}
+                        />
+                        <Route
+                            path="/login"
+                            element={<Navigate to="/signin" replace />}
+                        />
 
                         {/* Persistent Authenticated Layout (MainLayout stays mounted permanently) */}
                         <Route element={<MainLayout />}>
@@ -112,53 +142,158 @@ export default function App() {
                             <Route path="/roles" element={<Roles />} />
 
                             {/* Students */}
-                            <Route path="/students" element={<StudentsIndex />} />
-                            <Route path="/students/single-registration" element={<StudentSingleRegistration />} />
-                            <Route path="/students/bulk-registration" element={<StudentBulkRegistration />} />
-                            <Route path="/students/bulk-image-upload" element={<StudentBulkImageUpload />} />
-                            <Route path="/students/student-details" element={<StudentDetails />} />
-                            <Route path="/students/archives" element={<StudentArchives />} />
-                            <Route path="/students/edit" element={<StudentEdit />} />
+                            <Route
+                                path="/students"
+                                element={<StudentsIndex />}
+                            />
+                            <Route
+                                path="/students/single-registration"
+                                element={<StudentSingleRegistration />}
+                            />
+                            <Route
+                                path="/students/bulk-registration"
+                                element={<StudentBulkRegistration />}
+                            />
+                            <Route
+                                path="/students/bulk-image-upload"
+                                element={<StudentBulkImageUpload />}
+                            />
+                            <Route
+                                path="/students/student-details"
+                                element={<StudentDetails />}
+                            />
+                            <Route
+                                path="/students/archives"
+                                element={<StudentArchives />}
+                            />
+                            <Route
+                                path="/students/edit"
+                                element={<StudentEdit />}
+                            />
 
                             {/* Instructors */}
-                            <Route path="/instructors" element={<InstructorsIndex />} />
-                            <Route path="/instructors/single-registration" element={<InstructorSingleRegistration />} />
-                            <Route path="/instructors/bulk-image-upload" element={<InstructorBulkImageUpload />} />
-                            <Route path="/instructors/instructor-details" element={<InstructorDetails />} />
-                            <Route path="/instructors/archives" element={<InstructorArchives />} />
-                            <Route path="/instructors/edit" element={<InstructorEdit />} />
+                            <Route
+                                path="/instructors"
+                                element={<InstructorsIndex />}
+                            />
+                            <Route
+                                path="/instructors/single-registration"
+                                element={<InstructorSingleRegistration />}
+                            />
+                            <Route
+                                path="/instructors/bulk-image-upload"
+                                element={<InstructorBulkImageUpload />}
+                            />
+                            <Route
+                                path="/instructors/instructor-details"
+                                element={<InstructorDetails />}
+                            />
+                            <Route
+                                path="/instructors/archives"
+                                element={<InstructorArchives />}
+                            />
+                            <Route
+                                path="/instructors/edit"
+                                element={<InstructorEdit />}
+                            />
 
                             {/* Semesters */}
-                            <Route path="/semesters" element={<SemestersIndex />} />
-                            <Route path="/semesters/create" element={<SemestersCreate />} />
-                            <Route path="/semesters/edit" element={<SemestersEdit />} />
-                            <Route path="/semesters/:semester/edit" element={<SemesterEditRoute />} />
-                            <Route path="/semesters/archives" element={<SemestersArchives />} />
-                            <Route path="/semesters/semester-details" element={<SemestersDetails />} />
+                            <Route
+                                path="/semesters"
+                                element={<SemestersIndex />}
+                            />
+                            <Route
+                                path="/semesters/create"
+                                element={<SemestersCreate />}
+                            />
+                            <Route
+                                path="/semesters/edit"
+                                element={<SemestersEdit />}
+                            />
+                            <Route
+                                path="/semesters/:semester/edit"
+                                element={<SemesterEditRoute />}
+                            />
+                            <Route
+                                path="/semesters/archives"
+                                element={<SemestersArchives />}
+                            />
+                            <Route
+                                path="/semesters/semester-details"
+                                element={<SemestersDetails />}
+                            />
 
                             {/* Departments */}
-                            <Route path="/departments" element={<DepartmentsIndex />} />
-                            <Route path="/departments/create" element={<DepartmentsCreate />} />
-                            <Route path="/departments/edit" element={<DepartmentsEdit />} />
-                            <Route path="/departments/:department/edit" element={<DepartmentEditRoute />} />
-                            <Route path="/departments/archives" element={<DepartmentsArchives />} />
-                            <Route path="/departments/department-details" element={<DepartmentsDetails />} />
+                            <Route
+                                path="/departments"
+                                element={<DepartmentsIndex />}
+                            />
+                            <Route
+                                path="/departments/create"
+                                element={<DepartmentsCreate />}
+                            />
+                            <Route
+                                path="/departments/edit"
+                                element={<DepartmentsEdit />}
+                            />
+                            <Route
+                                path="/departments/:department/edit"
+                                element={<DepartmentEditRoute />}
+                            />
+                            <Route
+                                path="/departments/archives"
+                                element={<DepartmentsArchives />}
+                            />
+                            <Route
+                                path="/departments/department-details"
+                                element={<DepartmentsDetails />}
+                            />
 
                             {/* Courses */}
                             <Route path="/courses" element={<CoursesIndex />} />
-                            <Route path="/courses/create" element={<CoursesCreate />} />
-                            <Route path="/courses/edit" element={<CoursesEdit />} />
-                            <Route path="/courses/:course/edit" element={<CourseEditRoute />} />
-                            <Route path="/courses/archives" element={<CoursesArchives />} />
-                            <Route path="/courses/course-details" element={<CoursesDetails />} />
+                            <Route
+                                path="/courses/create"
+                                element={<CoursesCreate />}
+                            />
+                            <Route
+                                path="/courses/edit"
+                                element={<CoursesEdit />}
+                            />
+                            <Route
+                                path="/courses/:course/edit"
+                                element={<CourseEditRoute />}
+                            />
+                            <Route
+                                path="/courses/archives"
+                                element={<CoursesArchives />}
+                            />
+                            <Route
+                                path="/courses/course-details"
+                                element={<CoursesDetails />}
+                            />
 
                             {/* In-Progress Modules */}
-                            <Route path="/programs" element={<ProgramsIndex />} />
-                            <Route path="/facilities" element={<FacilitiesIndex />} />
-                            <Route path="/schedules" element={<SchedulesIndex />} />
-                            <Route path="/my-schedules" element={<MySchedulesIndex />} />
+                            <Route
+                                path="/programs"
+                                element={<ProgramsIndex />}
+                            />
+                            <Route
+                                path="/facilities"
+                                element={<FacilitiesIndex />}
+                            />
+                            <Route
+                                path="/schedules"
+                                element={<SchedulesIndex />}
+                            />
+                            <Route
+                                path="/my-schedules"
+                                element={<MySchedulesIndex />}
+                            />
                             <Route path="/records" element={<RecordsIndex />} />
-                            <Route path="/audit-logs" element={<AuditLogsIndex />} />
+                            <Route
+                                path="/audit-logs"
+                                element={<AuditLogsIndex />}
+                            />
                         </Route>
 
                         {/* Wildcard */}
@@ -166,6 +301,7 @@ export default function App() {
                     </Routes>
                 </Suspense>
             </BrowserRouter>
+            <Analytics />
         </QueryClientProvider>
     );
 }
