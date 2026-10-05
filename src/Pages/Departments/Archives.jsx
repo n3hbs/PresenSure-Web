@@ -1,4 +1,4 @@
-import { AcademicCapIcon, ArchiveBoxIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { AcademicCapIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import ArchivePage from "@/Components/Common/ArchivePage";
 import { departmentsQueryKey, archivedDepartmentsQueryKey } from "@/Services/queryKeys";
 import { formatDate } from "@/Utils/date";
@@ -81,20 +81,6 @@ export default function Archives() {
             idField="department_id"
             entityName="Department"
             getEntityLabel={(item) => `${item.department_code} - ${item.department_name}`}
-            statCards={(items) => [
-                {
-                    icon: ArchiveBoxIcon,
-                    label: "Archived Departments",
-                    value: items.length,
-                    tone: "gray",
-                },
-                {
-                    icon: AcademicCapIcon,
-                    label: "Archived Programs",
-                    value: items.reduce((acc, d) => acc + (d.programs?.length ?? d.programs_count ?? 0), 0),
-                    tone: "blue",
-                },
-            ]}
             filterFn={(item, query) =>
                 (item.department_code || "").toLowerCase().includes(query) ||
                 (item.department_name || "").toLowerCase().includes(query) ||

@@ -403,13 +403,13 @@ export default function RolesIndex() {
                     </div>
                 </div>
 
-                {/* 2. Stat Cards matching Students & Instructors pages */}
+                {/* 2. Stat Cards (All container count logos are blue) */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <StatCard
                         icon={UserGroupIcon}
                         label="Total System Roles"
                         value={roles.length}
-                        tone="gray"
+                        tone="blue"
                         loading={isLoadingRoles || isLoadingPermissions}
                     />
                     <StatCard
@@ -423,7 +423,7 @@ export default function RolesIndex() {
                         icon={CheckCircleIcon}
                         label={`Active for ${selectedRole?.role_name || "Role"}`}
                         value={currentSelectedIds.length}
-                        tone="green"
+                        tone="blue"
                         loading={isLoadingRoles || isLoadingPermissions}
                     />
                 </div>

@@ -335,11 +335,13 @@ export default function Instructors() {
                     </div>
                 </div>
 
+                {/* StatCards (All container count logos are blue) */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <StatCard
                         icon={UserGroupIcon}
                         label="Total Instructors"
                         value={counts.total}
+                        tone="blue"
                         loading={loading}
                     />
                     <StatCard
@@ -353,7 +355,7 @@ export default function Instructors() {
                         icon={AcademicCapIcon}
                         label="Assigned"
                         value={counts.assigned}
-                        tone="green"
+                        tone="blue"
                         loading={loading}
                     />
                 </div>

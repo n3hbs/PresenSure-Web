@@ -11,7 +11,6 @@ import MainLayout from "@/Components/Layout/MainLayout";
 import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import DataTable from "@/Components/UI/DataTable";
 import Modal from "@/Components/UI/Modal";
-import StatCard from "@/Components/UI/StatCard";
 import api from "@/Services/api";
 import { notify } from "@/Services/toast";
 import usePermission from "@/Hooks/usePermission";
@@ -29,7 +28,6 @@ export default function ArchivePage({
     idField,
     entityName = "Item",
     getEntityLabel = (item) => item.name || item[idField],
-    statCards = [],
     filterComponent = null,
     filterFn = (_item, _search) => true,
     columns = () => [],
@@ -103,13 +101,6 @@ export default function ArchivePage({
         });
     }, [archivedItems, search, filterFn]);
 
-    const renderedStatCards = useMemo(() => {
-        if (typeof statCards === "function") {
-            return statCards(archivedItems);
-        }
-        return statCards;
-    }, [statCards, archivedItems]);
-
     const tableColumns = useMemo(() => {
         return columns((item) => setRestoreTarget(item));
     }, [columns]);
@@ -129,30 +120,13 @@ export default function ArchivePage({
                     />
 
                     <Link
-                        href="/students"
+                        href={parentHref}
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
                     >
                         <ArrowLeftIcon className="h-4 w-4" />
-                        Back to Students
+                        Back to {parentTitle}
                     </Link>
                 </div>
-
-                {/* Stat Cards */}
-                {renderedStatCards.length > 0 && (
-                    <div
-                        className={`grid gap-4 sm:grid-cols-2 lg:grid-cols-${Math.min(renderedStatCards.length, 3)}`}
-                    >
-                        {renderedStatCards.map((card, idx) => (
-                            <StatCard
-                                key={idx}
-                                icon={card.icon}
-                                label={card.label}
-                                value={card.value}
-                                tone={card.tone}
-                            />
-                        ))}
-                    </div>
-                )}
 
                 {/* Search & Filters */}
                 <div className="flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm shadow-blue-950/5 sm:flex-row sm:items-center sm:justify-between dark:bg-[#12131C] dark:border dark:border-white/5">

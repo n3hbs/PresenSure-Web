@@ -37,7 +37,7 @@ export default function Dashboard() {
                     </p>
                 </div>
 
-                {/* Quick Stats Grid */}
+                {/* Quick Stats Grid (All count container logos are blue) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <StatCard
                         icon={UserGroupIcon}
@@ -50,14 +50,14 @@ export default function Dashboard() {
                         icon={CheckCircleIcon}
                         label="Attendance Rate Today"
                         value="94.2%"
-                        tone="green"
+                        tone="blue"
                         loading={loadingStudents}
                     />
                     <StatCard
                         icon={ClockIcon}
                         label="Late Arrivals"
                         value="12"
-                        tone="amber"
+                        tone="blue"
                         loading={loadingStudents}
                     />
                 </div>

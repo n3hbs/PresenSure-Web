@@ -1,4 +1,4 @@
-import { BookOpenIcon, ArchiveBoxIcon, ArrowPathIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 import ArchivePage from "@/Components/Common/ArchivePage";
 import { coursesQueryKey, archivedCoursesQueryKey } from "@/Services/queryKeys";
 import { courseApi } from "@/Services/courseApi";
@@ -100,20 +100,6 @@ export default function Archives() {
             idField="course_id"
             entityName="Course"
             getEntityLabel={(item) => `${item.subject_code} - ${item.name}`}
-            statCards={(items) => [
-                {
-                    icon: ArchiveBoxIcon,
-                    label: "Archived Courses",
-                    value: items.length,
-                    tone: "blue",
-                },
-                {
-                    icon: BookOpenIcon,
-                    label: "Total Archived Blocks",
-                    value: items.reduce((acc, c) => acc + (c.course_blocks?.length || 0), 0),
-                    tone: "blue",
-                },
-            ]}
             filterFn={(item, query) =>
                 (item.subject_code || "").toLowerCase().includes(query) ||
                 (item.name || "").toLowerCase().includes(query) ||

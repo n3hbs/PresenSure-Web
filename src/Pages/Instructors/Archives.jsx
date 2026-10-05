@@ -1,5 +1,4 @@
 import {
-    ArchiveBoxIcon,
     ArrowPathIcon,
     BuildingOffice2Icon,
 } from "@heroicons/react/24/outline";
@@ -112,25 +111,6 @@ export default function Archives() {
             entityName="Instructor"
             getEntityLabel={(item) => `${item.fullName} (${item.userId})`}
             transformData={(list) => list.map(normalizeInstructor)}
-            statCards={(items) => {
-                const uniqueDepts = new Set(
-                    items.map((i) => i.departmentCode).filter((c) => c && c !== "N/A")
-                );
-                return [
-                    {
-                        icon: ArchiveBoxIcon,
-                        label: "Total Archived Instructors",
-                        value: items.length,
-                        tone: "gray",
-                    },
-                    {
-                        icon: BuildingOffice2Icon,
-                        label: "Affected Departments",
-                        value: uniqueDepts.size,
-                        tone: "blue",
-                    },
-                ];
-            }}
             filterFn={(item, query) =>
                 item.userId.toLowerCase().includes(query) ||
                 item.fullName.toLowerCase().includes(query) ||

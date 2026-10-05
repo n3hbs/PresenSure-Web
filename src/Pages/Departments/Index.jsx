@@ -248,12 +248,13 @@ export default function Departments() {
                     </div>
                 </div>
 
-                {/* StatCards (3 Balanced Cards) */}
+                {/* StatCards (All container count logos are blue) */}
                 <div className="grid gap-4 md:grid-cols-3">
                     <StatCard
                         icon={BuildingOffice2Icon}
                         label="Total Departments"
                         value={counts.total}
+                        tone="blue"
                         loading={loading}
                     />
                     <StatCard
@@ -267,7 +268,7 @@ export default function Departments() {
                         icon={UsersIcon}
                         label="Faculty Members"
                         value={counts.totalInstructors}
-                        tone="gray"
+                        tone="blue"
                         loading={loading}
                     />
                 </div>

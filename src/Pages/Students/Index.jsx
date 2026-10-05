@@ -61,6 +61,19 @@ const getCollection = (response) => {
 };
 
 const normalizeStudent = (record) => {
+    if (!record) return null;
+
+    // If already normalized
+    if (
+        record.fullName &&
+        record.fullName !== "N/A" &&
+        record.userId &&
+        record.userId !== "N/A" &&
+        !record.user
+    ) {
+        return record;
+    }
+
     const user = record.user || record || {};
     const student =
         (Array.isArray(record.student)
@@ -68,10 +81,11 @@ const normalizeStudent = (record) => {
             : record.student) || {};
     const program = student.program || record.program || {};
     const department = program.department || record.department || {};
-    const profile = record.profile || user.profile || {};
+    const profile =
+        record.profile || user.profile || record.user_profile || {};
     const rawStatus = student.status || record.status;
     const isEnrolled =
-        Boolean(student.student_id) &&
+        Boolean(student.student_id || record.student_id) &&
         (!rawStatus ||
             ["active", "enrolled", "registered"].includes(
                 String(rawStatus).toLowerCase(),
@@ -79,31 +93,77 @@ const normalizeStudent = (record) => {
 
     const status = rawStatus || (isEnrolled ? "Active" : "Inactive");
 
-    const fullName = [
-        user.last_name,
-        user.first_name,
-        user.suffix,
-        user.middle_initial,
-    ]
-        .filter(Boolean)
-        .join(" ");
+    const resolvedFirstName =
+        user.first_name || record.firstName || record.first_name || "";
+    const resolvedLastName =
+        user.last_name || record.lastName || record.last_name || "";
+    const resolvedMiddleInitial =
+        user.middle_initial ||
+        record.middleInitial ||
+        record.middle_initial ||
+        "";
+    const resolvedSuffix = user.suffix || record.suffix || "";
+
+    const fullName =
+        user.full_name ||
+        record.fullName ||
+        [
+            resolvedLastName,
+            resolvedFirstName,
+            resolvedSuffix,
+            resolvedMiddleInitial,
+        ]
+            .filter(Boolean)
+            .join(" ") ||
+        [resolvedFirstName, resolvedLastName].filter(Boolean).join(" ");
+
+    const userId =
+        user.user_id ||
+        student.user_id ||
+        record.userId ||
+        record.user_id ||
+        "N/A";
+    const year = student.year || record.year || "N/A";
+    const block = student.block || record.block || "N/A";
+    const programCode =
+        program.program_code ||
+        record.programCode ||
+        record.program_code ||
+        "N/A";
+    const programName =
+        program.program_name ||
+        record.programName ||
+        record.program_name ||
+        "";
+    const departmentName =
+        department.department_name ||
+        record.departmentName ||
+        record.department_name ||
+        "N/A";
+    const image =
+        profile.imagelink ||
+        profile.image_link ||
+        profile.profile_picture ||
+        record.image ||
+        "";
 
     return {
-        id: user.user_id,
-        userId: user.user_id || "N/A",
-        firstName: user.first_name || "",
-        lastName: user.last_name || "",
-        middleInitial: user.middle_initial || "",
-        suffix: user.suffix || "",
+        ...record,
+        id: userId !== "N/A" ? userId : record.id,
+        userId,
+        firstName: resolvedFirstName,
+        lastName: resolvedLastName,
+        middleInitial: resolvedMiddleInitial,
+        suffix: resolvedSuffix,
         fullName: fullName || "N/A",
-        sex: user.sex || "N/A",
-        year: student.year || "N/A",
-        block: student.block || "N/A",
+        sex: user.sex || record.sex || "N/A",
+        year,
+        block,
         status,
-        programCode: program.program_code || "N/A",
-        programName: program.program_name || "",
-        departmentName: department.department_name || "N/A",
-        image: profile.imagelink || profile.image_link || "",
+        programCode,
+        programName,
+        departmentName,
+        image,
         enrolled: isEnrolled,
     };
 };
@@ -143,7 +203,7 @@ export default function Students() {
     );
 
     const {
-        data: students = [],
+        data: rawStudents = [],
         isLoading: loading,
         isFetching,
         isError,
@@ -161,9 +221,14 @@ export default function Students() {
                     : {},
             });
 
-            return getCollection(response).map(normalizeStudent);
+            return getCollection(response);
         },
     });
+
+    const students = useMemo(() => {
+        if (!Array.isArray(rawStudents)) return [];
+        return rawStudents.map(normalizeStudent).filter(Boolean);
+    }, [rawStudents]);
 
     const refreshStudents = () => {
         queryClient.invalidateQueries({
@@ -394,11 +459,13 @@ export default function Students() {
                 </div>
             </div>
 
+            {/* StatCards (All container count logos are blue) */}
             <div className="grid gap-4 md:grid-cols-3">
                 <StatCard
                     icon={UserGroupIcon}
                     label="Total Students"
                     value={counts.total}
+                    tone="blue"
                     loading={loading}
                 />
                 <StatCard
@@ -412,7 +479,7 @@ export default function Students() {
                     icon={UsersIcon}
                     label="Female"
                     value={counts.female}
-                    tone="green"
+                    tone="blue"
                     loading={loading}
                 />
             </div>

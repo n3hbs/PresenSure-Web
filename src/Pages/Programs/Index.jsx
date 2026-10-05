@@ -94,6 +94,7 @@ export default function ProgramsIndex() {
             const progCode = (
                 prog.program_code ||
                 rec.program_code ||
+                rec.programCode ||
                 student.program_code ||
                 ""
             ).toUpperCase();
@@ -311,7 +312,7 @@ export default function ProgramsIndex() {
                     )}
                 </div>
 
-                {/* Metric Summary Cards */}
+                {/* Metric Summary Cards (All container count logos are blue) */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <StatCard
                         icon={AcademicCapIcon}
@@ -324,14 +325,14 @@ export default function ProgramsIndex() {
                         icon={BuildingOffice2Icon}
                         label="Academic Departments"
                         value={stats.totalDepartments}
-                        tone="green"
+                        tone="blue"
                         loading={isLoading || isLoadingStudents}
                     />
                     <StatCard
                         icon={UserGroupIcon}
                         label="Total Enrolled Students"
                         value={stats.totalStudents}
-                        tone="purple"
+                        tone="blue"
                         loading={isLoading || isLoadingStudents}
                     />
                 </div>

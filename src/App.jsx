@@ -51,6 +51,9 @@ const InstructorEdit = lazy(() => import("@/Pages/Instructors/Edit"));
 
 // Semesters
 const SemestersIndex = lazy(() => import("@/Pages/Semesters/Index"));
+const SemestersSchoolYearDetails = lazy(
+    () => import("@/Pages/Semesters/SchoolYearDetails"),
+);
 const SemestersCreate = lazy(() => import("@/Pages/Semesters/Create"));
 const SemestersEdit = lazy(() => import("@/Pages/Semesters/Edit"));
 const SemestersArchives = lazy(() => import("@/Pages/Semesters/Archives"));
@@ -115,14 +118,7 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <NavigationBridge />
-                <Suspense
-                    fallback={
-                        <PageLoader
-                            fullScreen
-                            message="Loading PresenSure..."
-                        />
-                    }
-                >
+                <Suspense fallback={<PageLoader fullScreen />}>
                     <Routes>
                         {/* Public Pages (Outside MainLayout) */}
                         <Route path="/" element={<LandingPage />} />
@@ -201,6 +197,10 @@ export default function App() {
                             <Route
                                 path="/semesters"
                                 element={<SemestersIndex />}
+                            />
+                            <Route
+                                path="/semesters/school-year-details"
+                                element={<SemestersSchoolYearDetails />}
                             />
                             <Route
                                 path="/semesters/create"

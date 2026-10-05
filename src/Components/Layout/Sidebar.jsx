@@ -22,7 +22,7 @@ import usePermission from "@/Hooks/usePermission";
 const mainLinks = [
     { label: "Dashboard", href: "/dashboard", icon: Squares2X2Icon },
     { label: "Roles", href: "/roles", icon: ShieldCheckIcon, permission: "roles.view" },
-    { label: "Semesters", href: "/semesters", icon: CalendarDaysIcon, permission: "semesters.manage" },
+    { label: "Academic Years", href: "/semesters", icon: CalendarDaysIcon, permission: "semesters.manage" },
     { label: "Courses", href: "/courses", icon: BookOpenIcon, permission: "courses.manage" },
     { label: "Facilities", href: "/facilities", icon: ClipboardDocumentListIcon, permission: "facilities.manage" },
     { label: "Schedules", href: "/schedules", icon: ClipboardDocumentListIcon, permission: "schedules.manage" },
@@ -38,7 +38,7 @@ const userLinks = [
 
 const academicLinks = [
     { label: "Departments", href: "/departments", icon: BuildingOffice2Icon, permission: "departments.manage" },
-    { label: "Programs", href: "/programs", icon: AcademicCapIcon, permission: "programs.manage" },
+    { label: "Academic Programs", href: "/programs", icon: AcademicCapIcon, permission: "programs.manage" },
 ];
 
 export default function Sidebar({ collapsed = false, mobile = false, onClose }) {

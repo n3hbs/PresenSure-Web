@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import {
-    ArchiveBoxIcon,
     ArrowPathIcon,
     CalendarDaysIcon,
     ClockIcon,
@@ -148,26 +147,6 @@ export default function Archives() {
             getEntityLabel={(item) =>
                 `${item.term} (${item.school_year ? `AY ${item.school_year.year_range}` : ""})`
             }
-            statCards={(items) => [
-                {
-                    icon: ArchiveBoxIcon,
-                    label: "Archived Semesters",
-                    value: items.length,
-                    tone: "gray",
-                },
-                {
-                    icon: CalendarDaysIcon,
-                    label: "Archived Regular Semesters",
-                    value: items.filter((s) => s.term !== "Summer").length,
-                    tone: "blue",
-                },
-                {
-                    icon: ClockIcon,
-                    label: "Archived Summer Terms",
-                    value: items.filter((s) => s.term === "Summer").length,
-                    tone: "green",
-                },
-            ]}
             filterComponent={filterComponent}
             filterFn={(item, query) => {
                 const termMatch =

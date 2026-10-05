@@ -1,7 +1,5 @@
 import {
-    ArchiveBoxIcon,
     ArrowPathIcon,
-    UsersIcon,
 } from "@heroicons/react/24/outline";
 
 import ArchivePage from "@/Components/Common/ArchivePage";
@@ -104,26 +102,6 @@ export default function Archives() {
             entityName="Student"
             getEntityLabel={(item) => `${item.fullName} (${item.userId})`}
             transformData={(list) => list.map(normalizeStudent)}
-            statCards={(items) => [
-                {
-                    icon: ArchiveBoxIcon,
-                    label: "Total Archived Students",
-                    value: items.length,
-                    tone: "gray",
-                },
-                {
-                    icon: UsersIcon,
-                    label: "Archived Male Students",
-                    value: items.filter((s) => String(s.sex).toLowerCase() === "male").length,
-                    tone: "blue",
-                },
-                {
-                    icon: UsersIcon,
-                    label: "Archived Female Students",
-                    value: items.filter((s) => String(s.sex).toLowerCase() === "female").length,
-                    tone: "green",
-                },
-            ]}
             filterFn={(item, query) =>
                 item.userId.toLowerCase().includes(query) ||
                 item.fullName.toLowerCase().includes(query)
