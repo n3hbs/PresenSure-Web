@@ -30,7 +30,7 @@ const pageTitles = [
     { path: "/students", title: "Students" },
     { path: "/instructors", title: "Instructors" },
     { path: "/roles", title: "Roles" },
-    { path: "/semesters", title: "Semesters" },
+    { path: "/semesters", title: "Academic Years" },
     { path: "/departments", title: "Departments" },
     { path: "/programs", title: "Programs" },
     { path: "/courses", title: "Courses" },
@@ -123,7 +123,7 @@ const getSchoolYearLabel = (schoolYear) => {
     return `S.Y. ${start}-${end}`;
 };
 
-export default function TopNavbar({ onMenu }) {
+export default function TopNavbar({ onMenu, title: customTitle }) {
     const { url, props } = usePage();
     const queryClient = useQueryClient();
     const { isDark, toggleTheme } = useSystemTheme();
@@ -137,9 +137,21 @@ export default function TopNavbar({ onMenu }) {
     const userName = getUserName(user);
     const role = getRole(user);
 
-    const pageTitle =
-        pageTitles.find((item) => url?.startsWith(item.path))?.title ||
-        "PresenSure";
+    const resolvedTitle = useMemo(() => {
+        if (customTitle) return customTitle;
+
+        // Any page under /semesters has the title "Academic Years Management"
+        if (url?.startsWith("/semesters")) {
+            return "Academic Years Management";
+        }
+
+        const match = pageTitles.find((item) => url?.startsWith(item.path));
+        if (match) {
+            return `${match.title} Management`;
+        }
+
+        return "PresenSure Management";
+    }, [customTitle, url]);
 
     const { data: activeSemester, isLoading: semesterLoading } = useQuery({
         queryKey: activeSemesterQueryKey,
@@ -240,7 +252,7 @@ export default function TopNavbar({ onMenu }) {
 
                 <div className="min-w-0">
                     <h2 className="truncate text-xl font-bold text-gray-900 dark:text-white">
-                        {pageTitle} Management
+                        {resolvedTitle}
                     </h2>
                 </div>
             </div>

@@ -10,7 +10,7 @@ export default function Edit() {
 
     const { data: department, isLoading: loadingDepartment } = useFetchData(
         ["department-details", departmentId],
-        () => `/v1/departments/${departmentId}`,
+        () => `/departments/${departmentId}`,
         { enabled: Boolean(departmentId) }
     );
 

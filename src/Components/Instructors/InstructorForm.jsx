@@ -3,7 +3,6 @@ import { Head, router } from "@inertiajs/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
-import MainLayout from "@/Components/Layout/MainLayout";
 import InstructorRegistrationReview from "@/Components/Instructors/Register/InstructorRegistrationReview";
 import InstructorRegistrationStepper from "@/Components/Instructors/Register/InstructorRegistrationStepper";
 import SingleInstructorRegistrationForm from "@/Components/Instructors/Register/SingleInstructorRegistrationForm";
@@ -304,18 +303,16 @@ export default function InstructorForm({
 
     if (isLoadingData) {
         return (
-            <MainLayout
-                title={isEdit ? "Edit Instructor" : "Register Instructor"}
-            >
+            <>
                 <div className="py-8">
                     <InstructorDetailsSkeleton />
                 </div>
-            </MainLayout>
+            </>
         );
     }
 
     return (
-        <MainLayout title={isEdit ? "Edit Instructor" : "Register Instructor"}>
+        <>
             <Head title={isEdit ? "Edit Instructor" : "Register Instructor"} />
 
             <StudentRegistrationToast
@@ -397,6 +394,6 @@ export default function InstructorForm({
                     />
                 )}
             </div>
-        </MainLayout>
+        </>
     );
 }

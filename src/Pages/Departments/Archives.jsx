@@ -76,8 +76,8 @@ export default function Archives() {
             permission="departments.manage"
             queryKey={archivedDepartmentsQueryKey}
             activeQueryKeys={[departmentsQueryKey]}
-            fetchUrl="/v1/departments/archives"
-            restoreEndpoint={(id) => `/v1/departments/${id}/restore`}
+            fetchUrl="/departments/archives"
+            restoreEndpoint={(id) => `/departments/${id}/restore`}
             idField="department_id"
             entityName="Department"
             getEntityLabel={(item) => `${item.department_code} - ${item.department_name}`}

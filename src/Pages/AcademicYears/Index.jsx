@@ -16,7 +16,7 @@ import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import DataTable from "@/Components/UI/DataTable";
 import SelectDropdown from "@/Components/UI/SelectDropdown";
 import StatCard from "@/Components/UI/StatCard";
-import CreateSchoolYearModal from "@/Components/Semesters/CreateSchoolYearModal";
+import CreateSchoolYearModal from "@/Components/AcademicYears/CreateSchoolYearModal";
 import { formatDate } from "@/Utils/date";
 import api from "@/Services/api";
 import { getAuthToken } from "@/Services/auth";
@@ -63,7 +63,7 @@ export default function AcademicYears() {
         enabled: Boolean(getAuthToken()),
         queryFn: async () => {
             const token = sessionStorage.getItem("token");
-            const response = await api.get("/v1/semesters/school-years", {
+            const response = await api.get("semesters/school-years", {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             return getCollection(response);
@@ -81,7 +81,7 @@ export default function AcademicYears() {
         enabled: Boolean(getAuthToken()),
         queryFn: async () => {
             const token = sessionStorage.getItem("token");
-            const response = await api.get("/v1/semesters", {
+            const response = await api.get("semesters", {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             return getCollection(response);
@@ -236,29 +236,6 @@ export default function AcademicYears() {
                 ),
         },
         {
-            key: "active_period",
-            header: "Active Period",
-            render: (row) => {
-                const period = row.active_period;
-                if (!period?.name) {
-                    return (
-                        <span className="text-xs text-gray-400 dark:text-slate-500">
-                            —
-                        </span>
-                    );
-                }
-
-                const formatted =
-                    period.name.charAt(0).toUpperCase() + period.name.slice(1);
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/30">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        {formatted} Period
-                    </span>
-                );
-            },
-        },
-        {
             key: "duration",
             header: "Duration",
             render: (row) => (
@@ -354,7 +331,7 @@ export default function AcademicYears() {
                             </button>
                         )}
                         <Link
-                            href="/semesters/archives"
+                            href="/semesters/school-years/archives"
                             className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700"
                         >
                             <ArchiveBoxIcon className="h-4 w-4" />

@@ -11,27 +11,80 @@ import NoImage from "@/assets/images/noImage.webp";
 
 const normalizeStudent = (record) => {
     const user = record.user || record || {};
-    const profile = record.profile || user.profile || {};
+    const student =
+        (Array.isArray(record.student)
+            ? record.student[0]
+            : record.student) || {};
+    const program = student.program || record.program || {};
+    const department = program.department || record.department || {};
+    const profile =
+        record.profile || user.profile || record.user_profile || {};
 
-    const fullName = [
-        user.last_name,
-        user.first_name,
-        user.suffix,
-        user.middle_initial,
-    ]
-        .filter(Boolean)
-        .join(" ");
+    const resolvedFirstName =
+        user.first_name || record.firstName || record.first_name || "";
+    const resolvedLastName =
+        user.last_name || record.lastName || record.last_name || "";
+    const resolvedMiddleInitial =
+        user.middle_initial ||
+        record.middleInitial ||
+        record.middle_initial ||
+        "";
+    const resolvedSuffix = user.suffix || record.suffix || "";
+
+    const fullName =
+        user.full_name ||
+        record.fullName ||
+        [
+            resolvedLastName,
+            resolvedFirstName,
+            resolvedSuffix,
+            resolvedMiddleInitial,
+        ]
+            .filter(Boolean)
+            .join(" ") ||
+        [resolvedFirstName, resolvedLastName].filter(Boolean).join(" ") ||
+        "N/A";
+
+    const userId =
+        user.user_id ||
+        student.user_id ||
+        record.userId ||
+        record.user_id ||
+        "N/A";
 
     return {
-        id: user.user_id,
-        userId: user.user_id || "N/A",
-        firstName: user.first_name || "",
-        lastName: user.last_name || "",
-        middleInitial: user.middle_initial || "",
-        suffix: user.suffix || "",
-        fullName: fullName || "N/A",
-        sex: user.sex || "N/A",
-        image: profile.imagelink || profile.image_link || "",
+        id: userId !== "N/A" ? userId : record.id,
+        userId,
+        firstName: resolvedFirstName,
+        lastName: resolvedLastName,
+        middleInitial: resolvedMiddleInitial,
+        suffix: resolvedSuffix,
+        fullName,
+        sex: user.sex || record.sex || "N/A",
+        year: student.year || record.year || "N/A",
+        block: student.block || record.block || "N/A",
+        programCode:
+            program.program_code ||
+            record.programCode ||
+            record.program_code ||
+            "N/A",
+        programName:
+            program.program_name ||
+            record.programName ||
+            record.program_name ||
+            "",
+        departmentName:
+            department.department_name ||
+            record.departmentName ||
+            record.department_name ||
+            "N/A",
+        image:
+            profile.imagelink ||
+            profile.image_link ||
+            profile.profile_picture ||
+            user.profile_picture ||
+            record.image ||
+            "",
     };
 };
 
@@ -65,6 +118,26 @@ export default function Archives() {
             render: (row) => (
                 <span className="capitalize text-sm text-gray-600 dark:text-slate-300">
                     {row.sex}
+                </span>
+            ),
+        },
+        {
+            key: "program",
+            label: "Program",
+            sortable: true,
+            render: (row) => (
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+                    {row.programCode}
+                </span>
+            ),
+        },
+        {
+            key: "year",
+            label: "Year & Block",
+            sortable: true,
+            render: (row) => (
+                <span className="text-sm text-gray-600 dark:text-slate-300">
+                    {row.year !== "N/A" ? `${row.year} - ${row.block}` : "N/A"}
                 </span>
             ),
         },
@@ -104,7 +177,9 @@ export default function Archives() {
             transformData={(list) => list.map(normalizeStudent)}
             filterFn={(item, query) =>
                 item.userId.toLowerCase().includes(query) ||
-                item.fullName.toLowerCase().includes(query)
+                item.fullName.toLowerCase().includes(query) ||
+                item.programCode.toLowerCase().includes(query) ||
+                item.departmentName.toLowerCase().includes(query)
             }
             columns={columns}
         />

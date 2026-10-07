@@ -72,7 +72,7 @@ export default function DepartmentDetails({ departmentId: propDeptId }) {
         queryKey: ["department-details", departmentId],
         queryFn: async () => {
             const token = getAuthToken();
-            const res = await api.get(`/v1/departments/${departmentId}`, {
+            const res = await api.get(`/departments/${departmentId}`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             return res.data?.data;
@@ -95,7 +95,7 @@ export default function DepartmentDetails({ departmentId: propDeptId }) {
     const archiveMutation = useMutation({
         mutationFn: async () => {
             const token = getAuthToken();
-            const res = await api.delete(`/v1/departments/${departmentId}`, {
+            const res = await api.delete(`/departments/${departmentId}`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             return res.data;
@@ -144,6 +144,14 @@ export default function DepartmentDetails({ departmentId: propDeptId }) {
 
                 {department && (
                     <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                            href="/departments"
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                        >
+                            <ArrowLeftIcon className="h-4 w-4" />
+                            <span>Back to Departments</span>
+                        </Link>
+
                         {(hasRole("administrator") || can("departments.manage")) && (
                             <Link
                                 href={`/departments/edit?department_id=${department.department_id}`}

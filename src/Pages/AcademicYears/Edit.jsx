@@ -1,4 +1,4 @@
-import SemesterForm from "@/Components/Semesters/SemesterForm";
+import SemesterForm from "@/Components/AcademicYears/SemesterForm";
 import useFetchData from "@/Hooks/useFetchData";
 
 export default function Edit({ semesterId: propSemesterId }) {
@@ -10,7 +10,7 @@ export default function Edit({ semesterId: propSemesterId }) {
 
     const { data: semester, isLoading: loadingSemester } = useFetchData(
         ["semesters", semesterId],
-        () => `/v1/semesters/${semesterId}`,
+        () => `/semesters/${semesterId}`,
         { enabled: Boolean(semesterId) }
     );
 

@@ -90,16 +90,6 @@ export const facilityApi = {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         try {
-            const res = await api.get("/v1/buildings", { headers });
-            if (res.data) {
-                const data = Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : null;
-                if (data) return data;
-            }
-        } catch {
-            // Fall through to un-prefixed
-        }
-
-        try {
             const res = await api.get("/buildings", { headers });
             if (res.data) {
                 const data = Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : null;
@@ -119,15 +109,6 @@ export const facilityApi = {
         const id = Number(buildingId);
         const token = getAuthToken();
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-        try {
-            const res = await api.get(`/v1/buildings/${id}`, { headers });
-            if (res.data?.data || res.data?.building) {
-                return res.data.data || res.data.building;
-            }
-        } catch {
-            // Fall through
-        }
 
         try {
             const res = await api.get(`/buildings/${id}`, { headers });
@@ -150,7 +131,7 @@ export const facilityApi = {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         try {
-            const res = await api.post("/v1/buildings", payload, { headers });
+            const res = await api.post("/buildings", payload, { headers });
             if (res.data) return res.data;
         } catch (err) {
             if (err.response && (err.response.status === 422 || err.response.status === 400)) {
@@ -200,7 +181,7 @@ export const facilityApi = {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         try {
-            const res = await api.put(`/v1/buildings/${id}`, payload, { headers });
+            const res = await api.put(`/buildings/${id}`, payload, { headers });
             if (res.data) return res.data;
         } catch (err) {
             if (err.response && (err.response.status === 422 || err.response.status === 400)) {
@@ -232,7 +213,7 @@ export const facilityApi = {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         try {
-            await api.delete(`/v1/buildings/${id}`, { headers });
+            await api.delete(`/buildings/${id}`, { headers });
         } catch {
             // Fall through to local
         }
@@ -258,16 +239,6 @@ export const facilityApi = {
     async getRooms(filters = {}) {
         const token = getAuthToken();
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-        try {
-            const res = await api.get("/v1/rooms", { headers, params: filters });
-            if (res.data) {
-                const data = Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : null;
-                if (data) return data;
-            }
-        } catch {
-            // Fall through
-        }
 
         try {
             const res = await api.get("/rooms", { headers, params: filters });
@@ -305,7 +276,7 @@ export const facilityApi = {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         try {
-            const res = await api.post("/v1/rooms", payload, { headers });
+            const res = await api.post("/rooms", payload, { headers });
             if (res.data) return res.data;
         } catch (err) {
             if (err.response && (err.response.status === 422 || err.response.status === 400)) {

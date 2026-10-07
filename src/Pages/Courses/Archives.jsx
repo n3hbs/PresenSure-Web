@@ -95,8 +95,8 @@ export default function Archives() {
             permission="courses.manage"
             queryKey={archivedCoursesQueryKey}
             activeQueryKeys={[coursesQueryKey]}
-            fetchUrl="/v1/courses/archives"
-            restoreEndpoint={(id) => `/v1/courses/${id}/restore`}
+            fetchUrl="/courses/archives"
+            restoreEndpoint={(id) => `/courses/${id}/restore`}
             idField="course_id"
             entityName="Course"
             getEntityLabel={(item) => `${item.subject_code} - ${item.name}`}

@@ -49,16 +49,19 @@ const InstructorDetails = lazy(
 const InstructorArchives = lazy(() => import("@/Pages/Instructors/Archives"));
 const InstructorEdit = lazy(() => import("@/Pages/Instructors/Edit"));
 
-// Semesters
-const SemestersIndex = lazy(() => import("@/Pages/Semesters/Index"));
+// Semesters & Academic Years
+const SemestersIndex = lazy(() => import("@/Pages/AcademicYears/Index"));
 const SemestersSchoolYearDetails = lazy(
-    () => import("@/Pages/Semesters/SchoolYearDetails"),
+    () => import("@/Pages/AcademicYears/SchoolYearDetails"),
 );
-const SemestersCreate = lazy(() => import("@/Pages/Semesters/Create"));
-const SemestersEdit = lazy(() => import("@/Pages/Semesters/Edit"));
-const SemestersArchives = lazy(() => import("@/Pages/Semesters/Archives"));
+const SemestersCreate = lazy(() => import("@/Pages/AcademicYears/Create"));
+const SemestersEdit = lazy(() => import("@/Pages/AcademicYears/Edit"));
+const SemestersArchives = lazy(() => import("@/Pages/AcademicYears/Archives"));
+const SemestersSchoolYearArchives = lazy(
+    () => import("@/Pages/AcademicYears/SchoolYearArchives"),
+);
 const SemestersDetails = lazy(
-    () => import("@/Pages/Semesters/SemesterDetails"),
+    () => import("@/Pages/AcademicYears/SemesterDetails"),
 );
 
 // Departments
@@ -217,6 +220,14 @@ export default function App() {
                             <Route
                                 path="/semesters/archives"
                                 element={<SemestersArchives />}
+                            />
+                            <Route
+                                path="/semesters/school-years/archives"
+                                element={<SemestersSchoolYearArchives />}
+                            />
+                            <Route
+                                path="/semesters/school-year-archives"
+                                element={<SemestersSchoolYearArchives />}
                             />
                             <Route
                                 path="/semesters/semester-details"

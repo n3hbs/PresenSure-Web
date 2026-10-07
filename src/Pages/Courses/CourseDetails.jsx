@@ -387,6 +387,14 @@ export default function CourseDetails({ courseId: propCourseId }) {
 
                     <div className="flex flex-wrap items-center gap-2">
                         <Link
+                            href="/courses"
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                        >
+                            <ArrowLeftIcon className="h-4 w-4" />
+                            <span>Back to Courses</span>
+                        </Link>
+
+                        <Link
                             href={`/courses/edit?course_id=${course.course_id}`}
                             className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-3.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700"
                         >

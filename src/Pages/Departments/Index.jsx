@@ -66,7 +66,7 @@ export default function Departments() {
         enabled: Boolean(getAuthToken()),
         queryFn: async () => {
             const token = getAuthToken();
-            const response = await api.get("/v1/departments", {
+            const response = await api.get("/departments", {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             return getCollection(response);

@@ -151,18 +151,6 @@ export const courseApi = {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         try {
-            // Try standard v1 courses endpoint first
-            const res = await api.get("/v1/courses", { headers });
-            if (res.data) {
-                const data = Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : null;
-                if (data) return data;
-            }
-        } catch {
-            // Fall through to fallback
-        }
-
-        try {
-            // Try /courses endpoint
             const res = await api.get("/courses", { headers });
             if (res.data) {
                 const data = Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : null;
@@ -183,15 +171,6 @@ export const courseApi = {
         const id = Number(courseId);
         const token = getAuthToken();
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-        try {
-            const res = await api.get(`/v1/courses/${id}`, { headers });
-            if (res.data?.data || res.data?.course) {
-                return res.data.data || res.data.course;
-            }
-        } catch {
-            // Fall through to un-prefixed endpoint
-        }
 
         try {
             const res = await api.get(`/courses/${id}`, { headers });
@@ -219,16 +198,6 @@ export const courseApi = {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         try {
-            const res = await api.get("/v1/courses/archives", { headers });
-            if (res.data) {
-                const data = Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : null;
-                if (data) return data;
-            }
-        } catch {
-            // Fall through
-        }
-
-        try {
             const res = await api.get("/courses/archives", { headers });
             if (res.data) {
                 const data = Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : null;
@@ -248,46 +217,77 @@ export const courseApi = {
         const token = getAuthToken();
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
+        const blockCodes = Array.isArray(payload.block_codes) && payload.block_codes.length > 0
+            ? payload.block_codes
+            : payload.initial_block_code
+              ? [payload.initial_block_code]
+              : [];
+
+        let savedCourse = null;
         try {
-            const res = await api.post("/v1/courses", payload, { headers });
-            if (res.data) return res.data;
+            const res = await api.post("/courses", payload, { headers });
+            if (res.data) {
+                savedCourse = res.data.data || res.data.course || res.data;
+            }
         } catch {
             try {
                 const res = await api.post("/course", {
                     subject_code: payload.subject_code,
                     name: payload.name,
                 }, { headers });
-                if (res.data) return res.data;
+                if (res.data) {
+                    savedCourse = res.data.data || res.data.course || res.data;
+                }
             } catch {
                 // Fallback
             }
         }
 
-        // Local state update
+        // If backend course was created, create each block via createCourseBlock if not already present
+        if (savedCourse && savedCourse.course_id && blockCodes.length > 0 && payload.semester_id) {
+            const existingBlocks = (savedCourse.course_blocks || savedCourse.courseBlocks || [])
+                .map((b) => (b.block_code || "").toUpperCase());
+
+            for (const bCode of blockCodes) {
+                if (!existingBlocks.includes(bCode.toUpperCase())) {
+                    try {
+                        await this.createCourseBlock({
+                            course_id: savedCourse.course_id,
+                            semester_id: payload.semester_id,
+                            block_code: bCode,
+                        });
+                    } catch {
+                        // ignore if individually already created
+                    }
+                }
+            }
+            return savedCourse;
+        }
+
+        if (savedCourse) return savedCourse;
+
+        // Local state update (mock fallback)
         const courses = getStoredCourses();
+        const courseId = Date.now();
         const newCourse = {
-            course_id: Date.now(),
+            course_id: courseId,
             subject_code: payload.subject_code,
             name: payload.name,
             description: payload.description || "",
             created_at: new Date().toISOString(),
-            course_blocks: payload.initial_block_code
-                ? [
-                      {
-                          course_block_id: Date.now() + 1,
-                          course_id: Date.now(),
-                          semester_id: payload.semester_id || 1,
-                          block_code: payload.initial_block_code,
-                          students_count: 0,
-                          schedules: [],
-                          semester: {
-                              semester_id: payload.semester_id || 1,
-                              term: "Current Semester",
-                              school_year: { year_range: "2026-2027" },
-                          },
-                      },
-                  ]
-                : [],
+            course_blocks: blockCodes.map((bCode, idx) => ({
+                course_block_id: courseId + idx + 1,
+                course_id: courseId,
+                semester_id: payload.semester_id || 1,
+                block_code: bCode,
+                students_count: 0,
+                schedules: [],
+                semester: {
+                    semester_id: payload.semester_id || 1,
+                    term: "Current Semester",
+                    school_year: { year_range: "2026-2027" },
+                },
+            })),
         };
         courses.unshift(newCourse);
         saveStoredCourses(courses);
@@ -303,7 +303,7 @@ export const courseApi = {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         try {
-            const res = await api.put(`/v1/courses/${id}`, payload, { headers });
+            const res = await api.put(`/courses/${id}`, payload, { headers });
             if (res.data) return res.data;
         } catch {
             // Fallback
@@ -334,7 +334,7 @@ export const courseApi = {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         try {
-            await api.delete(`/v1/courses/${id}`, { headers });
+            await api.delete(`/courses/${id}`, { headers });
         } catch {
             // Fallback
         }
@@ -363,7 +363,7 @@ export const courseApi = {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         try {
-            await api.post(`/v1/courses/${id}/restore`, {}, { headers });
+            await api.post(`/courses/${id}/restore`, {}, { headers });
         } catch {
             // Fallback
         }
@@ -407,11 +407,11 @@ export const courseApi = {
             if (err.response && (err.response.status === 422 || err.response.status === 400)) {
                 throw err;
             }
-            // If 404, maybe endpoint is under /v1/course-blocks
+            // If 404, maybe endpoint is under /course-blocks
             if (err.response && err.response.status === 404) {
                 try {
                     const res2 = await api.post(
-                        "/v1/course-blocks",
+                        "/course-blocks",
                         {
                             course_id: payload.course_id,
                             semester_id: payload.semester_id,

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
     ArrowPathIcon,
     CalendarDaysIcon,
@@ -26,14 +27,45 @@ const termOptions = [
 ];
 
 export default function Archives() {
-    const [selectedSchoolYear, setSelectedSchoolYear] = useState("");
+    const location = useLocation();
+    const params = new URLSearchParams(
+        location.search || window.location.search,
+    );
+    const initialSyId = params.get("school_year_id") || "";
+
+    const [selectedSchoolYear, setSelectedSchoolYear] = useState(initialSyId);
     const [selectedTerm, setSelectedTerm] = useState("");
 
-    // School years for filter
+    // School years for filter & breadcrumb
     const { data: schoolYears = [] } = useFetchData(
         schoolYearsQueryKey,
-        "/v1/semesters/school-years"
+        "/semesters/school-years"
     );
+
+    const activeSchoolYear = useMemo(() => {
+        if (!selectedSchoolYear) return schoolYears[0] || null;
+        return (
+            schoolYears.find(
+                (sy) => String(sy.school_year_id) === String(selectedSchoolYear),
+            ) || null
+        );
+    }, [schoolYears, selectedSchoolYear]);
+
+    const crumbs = useMemo(() => {
+        const syLabel = activeSchoolYear?.year_range
+            ? `AY ${activeSchoolYear.year_range}`
+            : "Academic Year";
+        const syHref = activeSchoolYear?.school_year_id
+            ? `/semesters/school-year-details?school_year_id=${activeSchoolYear.school_year_id}`
+            : "/semesters";
+
+        return [
+            { label: "Dashboard", href: "/dashboard" },
+            { label: "Academic Years", href: "/semesters" },
+            { label: syLabel, href: syHref },
+            { label: "Archives" },
+        ];
+    }, [activeSchoolYear]);
 
     const schoolYearOptions = useMemo(() => {
         const list = (schoolYears || []).map((sy) => ({
@@ -47,7 +79,6 @@ export default function Archives() {
         {
             key: "term",
             label: "Academic Term",
-            sortable: true,
             render: (row) => (
                 <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-slate-400">
@@ -84,7 +115,6 @@ export default function Archives() {
         {
             key: "deleted_at",
             label: "Archived On",
-            sortable: true,
             render: (row) => (
                 <span className="text-sm text-gray-600 dark:text-slate-300">
                     {formatDate(row.deleted_at)}
@@ -135,13 +165,15 @@ export default function Archives() {
     return (
         <ArchivePage
             title="Archived Semesters"
-            parentTitle="Semesters"
+            layoutTitle="Academic Years Management"
+            parentTitle="Academic Years"
             parentHref="/semesters"
+            crumbs={crumbs}
             permission="semesters.manage"
             queryKey={archivedSemestersQueryKey}
             activeQueryKeys={[semestersQueryKey, activeSemesterQueryKey]}
-            fetchUrl="/v1/semesters/archives"
-            restoreEndpoint={(id) => `/v1/semesters/${id}/restore`}
+            fetchUrl="/semesters/archives"
+            restoreEndpoint={(id) => `/semesters/${id}/restore`}
             idField="semester_id"
             entityName="Semester"
             getEntityLabel={(item) =>

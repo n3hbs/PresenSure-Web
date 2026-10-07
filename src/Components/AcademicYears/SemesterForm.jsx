@@ -3,7 +3,6 @@ import { Head, router } from "@inertiajs/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     ArrowLeftIcon,
-    ArrowPathIcon,
     CalendarDaysIcon,
     CheckCircleIcon,
     ClockIcon,
@@ -12,12 +11,13 @@ import {
     LockClosedIcon,
 } from "@heroicons/react/24/outline";
 
-import MainLayout from "@/Components/Layout/MainLayout";
 import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import Button from "@/Components/UI/Button";
 import Stepper from "@/Components/UI/Stepper";
 import DiscardRegistrationModal from "@/Components/UI/DiscardRegistrationModal";
 import { ReviewGroup, ReviewItem } from "@/Components/UI/ReviewSection";
+import SemesterFormSkeleton from "@/Components/AcademicYears/SemesterFormSkeleton";
+import DatePickerInput, { formatDisplayDate } from "@/Components/UI/DatePickerInput";
 import api from "@/Services/api";
 import { notify } from "@/Services/toast";
 import {
@@ -70,7 +70,7 @@ export default function SemesterForm({
     // School years lookup using reusable useFetchData
     const { data: schoolYears = [], isLoading: loadingSchoolYears } = useFetchData(
         schoolYearsQueryKey,
-        "/v1/semesters/school-years"
+        "/semesters/school-years"
     );
 
     // Form states
@@ -106,7 +106,14 @@ export default function SemesterForm({
         const existingPeriodsMap = {};
         if (Array.isArray(initialData.periods)) {
             initialData.periods.forEach((p) => {
-                existingPeriodsMap[p.name.toLowerCase()] = p;
+                const rawName = (p.name || "").toLowerCase().trim();
+                const key =
+                    rawName === "prefinal"
+                        ? "prefinals"
+                        : rawName === "final"
+                          ? "finals"
+                          : rawName;
+                existingPeriodsMap[key] = p;
             });
         }
 
@@ -186,10 +193,10 @@ export default function SemesterForm({
     const formMutation = useMutation({
         mutationFn: async (payload) => {
             if (isEdit) {
-                const res = await api.put(`/v1/semesters/${semesterId}`, payload);
+                const res = await api.put(`/semesters/${semesterId}`, payload);
                 return res.data;
             }
-            const res = await api.post("/v1/semesters", payload);
+            const res = await api.post("/semesters", payload);
             return res.data;
         },
         onSuccess: (data) => {
@@ -416,19 +423,15 @@ export default function SemesterForm({
 
     if (isLoadingData) {
         return (
-            <MainLayout title={isEdit ? "Edit Semester" : "Create Semester"}>
-                <div className="flex h-96 items-center justify-center">
-                    <div className="flex items-center gap-3 text-sm text-gray-500">
-                        <ArrowPathIcon className="h-5 w-5 animate-spin text-blue-600" />
-                        <span>Loading semester records...</span>
-                    </div>
-                </div>
-            </MainLayout>
+            <>
+                <Head title={isEdit ? "Edit Semester" : "Create Semester"} />
+                <SemesterFormSkeleton />
+            </>
         );
     }
 
     return (
-        <MainLayout title={isEdit ? "Edit Semester" : "Create Semester"}>
+        <>
             <Head title={isEdit ? "Edit Semester" : "Create Semester"} />
 
             <DiscardRegistrationModal
@@ -449,7 +452,7 @@ export default function SemesterForm({
                         <Breadcrumbs
                             items={[
                                 { label: "Dashboard", href: "/dashboard" },
-                                { label: "Semesters", href: "/semesters" },
+                                { label: "Academic Years", href: "/semesters" },
                                 ...(isEdit && semesterId
                                     ? [
                                           {
@@ -472,7 +475,7 @@ export default function SemesterForm({
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
                     >
                         <ArrowLeftIcon className="h-4 w-4" />
-                        <span>{isEdit ? "Back to Details" : "Back to Semesters"}</span>
+                        <span>{isEdit ? "Back to Details" : "Back to Academic Years"}</span>
                     </button>
                 </div>
 
@@ -557,12 +560,11 @@ export default function SemesterForm({
                                 <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400">
                                     Semester Start Date <span className="text-red-500">*</span>
                                 </label>
-                                <input
-                                    type="date"
+                                <DatePickerInput
                                     name="semester_start"
                                     value={form.semester_start}
                                     onChange={handleTextChange}
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-[#161824]"
+                                    error={fieldErrors.semester_start}
                                 />
                                 {fieldErrors.semester_start && (
                                     <p className="mt-1 text-xs text-red-500">{fieldErrors.semester_start}</p>
@@ -574,13 +576,12 @@ export default function SemesterForm({
                                 <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400">
                                     Semester End Date <span className="text-red-500">*</span>
                                 </label>
-                                <input
-                                    type="date"
+                                <DatePickerInput
                                     name="semester_end"
                                     value={form.semester_end}
                                     min={form.semester_start || (!isEdit ? todayDate : undefined)}
                                     onChange={handleTextChange}
-                                    className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-[#161824]"
+                                    error={fieldErrors.semester_end}
                                 />
                                 {fieldErrors.semester_end && (
                                     <p className="mt-1 text-xs text-red-500">{fieldErrors.semester_end}</p>
@@ -695,13 +696,11 @@ export default function SemesterForm({
                                                     <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-slate-400">
                                                         Start Date <span className="text-red-500">*</span>
                                                     </label>
-                                                    <input
-                                                        type="date"
+                                                    <DatePickerInput
                                                         value={period.period_start}
                                                         min={form.semester_start}
                                                         max={form.semester_end}
                                                         onChange={(e) => handlePeriodChange(idx, "period_start", e.target.value)}
-                                                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-[#161824] dark:text-white"
                                                     />
                                                     {fieldErrors[`periods.${idx}.period_start`] && (
                                                         <p className="mt-1 text-xs text-red-500">
@@ -714,13 +713,11 @@ export default function SemesterForm({
                                                     <label className="mb-1 block text-xs font-semibold text-gray-600 dark:text-slate-400">
                                                         End Date <span className="text-red-500">*</span>
                                                     </label>
-                                                    <input
-                                                        type="date"
+                                                    <DatePickerInput
                                                         value={period.period_end}
                                                         min={period.period_start || form.semester_start}
                                                         max={form.semester_end}
                                                         onChange={(e) => handlePeriodChange(idx, "period_end", e.target.value)}
-                                                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-[#161824] dark:text-white"
                                                     />
                                                     {fieldErrors[`periods.${idx}.period_end`] && (
                                                         <p className="mt-1 text-xs text-red-500">
@@ -770,8 +767,8 @@ export default function SemesterForm({
                                     value={selectedSchoolYear ? `AY ${selectedSchoolYear.year_range}` : "N/A"}
                                 />
                                 <ReviewItem label="Academic Term" value={form.term} />
-                                <ReviewItem label="Start Date" value={form.semester_start} />
-                                <ReviewItem label="End Date" value={form.semester_end} />
+                                <ReviewItem label="Start Date" value={formatDisplayDate(form.semester_start) || "—"} />
+                                <ReviewItem label="End Date" value={formatDisplayDate(form.semester_end) || "—"} />
                                 <ReviewItem label="Remarks" value={form.remarks || "No remarks provided"} />
                             </ReviewGroup>
 
@@ -784,7 +781,6 @@ export default function SemesterForm({
                                     <table className="w-full text-left text-sm">
                                         <thead className="border-b border-gray-100 bg-gray-50/75 text-xs uppercase text-gray-500 dark:border-white/5 dark:bg-white/5 dark:text-slate-400">
                                             <tr>
-                                                <th className="px-4 py-3">Sequence</th>
                                                 <th className="px-4 py-3">Period</th>
                                                 <th className="px-4 py-3">Start Date</th>
                                                 <th className="px-4 py-3">End Date</th>
@@ -792,23 +788,20 @@ export default function SemesterForm({
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                                            {periods.map((p, idx) => {
+                                            {periods.map((p) => {
                                                 const label = p.name.charAt(0).toUpperCase() + p.name.slice(1);
                                                 const isConfigured = p.enabled && p.period_start && p.period_end;
 
                                                 return (
                                                     <tr key={p.name}>
-                                                        <td className="px-4 py-3 font-semibold text-gray-400 dark:text-slate-500">
-                                                            #{idx + 1}
-                                                        </td>
                                                         <td className="px-4 py-3 font-bold text-gray-900 dark:text-white">
                                                             {label}
                                                         </td>
                                                         <td className="px-4 py-3 text-gray-600 dark:text-slate-300">
-                                                            {isConfigured ? p.period_start : "—"}
+                                                            {isConfigured ? formatDisplayDate(p.period_start) : "—"}
                                                         </td>
                                                         <td className="px-4 py-3 text-gray-600 dark:text-slate-300">
-                                                            {isConfigured ? p.period_end : "—"}
+                                                            {isConfigured ? formatDisplayDate(p.period_end) : "—"}
                                                         </td>
                                                         <td className="px-4 py-3">
                                                             {isConfigured ? (
@@ -851,6 +844,6 @@ export default function SemesterForm({
                     </section>
                 )}
             </div>
-        </MainLayout>
+        </>
     );
 }

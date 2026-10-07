@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
@@ -16,6 +16,7 @@ import MainLayout from "@/Components/Layout/MainLayout";
 import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import DataTable from "@/Components/UI/DataTable";
 import StatCard from "@/Components/UI/StatCard";
+import ArchiveSchoolYearModal from "@/Components/AcademicYears/ArchiveSchoolYearModal";
 import { formatDate } from "@/Utils/date";
 import api from "@/Services/api";
 import { getAuthToken } from "@/Services/auth";
@@ -35,6 +36,7 @@ export default function SchoolYearDetails() {
         location.search || window.location.search,
     );
     const schoolYearId = params.get("school_year_id") || params.get("id");
+    const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
 
     useEffect(() => {
         if (!hasRole("administrator") && !can("semesters.manage")) {
@@ -48,7 +50,7 @@ export default function SchoolYearDetails() {
         enabled: Boolean(getAuthToken()),
         queryFn: async () => {
             const token = sessionStorage.getItem("token");
-            const response = await api.get("/v1/semesters/school-years", {
+            const response = await api.get("/semesters/school-years", {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             return getCollection(response);
@@ -61,7 +63,7 @@ export default function SchoolYearDetails() {
         enabled: Boolean(getAuthToken()),
         queryFn: async () => {
             const token = sessionStorage.getItem("token");
-            const response = await api.get("/v1/semesters", {
+            const response = await api.get("/semesters", {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             return getCollection(response);
@@ -281,36 +283,41 @@ export default function SchoolYearDetails() {
                         </Link>
 
                         <Link
-                            href="/semesters/archives"
+                            href={`/semesters/archives?school_year_id=${schoolYear?.school_year_id || ""}`}
                             className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700"
                         >
                             <ArchiveBoxIcon className="h-4 w-4" />
                             <span>View Archive Semester</span>
                         </Link>
+
+                        {(hasRole("administrator") ||
+                            can("semesters.manage")) && (
+                            <button
+                                type="button"
+                                onClick={() => setIsArchiveModalOpen(true)}
+                                className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-red-600 px-3 text-sm font-semibold text-white shadow-sm shadow-red-200 transition hover:bg-red-700"
+                            >
+                                <ArchiveBoxIcon className="h-4 w-4" />
+                                <span>Archive School Year</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 
                 {/* School Year Overview Card */}
                 <section>
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-5 dark:border-white/5">
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
-                                    Academic Year
-                                </span>
-                                {activeSemester ? (
+                    {activeSemester && (
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-5 dark:border-white/5">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
                                     <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/30">
                                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                         Current School Year
                                     </span>
-                                ) : (
-                                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-white/10 dark:text-slate-400">
-                                        No Active Semester
-                                    </span>
-                                )}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Quick Metric Cards (All container count logos are blue) */}
                     <div className="mt-5 grid gap-4 sm:grid-cols-3">
@@ -356,6 +363,14 @@ export default function SchoolYearDetails() {
                     loading={loading}
                     rowKey="semester_id"
                     emptyMessage="No semesters configured for this school year yet."
+                />
+
+                {/* Archive School Year Modal */}
+                <ArchiveSchoolYearModal
+                    isOpen={isArchiveModalOpen}
+                    onClose={() => setIsArchiveModalOpen(false)}
+                    schoolYear={schoolYear}
+                    redirectOnSuccess={true}
                 />
             </div>
         </>

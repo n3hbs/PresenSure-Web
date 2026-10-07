@@ -11,7 +11,6 @@ import {
     TrashIcon,
 } from "@heroicons/react/24/outline";
 
-import MainLayout from "@/Components/Layout/MainLayout";
 import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import Button from "@/Components/UI/Button";
 import Stepper from "@/Components/UI/Stepper";
@@ -209,10 +208,10 @@ export default function DepartmentForm({
     const formMutation = useMutation({
         mutationFn: async (payload) => {
             if (isEdit) {
-                const res = await api.put(`/v1/departments/${departmentId}`, payload);
+                const res = await api.put(`/departments/${departmentId}`, payload);
                 return res.data;
             }
-            const res = await api.post("/v1/departments", payload);
+            const res = await api.post("/departments", payload);
             return res.data;
         },
         onSuccess: (data) => {
@@ -274,19 +273,19 @@ export default function DepartmentForm({
 
     if (isLoadingData) {
         return (
-            <MainLayout title={isEdit ? "Edit Department" : "Create Department"}>
+            <>
                 <div className="flex h-96 items-center justify-center">
                     <div className="flex items-center gap-3 text-sm text-gray-500">
                         <ArrowPathIcon className="h-5 w-5 animate-spin text-blue-600" />
                         <span>Loading department details...</span>
                     </div>
                 </div>
-            </MainLayout>
+            </>
         );
     }
 
     return (
-        <MainLayout title={isEdit ? "Edit Department" : "Create Department"}>
+        <>
             <Head title={isEdit ? "Edit Department" : "Create Department"} />
 
             <DiscardRegistrationModal
@@ -618,6 +617,6 @@ export default function DepartmentForm({
                     </section>
                 )}
             </div>
-        </MainLayout>
+        </>
     );
 }

@@ -7,7 +7,6 @@ import {
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 
-import MainLayout from "@/Components/Layout/MainLayout";
 import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import DataTable from "@/Components/UI/DataTable";
 import Modal from "@/Components/UI/Modal";
@@ -18,8 +17,10 @@ import useFetchData from "@/Hooks/useFetchData";
 
 export default function ArchivePage({
     title,
+    _layoutTitle,
     parentTitle,
     parentHref,
+    crumbs = null,
     permission,
     queryKey,
     activeQueryKeys = [],
@@ -55,7 +56,9 @@ export default function ArchivePage({
         data: rawArchivedItems = [],
         isLoading: loading,
         isError,
-    } = useFetchData(queryKey, fetchUrl);
+    } = useFetchData(queryKey, fetchUrl, {
+        staleTime: 0,
+    });
 
     const archivedItems = useMemo(() => {
         const list = Array.isArray(rawArchivedItems) ? rawArchivedItems : [];
@@ -106,17 +109,19 @@ export default function ArchivePage({
     }, [columns]);
 
     return (
-        <MainLayout title={title}>
+        <>
             <Head title={title} />
 
             <div className="space-y-6">
                 <div className="flex min-h-10 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <Breadcrumbs
-                        items={[
-                            { label: "Dashboard", href: "/dashboard" },
-                            { label: parentTitle, href: parentHref },
-                            { label: "Archives" },
-                        ]}
+                        items={
+                            crumbs || [
+                                { label: "Dashboard", href: "/dashboard" },
+                                { label: parentTitle, href: parentHref },
+                                { label: "Archives" },
+                            ]
+                        }
                     />
 
                     <Link
@@ -153,7 +158,7 @@ export default function ArchivePage({
                     data={filteredItems}
                     loading={loading}
                     pagination={true}
-                    emptyStateMessage={
+                    emptyMessage={
                         isError
                             ? `Failed to load archived ${parentTitle.toLowerCase()}.`
                             : search.trim()
@@ -205,6 +210,6 @@ export default function ArchivePage({
                     </div>
                 </div>
             </Modal>
-        </MainLayout>
+        </>
     );
 }

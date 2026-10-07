@@ -3,6 +3,7 @@ import { Head, Link, router } from "@inertiajs/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     ArchiveBoxIcon,
+    ArrowLeftIcon,
     ArrowPathIcon,
     LockClosedIcon,
     PencilSquareIcon,
@@ -105,6 +106,14 @@ export default function InstructorDetails({ userId: propUserId }) {
 
                 {data && (
                     <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                            href="/instructors"
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                        >
+                            <ArrowLeftIcon className="h-4 w-4" />
+                            <span>Back to Instructors</span>
+                        </Link>
+
                         {can("instructors.edit") && (
                             <Link
                                 href={`/instructors/edit?user_id=${userId}`}

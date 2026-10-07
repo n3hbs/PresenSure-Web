@@ -14,7 +14,7 @@ import { SystemThemeProvider } from "@/Context/SystemThemeContext";
 
 const MainLayoutContext = createContext(false);
 
-function MainLayoutContent({ children }) {
+function MainLayoutContent({ children, title }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [isSessionExpired, setIsSessionExpired] = useState(false);
@@ -139,7 +139,7 @@ function MainLayoutContent({ children }) {
                 )}
 
                 <div className="flex flex-1 flex-col min-w-0">
-                    <TopNavbar onMenu={handleMenu} />
+                    <TopNavbar onMenu={handleMenu} title={title} />
 
                     <main className="flex-1 overflow-auto p-6">
                         {children || <Outlet />}
@@ -150,7 +150,7 @@ function MainLayoutContent({ children }) {
     );
 }
 
-export default function MainLayout({ children }) {
+export default function MainLayout({ children, title }) {
     const isNested = useContext(MainLayoutContext);
 
     // If already wrapped by a parent MainLayout, render children directly to prevent duplicate layout & queries
@@ -160,7 +160,7 @@ export default function MainLayout({ children }) {
 
     return (
         <SystemThemeProvider>
-            <MainLayoutContent>{children}</MainLayoutContent>
+            <MainLayoutContent title={title}>{children}</MainLayoutContent>
         </SystemThemeProvider>
     );
 }

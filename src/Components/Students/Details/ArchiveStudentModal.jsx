@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
+import { useQueryClient } from "@tanstack/react-query";
 
 import Modal from "@/Components/UI/Modal";
 import api from "@/Services/api";
 import { getAuthToken } from "@/Services/auth";
 import { notify } from "@/Services/toast";
+import {
+    activeStudentsQueryKey,
+    archivedStudentsQueryKey,
+} from "@/Services/queryKeys";
 
 export default function ArchiveStudentModal({
     isOpen,
@@ -12,6 +17,7 @@ export default function ArchiveStudentModal({
     user = {},
     onSuccess,
 }) {
+    const queryClient = useQueryClient();
     const [submitting, setSubmitting] = useState(false);
 
     const handleArchive = async () => {
@@ -22,6 +28,18 @@ export default function ArchiveStudentModal({
             await api.delete(`student/${user.user_id}`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
+
+            queryClient.invalidateQueries({
+                queryKey: archivedStudentsQueryKey,
+            });
+            queryClient.invalidateQueries({
+                queryKey: activeStudentsQueryKey,
+            });
+            if (user.user_id) {
+                queryClient.invalidateQueries({
+                    queryKey: ["student-details", user.user_id],
+                });
+            }
 
             notify.success(
                 "Student Archived",

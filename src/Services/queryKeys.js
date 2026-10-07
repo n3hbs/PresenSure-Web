@@ -12,6 +12,7 @@ export const programsQueryKey = ["programs"];
 export const semestersQueryKey = ["semesters"];
 export const archivedSemestersQueryKey = ["semesters", "archived"];
 export const schoolYearsQueryKey = ["school-years"];
+export const archivedSchoolYearsQueryKey = ["school-years", "archived"];
 export const coursesQueryKey = ["courses"];
 export const archivedCoursesQueryKey = ["courses", "archived"];
 export const buildingsQueryKey = ["buildings"];

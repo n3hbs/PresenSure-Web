@@ -3,6 +3,7 @@ import { Head, Link, router } from "@inertiajs/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     ArchiveBoxIcon,
+    ArrowLeftIcon,
     LockClosedIcon,
     PencilSquareIcon,
     ShieldCheckIcon,
@@ -20,7 +21,10 @@ import ArchiveStudentModal from "@/Components/Students/Details/ArchiveStudentMod
 import ResetPasswordModal from "@/Components/UI/ResetPasswordModal";
 import api from "@/Services/api";
 import { getAuthToken } from "@/Services/auth";
-import { activeStudentsQueryKey } from "@/Services/queryKeys";
+import {
+    activeStudentsQueryKey,
+    archivedStudentsQueryKey,
+} from "@/Services/queryKeys";
 import { notify } from "@/Services/toast";
 import { useLocation } from "react-router-dom";
 
@@ -95,6 +99,14 @@ export default function StudentDetails({ userId: propUserId }) {
 
                 {data && (
                     <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                            href="/students"
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                        >
+                            <ArrowLeftIcon className="h-4 w-4" />
+                            <span>Back to Students</span>
+                        </Link>
+
                         {can("students.edit") && (
                             <Link
                                 href={`/students/edit?user_id=${userId}`}
@@ -187,6 +199,9 @@ export default function StudentDetails({ userId: propUserId }) {
                     });
                     queryClient.invalidateQueries({
                         queryKey: activeStudentsQueryKey,
+                    });
+                    queryClient.invalidateQueries({
+                        queryKey: archivedStudentsQueryKey,
                     });
                     router.visit("/students");
                 }}
