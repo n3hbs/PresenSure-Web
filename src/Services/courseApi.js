@@ -104,6 +104,7 @@ const DEFAULT_COURSES = [
 
 const STORAGE_KEY = "ps_mock_courses_v1";
 const ARCHIVES_KEY = "ps_mock_courses_archives_v1";
+const BLOCK_ARCHIVES_KEY = "ps_mock_course_blocks_archives_v1";
 
 const getStoredCourses = () => {
     try {
@@ -137,6 +138,24 @@ const getStoredArchives = () => {
 const saveStoredArchives = (archives) => {
     try {
         sessionStorage.setItem(ARCHIVES_KEY, JSON.stringify(archives));
+    } catch {
+        // Ignored
+    }
+};
+
+const getStoredBlockArchives = () => {
+    try {
+        const stored = sessionStorage.getItem(BLOCK_ARCHIVES_KEY);
+        if (stored) return JSON.parse(stored);
+    } catch {
+        // Fallback
+    }
+    return [];
+};
+
+const saveStoredBlockArchives = (archives) => {
+    try {
+        sessionStorage.setItem(BLOCK_ARCHIVES_KEY, JSON.stringify(archives));
     } catch {
         // Ignored
     }
@@ -454,6 +473,238 @@ export const courseApi = {
             return newBlock;
         }
         return null;
+    },
+
+    /**
+     * Update an existing Course Block
+     */
+    async updateCourseBlock(blockId, payload) {
+        const id = Number(blockId);
+        const token = getAuthToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        try {
+            const res = await api.put(
+                `/course-block/${id}`,
+                {
+                    block_code: payload.block_code,
+                    instructor_id: payload.instructor_id || null,
+                    user_id: payload.instructor_id || null,
+                },
+                { headers }
+            );
+            if (res.data) return res.data;
+        } catch (err) {
+            if (err.response && (err.response.status === 422 || err.response.status === 400)) {
+                throw err;
+            }
+            if (err.response && err.response.status === 404) {
+                try {
+                    const res2 = await api.put(
+                        `/course-blocks/${id}`,
+                        {
+                            block_code: payload.block_code,
+                            instructor_id: payload.instructor_id || null,
+                            user_id: payload.instructor_id || null,
+                        },
+                        { headers }
+                    );
+                    if (res2.data) return res2.data;
+                } catch (err2) {
+                    if (err2.response && (err2.response.status === 422 || err2.response.status === 400)) {
+                        throw err2;
+                    }
+                }
+            }
+        }
+
+        const courses = getStoredCourses();
+        for (const course of courses) {
+            const blocks = course.course_blocks || course.courseBlocks || [];
+            const blkIndex = blocks.findIndex((b) => Number(b.course_block_id) === id);
+            if (blkIndex !== -1) {
+                blocks[blkIndex] = {
+                    ...blocks[blkIndex],
+                    block_code: payload.block_code || blocks[blkIndex].block_code,
+                    instructor_id: payload.instructor_id !== undefined ? payload.instructor_id : blocks[blkIndex].instructor_id,
+                    instructor_name: payload.instructor_name !== undefined ? payload.instructor_name : blocks[blkIndex].instructor_name,
+                };
+                saveStoredCourses(courses);
+                return blocks[blkIndex];
+            }
+        }
+        return null;
+    },
+
+    /**
+     * Delete / Remove a Course Block
+     */
+    async deleteCourseBlock(blockId) {
+        const id = Number(blockId);
+        const token = getAuthToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        try {
+            const res = await api.delete(`/course-block/${id}`, { headers });
+            if (res.data) return res.data;
+        } catch (err) {
+            if (err.response && (err.response.status === 422 || err.response.status === 400)) {
+                throw err;
+            }
+            if (err.response && err.response.status === 404) {
+                try {
+                    const res2 = await api.delete(`/course-blocks/${id}`, { headers });
+                    if (res2.data) return res2.data;
+                } catch (err2) {
+                    if (err2.response && (err2.response.status === 422 || err2.response.status === 400)) {
+                        throw err2;
+                    }
+                }
+            }
+        }
+
+        const courses = getStoredCourses();
+        for (const course of courses) {
+            if (course.course_blocks) {
+                const initialLen = course.course_blocks.length;
+                course.course_blocks = course.course_blocks.filter((b) => Number(b.course_block_id) !== id);
+                if (course.course_blocks.length !== initialLen) {
+                    saveStoredCourses(courses);
+                    return true;
+                }
+            }
+        }
+        return true;
+    },
+
+    /**
+     * Archive (soft-delete) a Course Block
+     */
+    async archiveCourseBlock(blockId) {
+        const id = Number(blockId);
+        const token = getAuthToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        try {
+            const res = await api.delete(`/course-block/${id}`, { headers });
+            if (res.data) {
+                // Succeeded on backend
+            }
+        } catch (err) {
+            if (err.response && (err.response.status === 422 || err.response.status === 400)) {
+                throw err;
+            }
+            if (err.response && err.response.status === 404) {
+                try {
+                    await api.delete(`/course-blocks/${id}`, { headers });
+                } catch (err2) {
+                    if (err2.response && (err2.response.status === 422 || err2.response.status === 400)) {
+                        throw err2;
+                    }
+                }
+            }
+        }
+
+        const courses = getStoredCourses();
+        for (const course of courses) {
+            const blocks = course.course_blocks || course.courseBlocks || [];
+            const blkIndex = blocks.findIndex((b) => Number(b.course_block_id) === id);
+            if (blkIndex !== -1) {
+                const targetBlock = blocks[blkIndex];
+                const schedules = targetBlock.schedules || targetBlock.course_schedules || [];
+                const studentCount = Number(targetBlock.students_count || targetBlock.enrolled_count || 0);
+                const userBlocks = targetBlock.user_course_blocks || targetBlock.userCourseBlocks || targetBlock.users || [];
+                const hasAssignedUsers = userBlocks.length > 0 || Boolean(targetBlock.instructor_id);
+
+                if (schedules.length > 0 || studentCount > 0 || hasAssignedUsers) {
+                    const err = new Error("Cannot archive course block with existing schedules or assigned users.");
+                    err.response = {
+                        data: {
+                            message: "Cannot archive course block with existing schedules or assigned users. Please remove them first.",
+                        },
+                    };
+                    throw err;
+                }
+
+                const [removedBlock] = blocks.splice(blkIndex, 1);
+                saveStoredCourses(courses);
+
+                const blockArchives = getStoredBlockArchives();
+                blockArchives.unshift({
+                    ...removedBlock,
+                    course_id: course.course_id,
+                    archived_at: new Date().toISOString(),
+                });
+                saveStoredBlockArchives(blockArchives);
+                return true;
+            }
+        }
+        return true;
+    },
+
+    /**
+     * Fetch archived course blocks for a specific course or all courses
+     */
+    async getArchivedCourseBlocks(courseId = null) {
+        const cId = courseId ? Number(courseId) : null;
+        const token = getAuthToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        try {
+            const url = cId ? `/courses/${cId}/block-archives` : "/course-blocks/archives";
+            const res = await api.get(url, { headers });
+            if (res.data) {
+                const data = Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : null;
+                if (data) return data;
+            }
+        } catch {
+            // Fallback
+        }
+
+        const blockArchives = getStoredBlockArchives();
+        if (cId) {
+            return blockArchives.filter((b) => Number(b.course_id) === cId);
+        }
+        return blockArchives;
+    },
+
+    /**
+     * Restore an archived Course Block
+     */
+    async restoreCourseBlock(blockId) {
+        const id = Number(blockId);
+        const token = getAuthToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        try {
+            const res = await api.post(`/course-block/${id}/restore`, {}, { headers });
+            if (res.data) return res.data;
+        } catch {
+            try {
+                const res2 = await api.post(`/course-blocks/${id}/restore`, {}, { headers });
+                if (res2.data) return res2.data;
+            } catch {
+                // Fallback
+            }
+        }
+
+        const blockArchives = getStoredBlockArchives();
+        const blkIndex = blockArchives.findIndex((b) => Number(b.course_block_id) === id);
+        if (blkIndex !== -1) {
+            const [targetBlock] = blockArchives.splice(blkIndex, 1);
+            saveStoredBlockArchives(blockArchives);
+
+            const courses = getStoredCourses();
+            const course = courses.find((c) => Number(c.course_id) === Number(targetBlock.course_id));
+            if (course) {
+                course.course_blocks = course.course_blocks || [];
+                const { archived_at: _archived_at, ...restored } = targetBlock;
+                course.course_blocks.push(restored);
+                saveStoredCourses(courses);
+            }
+            return true;
+        }
+        return true;
     }
 };
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Head, Link, router } from "@inertiajs/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     ArrowLeftIcon,
     ArrowPathIcon,
@@ -20,12 +20,15 @@ export default function ArchivePage({
     _layoutTitle,
     parentTitle,
     parentHref,
+    backLabel,
     crumbs = null,
     permission,
     queryKey,
     activeQueryKeys = [],
     fetchUrl,
+    queryFn = null,
     restoreEndpoint,
+    restoreFn = null,
     idField,
     entityName = "Item",
     getEntityLabel = (item) => item.name || item[idField],
@@ -51,14 +54,24 @@ export default function ArchivePage({
     const [search, setSearch] = useState("");
     const [restoreTarget, setRestoreTarget] = useState(null);
 
-    // Fetch archived records using useFetchData
+    // Fetch archived records using useFetchData or custom queryFn
+    const defaultQuery = useFetchData(queryKey, fetchUrl, {
+        staleTime: 0,
+        enabled: !queryFn,
+    });
+
+    const customQuery = useQuery({
+        queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
+        queryFn: queryFn || (() => Promise.resolve([])),
+        staleTime: 0,
+        enabled: Boolean(queryFn),
+    });
+
     const {
         data: rawArchivedItems = [],
         isLoading: loading,
         isError,
-    } = useFetchData(queryKey, fetchUrl, {
-        staleTime: 0,
-    });
+    } = queryFn ? customQuery : defaultQuery;
 
     const archivedItems = useMemo(() => {
         const list = Array.isArray(rawArchivedItems) ? rawArchivedItems : [];
@@ -68,6 +81,9 @@ export default function ArchivePage({
     // Restore mutation
     const restoreMutation = useMutation({
         mutationFn: async (id) => {
+            if (typeof restoreFn === "function") {
+                return restoreFn(id);
+            }
             const url =
                 typeof restoreEndpoint === "function"
                     ? restoreEndpoint(id)
@@ -129,7 +145,7 @@ export default function ArchivePage({
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-sm font-semibold text-gray-600 shadow-sm shadow-blue-950/5 transition hover:bg-blue-50 hover:text-blue-700 dark:border dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
                     >
                         <ArrowLeftIcon className="h-4 w-4" />
-                        Back to {parentTitle}
+                        {backLabel || `Back to ${parentTitle}`}
                     </Link>
                 </div>
 
@@ -195,7 +211,11 @@ export default function ArchivePage({
                         <button
                             type="button"
                             onClick={() =>
-                                restoreMutation.mutate(restoreTarget[idField])
+                                restoreMutation.mutate(
+                                    restoreTarget[idField] !== undefined
+                                        ? restoreTarget[idField]
+                                        : restoreTarget.id
+                                )
                             }
                             disabled={restoreMutation.isPending}
                             className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"

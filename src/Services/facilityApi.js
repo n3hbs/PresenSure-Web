@@ -319,6 +319,107 @@ export const facilityApi = {
     },
 
     /**
+     * Fetch single room details by ID, optionally filtered by semester
+     */
+    async getRoomById(roomId, semesterId = null) {
+        const id = Number(roomId);
+        const token = getAuthToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const params = semesterId ? { semester_id: semesterId } : {};
+
+        try {
+            const res = await api.get(`/rooms/${id}`, { headers, params });
+            if (res.data?.data || res.data?.room) {
+                return res.data.data || res.data.room;
+            }
+        } catch {
+            // Fall through to local
+        }
+
+        const buildings = getStoredBuildings();
+        for (const b of buildings) {
+            const found = (b.rooms || []).find((r) => Number(r.room_id) === id);
+            if (found) {
+                return {
+                    ...found,
+                    building: {
+                        building_id: b.building_id,
+                        code: b.code,
+                        name: b.name,
+                    },
+                };
+            }
+        }
+        return null;
+    },
+
+    /**
+     * Update room details
+     */
+    async updateRoom(roomId, payload) {
+        const id = Number(roomId);
+        const token = getAuthToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        try {
+            const res = await api.put(`/rooms/${id}`, payload, { headers });
+            if (res.data) return res.data;
+        } catch (err) {
+            if (err.response && (err.response.status === 422 || err.response.status === 400)) {
+                throw err;
+            }
+        }
+
+        const buildings = getStoredBuildings();
+        for (const b of buildings) {
+            const idx = (b.rooms || []).findIndex((r) => Number(r.room_id) === id);
+            if (idx !== -1) {
+                b.rooms[idx] = {
+                    ...b.rooms[idx],
+                    ...payload,
+                    updated_at: new Date().toISOString(),
+                };
+                saveStoredBuildings(buildings);
+                return b.rooms[idx];
+            }
+        }
+        return null;
+    },
+
+    /**
+     * Archive room
+     */
+    async archiveRoom(roomId) {
+        const id = Number(roomId);
+        const token = getAuthToken();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        try {
+            await api.delete(`/rooms/${id}`, { headers });
+        } catch {
+            // Fall through to local
+        }
+
+        const buildings = getStoredBuildings();
+        for (const b of buildings) {
+            const idx = (b.rooms || []).findIndex((r) => Number(r.room_id) === id);
+            if (idx !== -1) {
+                const [removed] = b.rooms.splice(idx, 1);
+                b.rooms_count = b.rooms.length;
+                saveStoredBuildings(buildings);
+                const archives = getStoredArchives();
+                archives.rooms.unshift({
+                    ...removed,
+                    deleted_at: new Date().toISOString(),
+                });
+                saveStoredArchives(archives);
+                return true;
+            }
+        }
+        return true;
+    },
+
+    /**
      * Fetch programs (combining /programs and /departments)
      */
     async getPrograms() {

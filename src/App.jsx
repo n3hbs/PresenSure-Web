@@ -78,11 +78,18 @@ const CoursesIndex = lazy(() => import("@/Pages/Courses/Index"));
 const CoursesCreate = lazy(() => import("@/Pages/Courses/Create"));
 const CoursesEdit = lazy(() => import("@/Pages/Courses/Edit"));
 const CoursesArchives = lazy(() => import("@/Pages/Courses/Archives"));
+const CoursesBlockArchives = lazy(() => import("@/Pages/Courses/BlockArchives"));
 const CoursesDetails = lazy(() => import("@/Pages/Courses/CourseDetails"));
 
 // In-Progress Modules
 const ProgramsIndex = lazy(() => import("@/Pages/Programs/Index"));
 const FacilitiesIndex = lazy(() => import("@/Pages/Facilities/Index"));
+const FacilitiesBuildingDetails = lazy(
+    () => import("@/Pages/Facilities/BuildingDetails"),
+);
+const FacilitiesRoomDetails = lazy(
+    () => import("@/Pages/Facilities/RoomDetails"),
+);
 const SchedulesIndex = lazy(() => import("@/Pages/Schedules/Index"));
 const MySchedulesIndex = lazy(() => import("@/Pages/MySchedules/Index"));
 const RecordsIndex = lazy(() => import("@/Pages/Records/Index"));
@@ -279,6 +286,14 @@ export default function App() {
                                 element={<CoursesArchives />}
                             />
                             <Route
+                                path="/courses/block-archives"
+                                element={<CoursesBlockArchives />}
+                            />
+                            <Route
+                                path="/courses/:course/block-archives"
+                                element={<CoursesBlockArchives />}
+                            />
+                            <Route
                                 path="/courses/course-details"
                                 element={<CoursesDetails />}
                             />
@@ -291,6 +306,14 @@ export default function App() {
                             <Route
                                 path="/facilities"
                                 element={<FacilitiesIndex />}
+                            />
+                            <Route
+                                path="/facilities/building-details"
+                                element={<FacilitiesBuildingDetails />}
+                            />
+                            <Route
+                                path="/facilities/room-details"
+                                element={<FacilitiesRoomDetails />}
                             />
                             <Route
                                 path="/schedules"
