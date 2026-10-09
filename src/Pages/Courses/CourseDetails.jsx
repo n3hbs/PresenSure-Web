@@ -405,12 +405,6 @@ export default function CourseDetails({ courseId: propCourseId }) {
         enabled: Boolean(courseId),
     });
 
-    // Archived course blocks fetch
-    const { data: archivedBlocks = [] } = useQuery({
-        queryKey: courseBlockArchivesQueryKey(courseId),
-        queryFn: () => courseApi.getArchivedCourseBlocks(courseId),
-        enabled: Boolean(courseId),
-    });
 
     useEffect(() => {
         if (isError) {
@@ -912,11 +906,6 @@ export default function CourseDetails({ courseId: propCourseId }) {
                         >
                             <ArchiveBoxIcon className="h-4 w-4 text-white" />
                             <span>Block Archives</span>
-                            {archivedBlocks.length > 0 && (
-                                <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-xs font-semibold text-white">
-                                    {archivedBlocks.length}
-                                </span>
-                            )}
                         </Link>
                         <button
                             type="button"

@@ -11,9 +11,9 @@ import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import DataTable from "@/Components/UI/DataTable";
 import Modal from "@/Components/UI/Modal";
 import api from "@/Services/api";
+import { getAuthToken } from "@/Services/auth";
 import { notify } from "@/Services/toast";
 import usePermission from "@/Hooks/usePermission";
-import useFetchData from "@/Hooks/useFetchData";
 
 export default function ArchivePage({
     title,
@@ -54,24 +54,27 @@ export default function ArchivePage({
     const [search, setSearch] = useState("");
     const [restoreTarget, setRestoreTarget] = useState(null);
 
-    // Fetch archived records using useFetchData or custom queryFn
-    const defaultQuery = useFetchData(queryKey, fetchUrl, {
-        staleTime: 0,
-        enabled: !queryFn,
-    });
-
-    const customQuery = useQuery({
-        queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
-        queryFn: queryFn || (() => Promise.resolve([])),
-        staleTime: 0,
-        enabled: Boolean(queryFn),
-    });
+    // Fetch archived records using fetchUrl or custom queryFn
+    const hasToken = Boolean(getAuthToken());
+    const isCustom = Boolean(queryFn);
 
     const {
         data: rawArchivedItems = [],
         isLoading: loading,
         isError,
-    } = queryFn ? customQuery : defaultQuery;
+    } = useQuery({
+        queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
+        queryFn: isCustom
+            ? queryFn
+            : async () => {
+                  const endpoint =
+                      typeof fetchUrl === "function" ? fetchUrl() : fetchUrl;
+                  const res = await api.get(endpoint);
+                  return res.data?.data ?? res.data ?? [];
+              },
+        staleTime: 0,
+        enabled: hasToken && (isCustom || Boolean(fetchUrl)),
+    });
 
     const archivedItems = useMemo(() => {
         const list = Array.isArray(rawArchivedItems) ? rawArchivedItems : [];

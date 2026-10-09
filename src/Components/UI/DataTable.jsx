@@ -14,6 +14,7 @@ export default function DataTable({
     sortOptions = [],
     defaultSort = "",
     pageSizeOptions = [10, 25, 50],
+    tableLayout = "auto",
 }) {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(pageSizeOptions[0] || 10);
@@ -99,13 +100,17 @@ export default function DataTable({
             )}
 
             <div className="overflow-x-auto">
-                <table className="min-w-full table-fixed">
+                <table
+                    className={`min-w-full ${
+                        tableLayout === "fixed" ? "table-fixed" : "table-auto"
+                    }`}
+                >
                     <thead>
                         <tr className="bg-blue-50 dark:bg-white/5 text-left">
                             {columns.map((column) => (
                                 <th
                                     key={column.key}
-                                    className={`px-4 py-3 text-xs font-bold uppercase tracking-wide text-blue-700 dark:text-blue-400 first:rounded-l-2xl last:rounded-r-2xl ${
+                                    className={`px-4 py-3 text-xs font-bold uppercase tracking-wide text-blue-700 dark:text-blue-400 whitespace-nowrap first:rounded-l-2xl last:rounded-r-2xl ${
                                         column.className || ""
                                     }`}
                                     style={{
@@ -126,7 +131,13 @@ export default function DataTable({
                                     {columns.map((column) => (
                                         <td
                                             key={column.key}
-                                            className="px-4 py-4"
+                                            className={`px-4 py-4 align-middle ${
+                                                column.cellClassName || ""
+                                            }`}
+                                            style={{
+                                                width: column.width,
+                                                minWidth: column.minWidth,
+                                            }}
                                         >
                                             <div className="h-4 w-full animate-pulse rounded-full bg-gray-100 dark:bg-white/5" />
                                         </td>
@@ -143,7 +154,7 @@ export default function DataTable({
                                     {columns.map((column) => (
                                         <td
                                             key={column.key}
-                                            className={`px-4 py-4 text-sm text-gray-700 dark:text-slate-200 ${
+                                            className={`px-4 py-4 text-sm text-gray-700 dark:text-slate-200 align-middle ${
                                                 column.cellClassName || ""
                                             }`}
                                             style={{

@@ -90,6 +90,12 @@ const FacilitiesBuildingDetails = lazy(
 const FacilitiesRoomDetails = lazy(
     () => import("@/Pages/Facilities/RoomDetails"),
 );
+const FacilitiesArchives = lazy(
+    () => import("@/Pages/Facilities/Archives"),
+);
+const FacilitiesRoomArchives = lazy(
+    () => import("@/Pages/Facilities/RoomArchives"),
+);
 const SchedulesIndex = lazy(() => import("@/Pages/Schedules/Index"));
 const MySchedulesIndex = lazy(() => import("@/Pages/MySchedules/Index"));
 const RecordsIndex = lazy(() => import("@/Pages/Records/Index"));
@@ -314,6 +320,18 @@ export default function App() {
                             <Route
                                 path="/facilities/room-details"
                                 element={<FacilitiesRoomDetails />}
+                            />
+                            <Route
+                                path="/facilities/archives"
+                                element={<FacilitiesArchives />}
+                            />
+                            <Route
+                                path="/facilities/room-archives"
+                                element={<FacilitiesRoomArchives />}
+                            />
+                            <Route
+                                path="/facilities/rooms/archives"
+                                element={<FacilitiesRoomArchives />}
                             />
                             <Route
                                 path="/schedules"

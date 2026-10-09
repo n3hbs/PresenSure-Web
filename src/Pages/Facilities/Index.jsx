@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
-import { Head, router } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     ArrowRightIcon,
+    ArchiveBoxIcon,
     BuildingOffice2Icon,
     MagnifyingGlassIcon,
     PlusIcon,
@@ -32,7 +33,7 @@ export default function FacilitiesIndex() {
     // Modal
     const [isAddBuildingModalOpen, setIsAddBuildingModalOpen] = useState(false);
 
-    // Form
+    // Add Building Form
     const [buildingForm, setBuildingForm] = useState({
         code: "",
         name: "",
@@ -111,9 +112,10 @@ export default function FacilitiesIndex() {
         {
             key: "code",
             header: "Building Code",
-            width: "160px",
+            width: "25%",
+            minWidth: "140px",
             render: (building) => (
-                <span className="inline-flex items-center rounded-lg bg-blue-50 px-3 py-1 font-mono text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-600/20 dark:bg-blue-950/40 dark:text-blue-300">
+                <span className="inline-flex items-center rounded-lg bg-blue-50 px-3 py-1 font-mono text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-600/20 dark:bg-blue-950/40 dark:text-blue-300 whitespace-nowrap">
                     {building.code}
                 </span>
             ),
@@ -121,26 +123,34 @@ export default function FacilitiesIndex() {
         {
             key: "name",
             header: "Building Name",
+            width: "45%",
+            minWidth: "220px",
             render: (building) => (
-                <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">
-                        {building.name}
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-slate-400">
-                        Campus Facility
-                    </p>
+                <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">
+                        <BuildingOffice2Icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                        <p className="font-semibold text-gray-900 dark:text-white truncate">
+                            {building.name}
+                        </p>
+                        <p className="text-xs text-gray-400 dark:text-slate-400 truncate">
+                            Campus Facility
+                        </p>
+                    </div>
                 </div>
             ),
         },
         {
             key: "rooms_count",
             header: "Rooms",
-            width: "180px",
+            width: "20%",
+            minWidth: "130px",
             render: (building) => {
                 const count = building.rooms_count ?? (building.rooms ? building.rooms.length : 0);
                 return (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 border border-gray-100 dark:bg-white/5 dark:text-slate-300 dark:border-white/5">
-                        <Squares2X2Icon className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 border border-gray-100 dark:bg-white/5 dark:text-slate-300 dark:border-white/5 whitespace-nowrap">
+                        <Squares2X2Icon className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
                         <span>{count} {count === 1 ? "Room" : "Rooms"}</span>
                     </span>
                 );
@@ -149,21 +159,26 @@ export default function FacilitiesIndex() {
         {
             key: "action",
             header: "Action",
-            width: "90px",
+            width: "10%",
+            minWidth: "80px",
+            className: "text-center",
+            cellClassName: "text-center",
             render: (building) => (
-                <button
-                    type="button"
-                    onClick={() =>
-                        router.visit(
-                            `/facilities/building-details?building_id=${building.building_id}`
-                        )
-                    }
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700"
-                    title={`View ${building.name} details`}
-                    aria-label={`View ${building.name}`}
-                >
-                    <ArrowRightIcon className="h-4 w-4" />
-                </button>
+                <div className="flex items-center justify-center">
+                    <button
+                        type="button"
+                        onClick={() =>
+                            router.visit(
+                                `/facilities/building-details?building_id=${building.building_id}`
+                            )
+                        }
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700 active:scale-95"
+                        title={`View ${building.name} details`}
+                        aria-label={`View ${building.name}`}
+                    >
+                        <ArrowRightIcon className="h-4 w-4" />
+                    </button>
+                </div>
             ),
         },
     ];
@@ -223,12 +238,20 @@ export default function FacilitiesIndex() {
                         <Breadcrumbs
                             crumbs={[
                                 { label: "Dashboard", href: "/dashboard" },
-                                { label: "Facilities" },
+                                { label: "Facilities Management" },
                             ]}
                         />
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                            href="/facilities/archives"
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-white/10 dark:bg-[#12131C] dark:text-slate-200 dark:hover:bg-white/5"
+                        >
+                            <ArchiveBoxIcon className="h-4 w-4 text-gray-500 dark:text-slate-400" />
+                            <span>View Archives</span>
+                        </Link>
+
                         {canManageFacilities && (
                             <button
                                 type="button"
