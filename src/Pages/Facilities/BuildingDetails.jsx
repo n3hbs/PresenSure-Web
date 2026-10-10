@@ -412,7 +412,7 @@ export default function BuildingDetails() {
                             crumbs={[
                                 { label: "Dashboard", href: "/dashboard" },
                                 {
-                                    label: "Facilities Management",
+                                    label: "Facilities",
                                     href: "/facilities",
                                 },
                                 { label: buildingName },
@@ -428,16 +428,6 @@ export default function BuildingDetails() {
                             <ArrowLeftIcon className="h-4 w-4" />
                             <span>Back to Buildings</span>
                         </Link>
-
-                        {buildingId && (
-                            <Link
-                                href={`/facilities/room-archives?building_id=${buildingId}`}
-                                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-white/10 dark:bg-[#12131C] dark:text-slate-200 dark:hover:bg-white/5"
-                            >
-                                <ArchiveBoxIcon className="h-4 w-4 text-gray-500 dark:text-slate-400" />
-                                <span>Archived Rooms</span>
-                            </Link>
-                        )}
 
                         {canManageFacilities &&
                             !loadingBuilding &&
@@ -469,6 +459,16 @@ export default function BuildingDetails() {
                                         <PencilSquareIcon className="h-4 w-4" />
                                         <span>Edit Building</span>
                                     </button>
+
+                                    {buildingId && (
+                                        <Link
+                                            href={`/facilities/room-archives?building_id=${buildingId}`}
+                                            className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-3.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:scale-[0.98]"
+                                        >
+                                            <ArchiveBoxIcon className="h-4 w-4" />
+                                            <span>Archived Rooms</span>
+                                        </Link>
+                                    )}
 
                                     <button
                                         type="button"

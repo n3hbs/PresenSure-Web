@@ -25,7 +25,8 @@ import usePermission from "@/Hooks/usePermission";
 export default function FacilitiesIndex() {
     const queryClient = useQueryClient();
     const { can, hasRole } = usePermission();
-    const canManageFacilities = hasRole("administrator") || can("facilities.manage");
+    const canManageFacilities =
+        hasRole("administrator") || can("facilities.manage");
 
     // Search
     const [search, setSearch] = useState("");
@@ -43,18 +44,12 @@ export default function FacilitiesIndex() {
     // =========================================================================
     // QUERIES
     // =========================================================================
-    const {
-        data: buildings = [],
-        isLoading: loadingBuildings,
-    } = useQuery({
+    const { data: buildings = [], isLoading: loadingBuildings } = useQuery({
         queryKey: buildingsQueryKey,
         queryFn: () => facilityApi.getBuildings(),
     });
 
-    const {
-        data: rooms = [],
-        isLoading: loadingRooms,
-    } = useQuery({
+    const { data: rooms = [], isLoading: loadingRooms } = useQuery({
         queryKey: roomsQueryKey,
         queryFn: () => facilityApi.getRooms(),
     });
@@ -67,7 +62,10 @@ export default function FacilitiesIndex() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: buildingsQueryKey });
             queryClient.invalidateQueries({ queryKey: roomsQueryKey });
-            notify.success("Building Created", "New campus building has been registered.");
+            notify.success(
+                "Building Created",
+                "New campus building has been registered.",
+            );
             setIsAddBuildingModalOpen(false);
             setBuildingForm({ code: "", name: "" });
             setBuildingFormError("");
@@ -88,7 +86,10 @@ export default function FacilitiesIndex() {
     const stats = useMemo(() => {
         const totalBuildings = buildings.length;
         const totalRooms = rooms.length;
-        const totalCapacity = rooms.reduce((acc, r) => acc + (Number(r.capacity) || 0), 0);
+        const totalCapacity = rooms.reduce(
+            (acc, r) => acc + (Number(r.capacity) || 0),
+            0,
+        );
         return { totalBuildings, totalRooms, totalCapacity };
     }, [buildings, rooms]);
 
@@ -101,7 +102,7 @@ export default function FacilitiesIndex() {
         return buildings.filter(
             (b) =>
                 b.name?.toLowerCase().includes(q) ||
-                b.code?.toLowerCase().includes(q)
+                b.code?.toLowerCase().includes(q),
         );
     }, [buildings, search]);
 
@@ -147,11 +148,15 @@ export default function FacilitiesIndex() {
             width: "20%",
             minWidth: "130px",
             render: (building) => {
-                const count = building.rooms_count ?? (building.rooms ? building.rooms.length : 0);
+                const count =
+                    building.rooms_count ??
+                    (building.rooms ? building.rooms.length : 0);
                 return (
                     <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 border border-gray-100 dark:bg-white/5 dark:text-slate-300 dark:border-white/5 whitespace-nowrap">
                         <Squares2X2Icon className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-                        <span>{count} {count === 1 ? "Room" : "Rooms"}</span>
+                        <span>
+                            {count} {count === 1 ? "Room" : "Rooms"}
+                        </span>
                     </span>
                 );
             },
@@ -169,7 +174,7 @@ export default function FacilitiesIndex() {
                         type="button"
                         onClick={() =>
                             router.visit(
-                                `/facilities/building-details?building_id=${building.building_id}`
+                                `/facilities/building-details?building_id=${building.building_id}`,
                             )
                         }
                         className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700 active:scale-95"
@@ -238,20 +243,12 @@ export default function FacilitiesIndex() {
                         <Breadcrumbs
                             crumbs={[
                                 { label: "Dashboard", href: "/dashboard" },
-                                { label: "Facilities Management" },
+                                { label: "Facilities" },
                             ]}
                         />
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <Link
-                            href="/facilities/archives"
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-white/10 dark:bg-[#12131C] dark:text-slate-200 dark:hover:bg-white/5"
-                        >
-                            <ArchiveBoxIcon className="h-4 w-4 text-gray-500 dark:text-slate-400" />
-                            <span>View Archives</span>
-                        </Link>
-
                         {canManageFacilities && (
                             <button
                                 type="button"
@@ -266,6 +263,14 @@ export default function FacilitiesIndex() {
                                 <span>Add Building</span>
                             </button>
                         )}
+
+                        <Link
+                            href="/facilities/archives"
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700"
+                        >
+                            <ArchiveBoxIcon className="h-4 w-4" />
+                            <span>View Archives</span>
+                        </Link>
                     </div>
                 </div>
 
@@ -330,7 +335,10 @@ export default function FacilitiesIndex() {
                 title="Add Campus Building"
                 maxWidth="md"
             >
-                <form onSubmit={handleCreateBuildingSubmit} className="space-y-4">
+                <form
+                    onSubmit={handleCreateBuildingSubmit}
+                    className="space-y-4"
+                >
                     {buildingFormError && (
                         <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-xs text-red-700 dark:bg-red-950/40 dark:text-red-400">
                             <ExclamationTriangleIcon className="h-4 w-4 shrink-0" />
@@ -340,7 +348,8 @@ export default function FacilitiesIndex() {
 
                     <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
-                            Building Code <span className="text-red-500">*</span>
+                            Building Code{" "}
+                            <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -348,7 +357,10 @@ export default function FacilitiesIndex() {
                             placeholder="e.g. MAIN, ITE-BLDG"
                             value={buildingForm.code}
                             onChange={(e) =>
-                                setBuildingForm({ ...buildingForm, code: e.target.value.toUpperCase() })
+                                setBuildingForm({
+                                    ...buildingForm,
+                                    code: e.target.value.toUpperCase(),
+                                })
                             }
                             className="mt-1 h-10 w-full rounded-lg border border-gray-200 bg-gray-50/50 px-3 text-sm text-gray-700 placeholder:text-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
                         />
@@ -356,7 +368,8 @@ export default function FacilitiesIndex() {
 
                     <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
-                            Building Name <span className="text-red-500">*</span>
+                            Building Name{" "}
+                            <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -364,7 +377,10 @@ export default function FacilitiesIndex() {
                             placeholder="e.g. Main Academic Complex"
                             value={buildingForm.name}
                             onChange={(e) =>
-                                setBuildingForm({ ...buildingForm, name: e.target.value })
+                                setBuildingForm({
+                                    ...buildingForm,
+                                    name: e.target.value,
+                                })
                             }
                             className="mt-1 h-10 w-full rounded-lg border border-gray-200 bg-gray-50/50 px-3 text-sm text-gray-700 placeholder:text-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
                         />
@@ -383,7 +399,9 @@ export default function FacilitiesIndex() {
                             disabled={createBuildingMutation.isPending}
                             className="h-10 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700 disabled:opacity-50"
                         >
-                            {createBuildingMutation.isPending ? "Creating..." : "Create Building"}
+                            {createBuildingMutation.isPending
+                                ? "Creating..."
+                                : "Create Building"}
                         </button>
                     </div>
                 </form>

@@ -20,3 +20,6 @@ export const archivedBuildingsQueryKey = ["buildings", "archived"];
 export const roomsQueryKey = ["rooms"];
 export const archivedRoomsQueryKey = ["rooms", "archived"];
 export const courseBlockArchivesQueryKey = (courseId) => ["course-blocks", "archived", String(courseId)];
+export const courseBlocksQueryKey = ["course-blocks"];
+export const courseBlockDetailsQueryKey = (id) => ["course-blocks", "details", String(id)];
+export const schedulesQueryKey = ["schedules"];

@@ -51,16 +51,14 @@ const formatDaysShortcut = (raw) => {
     let list;
     if (Array.isArray(raw)) {
         list = raw.map((item) =>
-            typeof item === "object" ? item?.day || item?.name || "" : item
+            typeof item === "object" ? item?.day || item?.name || "" : item,
         );
     } else if (typeof raw === "string") {
         list = raw.split(/[,/]/);
     } else {
         list = [String(raw)];
     }
-    const shortcuts = list
-        .map((s) => shortenDay(String(s)))
-        .filter(Boolean);
+    const shortcuts = list.map((s) => shortenDay(String(s))).filter(Boolean);
     return shortcuts.length > 0 ? shortcuts.join(", ") : "TBA";
 };
 
@@ -88,10 +86,13 @@ const formatScheduleTime = (startStr, endStr) => {
 export default function RoomDetails() {
     const queryClient = useQueryClient();
     const { can, hasRole } = usePermission();
-    const canManageFacilities = hasRole("administrator") || can("facilities.manage");
+    const canManageFacilities =
+        hasRole("administrator") || can("facilities.manage");
 
     const location = useLocation();
-    const params = new URLSearchParams(location.search || window.location.search);
+    const params = new URLSearchParams(
+        location.search || window.location.search,
+    );
     const roomId = params.get("room_id") || params.get("id");
 
     const [search, setSearch] = useState("");
@@ -114,10 +115,7 @@ export default function RoomDetails() {
     // QUERIES
     // =========================================================================
     // 1. Room details
-    const {
-        data: room,
-        isLoading: loadingRoom,
-    } = useQuery({
+    const { data: room, isLoading: loadingRoom } = useQuery({
         queryKey: [...roomsQueryKey, "detail", roomId],
         enabled: Boolean(roomId),
         queryFn: () => facilityApi.getRoomById(roomId),
@@ -138,85 +136,129 @@ export default function RoomDetails() {
     });
 
     // Helper: resolve schedule instructor data
-    const resolveScheduleInstructor = useCallback((schedule) => {
-        if (!schedule) return { isAssigned: false, name: "Unassigned", userId: null, image: null };
+    const resolveScheduleInstructor = useCallback(
+        (schedule) => {
+            if (!schedule)
+                return {
+                    isAssigned: false,
+                    name: "Unassigned",
+                    userId: null,
+                    image: null,
+                };
 
-        const findInInstructorsList = (targetId) => {
-            if (!targetId || !Array.isArray(instructors)) return null;
-            const raw = String(targetId).trim().toUpperCase();
-            const clean = raw.replace(/^C-/, "");
+            const findInInstructorsList = (targetId) => {
+                if (!targetId || !Array.isArray(instructors)) return null;
+                const raw = String(targetId).trim().toUpperCase();
+                const clean = raw.replace(/^C-/, "");
 
-            return instructors.find((i) => {
-                const listId = String(i.user_id || i.user?.user_id || i.id || "").trim().toUpperCase();
-                if (!listId) return false;
-                return listId === raw || listId === clean || listId.replace(/^C-/, "") === clean;
-            }) || null;
-        };
-
-        // 1. Direct instructor in schedule resource
-        if (schedule.instructor) {
-            const id = schedule.instructor.user_id || schedule.instructor.id;
-            const matched = findInInstructorsList(id);
-            const name =
-                schedule.instructor.name ||
-                schedule.instructor.full_name ||
-                (matched ? `${matched.user?.first_name || matched.first_name || ""} ${matched.user?.last_name || matched.last_name || ""}`.trim() : "");
-            const image = schedule.instructor.image || matched?.image || matched?.user?.image || null;
-            return {
-                isAssigned: true,
-                name: name || (id ? `Instructor ${id}` : "Assigned"),
-                userId: id || matched?.user_id || null,
-                image,
+                return (
+                    instructors.find((i) => {
+                        const listId = String(
+                            i.user_id || i.user?.user_id || i.id || "",
+                        )
+                            .trim()
+                            .toUpperCase();
+                        if (!listId) return false;
+                        return (
+                            listId === raw ||
+                            listId === clean ||
+                            listId.replace(/^C-/, "") === clean
+                        );
+                    }) || null
+                );
             };
-        }
 
-        // 2. Instructor in course_block
-        const block = schedule.course_block || schedule.courseBlock;
-        if (block) {
-            if (block.instructor) {
-                const id = block.instructor.user_id || block.instructor.instructor_id;
+            // 1. Direct instructor in schedule resource
+            if (schedule.instructor) {
+                const id =
+                    schedule.instructor.user_id || schedule.instructor.id;
                 const matched = findInInstructorsList(id);
                 const name =
-                    block.instructor.name ||
-                    block.instructor.full_name ||
-                    `${block.instructor.first_name || ""} ${block.instructor.last_name || ""}`.trim();
-                const image = block.instructor.image || matched?.image || null;
+                    schedule.instructor.name ||
+                    schedule.instructor.full_name ||
+                    (matched
+                        ? `${matched.user?.first_name || matched.first_name || ""} ${matched.user?.last_name || matched.last_name || ""}`.trim()
+                        : "");
+                const image =
+                    schedule.instructor.image ||
+                    matched?.image ||
+                    matched?.user?.image ||
+                    null;
                 return {
                     isAssigned: true,
-                    name: name || `Instructor ${id}`,
-                    userId: id,
+                    name: name || (id ? `Instructor ${id}` : "Assigned"),
+                    userId: id || matched?.user_id || null,
                     image,
                 };
             }
 
-            const assignedUsers = block.user_course_blocks || block.userCourseBlocks || [];
-            if (Array.isArray(assignedUsers) && assignedUsers.length > 0) {
-                for (const ucb of assignedUsers) {
-                    const user = ucb.user || ucb;
-                    const rawUserId = String(user.user_id || ucb.user_id || "").trim();
-                    if (!rawUserId) continue;
+            // 2. Instructor in course_block
+            const block = schedule.course_block || schedule.courseBlock;
+            if (block) {
+                if (block.instructor) {
+                    const id =
+                        block.instructor.user_id ||
+                        block.instructor.instructor_id;
+                    const matched = findInInstructorsList(id);
+                    const name =
+                        block.instructor.name ||
+                        block.instructor.full_name ||
+                        `${block.instructor.first_name || ""} ${block.instructor.last_name || ""}`.trim();
+                    const image =
+                        block.instructor.image || matched?.image || null;
+                    return {
+                        isAssigned: true,
+                        name: name || `Instructor ${id}`,
+                        userId: id,
+                        image,
+                    };
+                }
 
-                    const hasInstructorPrefix = rawUserId.toUpperCase().startsWith("C-");
-                    const matched = findInInstructorsList(rawUserId);
+                const assignedUsers =
+                    block.user_course_blocks || block.userCourseBlocks || [];
+                if (Array.isArray(assignedUsers) && assignedUsers.length > 0) {
+                    for (const ucb of assignedUsers) {
+                        const user = ucb.user || ucb;
+                        const rawUserId = String(
+                            user.user_id || ucb.user_id || "",
+                        ).trim();
+                        if (!rawUserId) continue;
 
-                    if (hasInstructorPrefix || Boolean(matched) || Boolean(user.instructor)) {
-                        const name = matched
-                            ? `${matched.user?.first_name || matched.first_name || ""} ${matched.user?.last_name || matched.last_name || ""}`.trim()
-                            : `${user.first_name || ""} ${user.last_name || ""}`.trim() || `Instructor ${rawUserId}`;
-                        const image = user.image || matched?.image || null;
-                        return {
-                            isAssigned: true,
-                            name,
-                            userId: rawUserId,
-                            image,
-                        };
+                        const hasInstructorPrefix = rawUserId
+                            .toUpperCase()
+                            .startsWith("C-");
+                        const matched = findInInstructorsList(rawUserId);
+
+                        if (
+                            hasInstructorPrefix ||
+                            Boolean(matched) ||
+                            Boolean(user.instructor)
+                        ) {
+                            const name = matched
+                                ? `${matched.user?.first_name || matched.first_name || ""} ${matched.user?.last_name || matched.last_name || ""}`.trim()
+                                : `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
+                                  `Instructor ${rawUserId}`;
+                            const image = user.image || matched?.image || null;
+                            return {
+                                isAssigned: true,
+                                name,
+                                userId: rawUserId,
+                                image,
+                            };
+                        }
                     }
                 }
             }
-        }
 
-        return { isAssigned: false, name: "Unassigned", userId: null, image: null };
-    }, [instructors]);
+            return {
+                isAssigned: false,
+                name: "Unassigned",
+                userId: null,
+                image: null,
+            };
+        },
+        [instructors],
+    );
 
     // Schedules for the room
     const roomSchedules = useMemo(() => {
@@ -235,13 +277,8 @@ export default function RoomDetails() {
                 s.courseBlock?.course?.subject_code ||
                 "";
             const courseName =
-                s.course?.name ||
-                s.courseBlock?.course?.name ||
-                "";
-            const blockCode =
-                s.block_code ||
-                s.course_block?.block_code ||
-                "";
+                s.course?.name || s.courseBlock?.course?.name || "";
+            const blockCode = s.block_code || s.course_block?.block_code || "";
             const insData = resolveScheduleInstructor(s);
 
             return (
@@ -267,10 +304,7 @@ export default function RoomDetails() {
                     sched.courseBlock?.course ||
                     sched.course_block?.course ||
                     {};
-                const code =
-                    course.subject_code ||
-                    course.course_code ||
-                    "N/A";
+                const code = course.subject_code || course.course_code || "N/A";
                 const name = course.name || "Subject Schedule";
                 return (
                     <div>
@@ -354,7 +388,7 @@ export default function RoomDetails() {
             minWidth: "100px",
             render: (sched) => {
                 const daysFormatted = formatDaysShortcut(
-                    sched.days || sched.schedule_days || sched.scheduleDays
+                    sched.days || sched.schedule_days || sched.scheduleDays,
                 );
                 return (
                     <span className="font-semibold text-xs text-gray-800 dark:text-slate-200 whitespace-nowrap">
@@ -404,21 +438,29 @@ export default function RoomDetails() {
         {
             label: "Time (Start Time)",
             value: "time_asc",
-            sorter: (a, b) => (a.start_time || "").localeCompare(b.start_time || ""),
+            sorter: (a, b) =>
+                (a.start_time || "").localeCompare(b.start_time || ""),
         },
         {
             label: "Course Code A-Z",
             value: "course_asc",
             sorter: (a, b) => {
-                const aCode = a.course?.subject_code || a.courseBlock?.course?.subject_code || "";
-                const bCode = b.course?.subject_code || b.courseBlock?.course?.subject_code || "";
+                const aCode =
+                    a.course?.subject_code ||
+                    a.courseBlock?.course?.subject_code ||
+                    "";
+                const bCode =
+                    b.course?.subject_code ||
+                    b.courseBlock?.course?.subject_code ||
+                    "";
                 return aCode.localeCompare(bCode);
             },
         },
         {
             label: "Block Code A-Z",
             value: "block_asc",
-            sorter: (a, b) => (a.block_code || "").localeCompare(b.block_code || ""),
+            sorter: (a, b) =>
+                (a.block_code || "").localeCompare(b.block_code || ""),
         },
     ];
 
@@ -430,8 +472,8 @@ export default function RoomDetails() {
     const buildingLabel = building
         ? `${building.code || "Building"} — ${building.name || ""}`.trim()
         : buildingId
-        ? "Building Details"
-        : null;
+          ? "Building Details"
+          : null;
 
     // =========================================================================
     // MUTATIONS & HANDLERS
@@ -460,12 +502,16 @@ export default function RoomDetails() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: roomsQueryKey });
             queryClient.invalidateQueries({ queryKey: buildingsQueryKey });
-            notify.success("Room Archived", "Room facility has been moved to archives.");
+            notify.success(
+                "Room Archived",
+                "Room facility has been moved to archives.",
+            );
             setIsArchiveRoomModalOpen(false);
             router.visit(buildingBackUrl);
         },
         onError: (err) => {
-            const msg = err?.response?.data?.message || "Failed to archive room.";
+            const msg =
+                err?.response?.data?.message || "Failed to archive room.";
             notify.error("Archive Failed", msg);
         },
     });
@@ -495,7 +541,8 @@ export default function RoomDetails() {
     };
 
     const handleArchiveRoomClick = () => {
-        const scheduleCount = roomSchedules.length || room?.schedules_count || 0;
+        const scheduleCount =
+            roomSchedules.length || room?.schedules_count || 0;
         if (scheduleCount > 0) {
             setIsInUseRoomModalOpen(true);
         } else {
@@ -514,7 +561,7 @@ export default function RoomDetails() {
                         <Breadcrumbs
                             crumbs={[
                                 { label: "Dashboard", href: "/dashboard" },
-                                { label: "Facilities Management", href: "/facilities" },
+                                { label: "Facilities", href: "/facilities" },
                                 ...(buildingLabel
                                     ? [
                                           {
@@ -535,7 +582,8 @@ export default function RoomDetails() {
                         >
                             <ArrowLeftIcon className="h-4 w-4" />
                             <span>
-                                Back to {building?.code ? building.code : "Building"}
+                                Back to{" "}
+                                {building?.code ? building.code : "Building"}
                             </span>
                         </Link>
 
@@ -608,7 +656,10 @@ export default function RoomDetails() {
                             </div>
                             <div className="space-y-3 pt-2">
                                 {[1, 2, 3, 4, 5].map((i) => (
-                                    <div key={i} className="h-12 w-full rounded-lg bg-gray-100 dark:bg-white/5" />
+                                    <div
+                                        key={i}
+                                        className="h-12 w-full rounded-lg bg-gray-100 dark:bg-white/5"
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -620,14 +671,18 @@ export default function RoomDetails() {
                             Room Not Found
                         </h2>
                         <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
-                            The requested classroom or laboratory could not be found or may have been deleted.
+                            The requested classroom or laboratory could not be
+                            found or may have been deleted.
                         </p>
                         <Link
                             href={buildingBackUrl}
                             className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700"
                         >
                             <ArrowLeftIcon className="h-3.5 w-3.5" />
-                            <span>Back to {building?.code ? building.code : "Facilities"}</span>
+                            <span>
+                                Back to{" "}
+                                {building?.code ? building.code : "Facilities"}
+                            </span>
                         </Link>
                     </div>
                 ) : (
@@ -650,7 +705,10 @@ export default function RoomDetails() {
                                         </span>
                                     </div>
                                     <p className="text-xs text-gray-500 dark:text-slate-400">
-                                        {building?.name ? `${building.name} • ` : ""}Room & Class Schedule Directory
+                                        {building?.name
+                                            ? `${building.name} • `
+                                            : ""}
+                                        Room & Class Schedule Directory
                                     </p>
                                 </div>
                             </div>
@@ -679,7 +737,9 @@ export default function RoomDetails() {
                             <StatCard
                                 icon={BuildingOffice2Icon}
                                 label="Building Complex"
-                                value={building?.code || building?.name || "Campus"}
+                                value={
+                                    building?.code || building?.name || "Campus"
+                                }
                                 tone="blue"
                             />
                         </div>
@@ -692,7 +752,9 @@ export default function RoomDetails() {
                                     <input
                                         type="search"
                                         value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
+                                        onChange={(e) =>
+                                            setSearch(e.target.value)
+                                        }
                                         placeholder="Search schedules by subject, block, or instructor..."
                                         className="h-11 w-full rounded-xl bg-gray-50 dark:bg-[#1a1b28] pl-11 pr-4 text-sm text-gray-700 dark:text-white shadow-sm shadow-blue-950/5 outline-none transition placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#1a1b28] focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 border border-transparent dark:border-white/10"
                                     />
@@ -707,7 +769,11 @@ export default function RoomDetails() {
                                     Class Schedules
                                 </h2>
                                 <span className="text-xs text-gray-400 dark:text-slate-500">
-                                    {filteredSchedules.length} {filteredSchedules.length === 1 ? "schedule" : "schedules"} listed
+                                    {filteredSchedules.length}{" "}
+                                    {filteredSchedules.length === 1
+                                        ? "schedule"
+                                        : "schedules"}{" "}
+                                    listed
                                 </span>
                             </div>
 
@@ -754,7 +820,10 @@ export default function RoomDetails() {
                             placeholder="e.g. Room 101, Lab 2"
                             value={editRoomForm.name}
                             onChange={(e) =>
-                                setEditRoomForm({ ...editRoomForm, name: e.target.value })
+                                setEditRoomForm({
+                                    ...editRoomForm,
+                                    name: e.target.value,
+                                })
                             }
                             className="mt-1 h-10 w-full rounded-lg border border-gray-200 bg-gray-50/50 px-3 text-sm text-gray-700 placeholder:text-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
                         />
@@ -807,13 +876,18 @@ export default function RoomDetails() {
                         <select
                             value={editRoomForm.status}
                             onChange={(e) =>
-                                setEditRoomForm({ ...editRoomForm, status: e.target.value })
+                                setEditRoomForm({
+                                    ...editRoomForm,
+                                    status: e.target.value,
+                                })
                             }
                             className="mt-1 h-10 w-full rounded-lg border border-gray-200 bg-gray-50/50 px-3 text-sm text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
                         >
                             <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
-                            <option value="Under Maintenance">Under Maintenance</option>
+                            <option value="Under Maintenance">
+                                Under Maintenance
+                            </option>
                         </select>
                     </div>
 
@@ -830,7 +904,9 @@ export default function RoomDetails() {
                             disabled={updateRoomMutation.isPending}
                             className="h-10 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700 disabled:opacity-50"
                         >
-                            {updateRoomMutation.isPending ? "Saving..." : "Save Changes"}
+                            {updateRoomMutation.isPending
+                                ? "Saving..."
+                                : "Save Changes"}
                         </button>
                     </div>
                 </form>
@@ -851,14 +927,26 @@ export default function RoomDetails() {
                                 Room Has Active Class Schedules
                             </h3>
                             <p className="text-xs text-amber-800 dark:text-amber-300/90 leading-relaxed">
-                                <span className="font-semibold">{room?.name}</span> currently has{" "}
-                                <span className="font-bold underline">{roomSchedules.length} active class {roomSchedules.length === 1 ? "schedule" : "schedules"}</span> assigned to it.
+                                <span className="font-semibold">
+                                    {room?.name}
+                                </span>{" "}
+                                currently has{" "}
+                                <span className="font-bold underline">
+                                    {roomSchedules.length} active class{" "}
+                                    {roomSchedules.length === 1
+                                        ? "schedule"
+                                        : "schedules"}
+                                </span>{" "}
+                                assigned to it.
                             </p>
                         </div>
                     </div>
 
                     <p className="text-xs text-gray-600 dark:text-slate-400 leading-relaxed">
-                        To maintain class schedule integrity and prevent conflict with academic operations, rooms with assigned schedules cannot be archived. Please reassign or delete these schedules first.
+                        To maintain class schedule integrity and prevent
+                        conflict with academic operations, rooms with assigned
+                        schedules cannot be archived. Please reassign or delete
+                        these schedules first.
                     </p>
 
                     <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-white/10">
@@ -890,12 +978,16 @@ export default function RoomDetails() {
                             {room?.name}
                         </p>
                         <p className="mt-1 text-xs text-red-700 dark:text-red-300">
-                            Floor {room?.floor_no ?? 1} • {room?.capacity ?? 40} Seats • 0 active schedules
+                            Floor {room?.floor_no ?? 1} • {room?.capacity ?? 40}{" "}
+                            Seats • 0 active schedules
                         </p>
                     </div>
 
                     <p className="text-xs text-gray-600 dark:text-slate-400">
-                        Are you sure you want to archive this room? It will be removed from active facilities views and moved to the archives. You can restore it at any time from Archived Rooms.
+                        Are you sure you want to archive this room? It will be
+                        removed from active facilities views and moved to the
+                        archives. You can restore it at any time from Archived
+                        Rooms.
                     </p>
 
                     <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-white/10">
@@ -916,7 +1008,11 @@ export default function RoomDetails() {
                             {archiveRoomMutation.isPending && (
                                 <ArrowPathIcon className="h-4 w-4 animate-spin" />
                             )}
-                            <span>{archiveRoomMutation.isPending ? "Archiving..." : "Archive Room"}</span>
+                            <span>
+                                {archiveRoomMutation.isPending
+                                    ? "Archiving..."
+                                    : "Archive Room"}
+                            </span>
                         </button>
                     </div>
                 </div>

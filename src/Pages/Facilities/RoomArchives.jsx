@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { ArrowPathIcon, BuildingOffice2Icon, UserGroupIcon } from "@heroicons/react/24/outline";
+import {
+    ArrowPathIcon,
+    BuildingOffice2Icon,
+    UserGroupIcon,
+} from "@heroicons/react/24/outline";
 import { useQuery } from "@tanstack/react-query";
 
 import ArchivePage from "@/Components/Common/ArchivePage";
@@ -15,10 +19,13 @@ import { formatDate } from "@/Utils/date";
 
 export default function RoomArchives() {
     const location = useLocation();
-    const params = new URLSearchParams(location.search || window.location.search);
+    const params = new URLSearchParams(
+        location.search || window.location.search,
+    );
     const initialBuildingId = params.get("building_id") || "";
 
-    const [selectedBuildingId, setSelectedBuildingId] = useState(initialBuildingId);
+    const [selectedBuildingId, setSelectedBuildingId] =
+        useState(initialBuildingId);
 
     // Fetch buildings list for filter & labels
     const { data: buildings = [] } = useQuery({
@@ -29,7 +36,11 @@ export default function RoomArchives() {
     // Active building info if scoped
     const activeBuilding = useMemo(() => {
         if (!selectedBuildingId) return null;
-        return buildings.find((b) => String(b.building_id) === String(selectedBuildingId)) || null;
+        return (
+            buildings.find(
+                (b) => String(b.building_id) === String(selectedBuildingId),
+            ) || null
+        );
     }, [buildings, selectedBuildingId]);
 
     // Building filter dropdown options
@@ -76,14 +87,19 @@ export default function RoomArchives() {
             render: (row) => {
                 const bldg =
                     row.building ||
-                    buildings.find((b) => String(b.building_id) === String(row.building_id));
+                    buildings.find(
+                        (b) =>
+                            String(b.building_id) === String(row.building_id),
+                    );
                 return (
                     <div className="flex items-center gap-2">
                         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
                             <BuildingOffice2Icon className="h-3.5 w-3.5" />
                         </div>
                         <span className="text-xs font-medium text-gray-700 dark:text-slate-300">
-                            {bldg ? `${bldg.code} — ${bldg.name}` : `Building #${row.building_id || "—"}`}
+                            {bldg
+                                ? `${bldg.code} — ${bldg.name}`
+                                : `Building #${row.building_id || "—"}`}
                         </span>
                     </div>
                 );
@@ -142,7 +158,7 @@ export default function RoomArchives() {
 
     const crumbs = [
         { label: "Dashboard", href: "/dashboard" },
-        { label: "Facilities Management", href: "/facilities" },
+        { label: "Facilities ", href: "/facilities" },
         ...(activeBuilding
             ? [
                   {
@@ -182,10 +198,14 @@ export default function RoomArchives() {
             activeQueryKeys={[
                 roomsQueryKey,
                 buildingsQueryKey,
-                ...(selectedBuildingId ? [[...roomsQueryKey, "building", selectedBuildingId]] : []),
+                ...(selectedBuildingId
+                    ? [[...roomsQueryKey, "building", selectedBuildingId]]
+                    : []),
             ]}
             fetchUrl="/rooms/archives"
-            queryFn={() => facilityApi.getArchivedRooms(selectedBuildingId || null)}
+            queryFn={() =>
+                facilityApi.getArchivedRooms(selectedBuildingId || null)
+            }
             restoreFn={(id) => facilityApi.restoreRoom(id)}
             idField="room_id"
             entityName="Room"
@@ -194,7 +214,9 @@ export default function RoomArchives() {
             filterFn={(item, query) => {
                 const name = (item.name || "").toLowerCase();
                 const floor = String(item.floor_no || "");
-                const bldg = buildings.find((b) => String(b.building_id) === String(item.building_id));
+                const bldg = buildings.find(
+                    (b) => String(b.building_id) === String(item.building_id),
+                );
                 const bldgCode = (bldg?.code || "").toLowerCase();
                 const bldgName = (bldg?.name || "").toLowerCase();
 

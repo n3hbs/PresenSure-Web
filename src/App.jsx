@@ -97,6 +97,9 @@ const FacilitiesRoomArchives = lazy(
     () => import("@/Pages/Facilities/RoomArchives"),
 );
 const SchedulesIndex = lazy(() => import("@/Pages/Schedules/Index"));
+const SchedulesBlockDetails = lazy(
+    () => import("@/Pages/Schedules/BlockDetails"),
+);
 const MySchedulesIndex = lazy(() => import("@/Pages/MySchedules/Index"));
 const RecordsIndex = lazy(() => import("@/Pages/Records/Index"));
 const AuditLogsIndex = lazy(() => import("@/Pages/AuditLogs/Index"));
@@ -336,6 +339,10 @@ export default function App() {
                             <Route
                                 path="/schedules"
                                 element={<SchedulesIndex />}
+                            />
+                            <Route
+                                path="/schedules/block-details"
+                                element={<SchedulesBlockDetails />}
                             />
                             <Route
                                 path="/my-schedules"

@@ -1,6 +1,14 @@
-import { ArrowPathIcon, BuildingOffice2Icon, Squares2X2Icon } from "@heroicons/react/24/outline";
+import {
+    ArrowPathIcon,
+    BuildingOffice2Icon,
+    Squares2X2Icon,
+} from "@heroicons/react/24/outline";
 import ArchivePage from "@/Components/Common/ArchivePage";
-import { buildingsQueryKey, archivedBuildingsQueryKey, roomsQueryKey } from "@/Services/queryKeys";
+import {
+    buildingsQueryKey,
+    archivedBuildingsQueryKey,
+    roomsQueryKey,
+} from "@/Services/queryKeys";
 import facilityApi from "@/Services/facilityApi";
 import { formatDate } from "@/Utils/date";
 
@@ -40,11 +48,14 @@ export default function BuildingArchives() {
             key: "rooms_count",
             label: "Total Rooms",
             render: (row) => {
-                const count = row.rooms_count ?? (row.rooms ? row.rooms.length : 0);
+                const count =
+                    row.rooms_count ?? (row.rooms ? row.rooms.length : 0);
                 return (
                     <span className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 border border-gray-100 dark:bg-white/5 dark:text-slate-300 dark:border-white/5">
                         <Squares2X2Icon className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                        <span>{count} {count === 1 ? "Room" : "Rooms"}</span>
+                        <span>
+                            {count} {count === 1 ? "Room" : "Rooms"}
+                        </span>
                     </span>
                 );
             },
@@ -82,7 +93,7 @@ export default function BuildingArchives() {
     return (
         <ArchivePage
             title="Archived Buildings"
-            parentTitle="Facilities Management"
+            parentTitle="Facilities"
             parentHref="/facilities"
             permission="facilities.manage"
             queryKey={archivedBuildingsQueryKey}
