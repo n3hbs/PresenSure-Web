@@ -201,6 +201,26 @@ export const courseApi = {
     },
 
     /**
+     * Assign students/users to a course block
+     */
+    async assignStudentsToBlock(blockId, userIds) {
+        const payload = {
+            course_block_id: Number(blockId),
+            user_ids: Array.isArray(userIds) ? userIds : [userIds],
+        };
+        try {
+            const res = await api.post("/course-blocks/assign-users", payload);
+            return res.data;
+        } catch (err) {
+            if (err.response && err.response.status === 404) {
+                const res2 = await api.post("/course-block/assign-users", payload);
+                return res2.data;
+            }
+            throw err;
+        }
+    },
+
+    /**
      * Delete / Remove a Course Block
      */
     async deleteCourseBlock(blockId) {

@@ -100,6 +100,9 @@ const SchedulesIndex = lazy(() => import("@/Pages/Schedules/Index"));
 const SchedulesBlockDetails = lazy(
     () => import("@/Pages/Schedules/BlockDetails"),
 );
+const SchedulesAddStudents = lazy(
+    () => import("@/Pages/Schedules/AddBlockStudents"),
+);
 const MySchedulesIndex = lazy(() => import("@/Pages/MySchedules/Index"));
 const RecordsIndex = lazy(() => import("@/Pages/Records/Index"));
 const AuditLogsIndex = lazy(() => import("@/Pages/AuditLogs/Index"));
@@ -343,6 +346,10 @@ export default function App() {
                             <Route
                                 path="/schedules/block-details"
                                 element={<SchedulesBlockDetails />}
+                            />
+                            <Route
+                                path="/schedules/add-students"
+                                element={<SchedulesAddStudents />}
                             />
                             <Route
                                 path="/my-schedules"

@@ -10,7 +10,6 @@ import {
     ArchiveBoxIcon,
     MagnifyingGlassIcon,
     ArrowRightIcon,
-    MapPinIcon,
     AcademicCapIcon,
     ExclamationTriangleIcon,
     XMarkIcon,
@@ -38,26 +37,36 @@ import useFetchData from "@/Hooks/useFetchData";
 import NoImage from "@/assets/images/noImage.webp";
 
 const DAY_OPTIONS = [
-    { label: "Mon", full: "Monday", value: "monday" },
-    { label: "Tue", full: "Tuesday", value: "tuesday" },
-    { label: "Wed", full: "Wednesday", value: "wednesday" },
-    { label: "Thu", full: "Thursday", value: "thursday" },
-    { label: "Fri", full: "Friday", value: "friday" },
-    { label: "Sat", full: "Saturday", value: "saturday" },
-    { label: "Sun", full: "Sunday", value: "sunday" },
+    { label: "M", full: "Monday", value: "monday" },
+    { label: "T", full: "Tuesday", value: "tuesday" },
+    { label: "W", full: "Wednesday", value: "wednesday" },
+    { label: "Th", full: "Thursday", value: "thursday" },
+    { label: "F", full: "Friday", value: "friday" },
+    { label: "Sa", full: "Saturday", value: "saturday" },
+    { label: "Su", full: "Sunday", value: "sunday" },
 ];
+
+const DAY_ORDER = {
+    M: 1,
+    T: 2,
+    W: 3,
+    Th: 4,
+    F: 5,
+    Sa: 6,
+    Su: 7,
+};
 
 const shortenDay = (dayStr) => {
     if (!dayStr || typeof dayStr !== "string") return "";
     const clean = dayStr.trim().toLowerCase();
-    if (clean.startsWith("mon")) return "Mon";
-    if (clean.startsWith("tue")) return "Tue";
-    if (clean.startsWith("wed")) return "Wed";
-    if (clean.startsWith("thu")) return "Thu";
-    if (clean.startsWith("fri")) return "Fri";
-    if (clean.startsWith("sat")) return "Sat";
-    if (clean.startsWith("sun")) return "Sun";
-    return dayStr.trim().slice(0, 3);
+    if (clean === "m" || clean.startsWith("mon")) return "M";
+    if (clean === "th" || clean.startsWith("thu")) return "Th";
+    if (clean === "t" || clean.startsWith("tu")) return "T";
+    if (clean === "w" || clean.startsWith("wed")) return "W";
+    if (clean === "f" || clean.startsWith("fri")) return "F";
+    if (clean === "sa" || clean.startsWith("sat")) return "Sa";
+    if (clean === "su" || clean.startsWith("sun")) return "Su";
+    return dayStr.trim();
 };
 
 const formatDaysShortcut = (raw) => {
@@ -68,12 +77,25 @@ const formatDaysShortcut = (raw) => {
             typeof item === "object" ? item?.day || item?.name || "" : item,
         );
     } else if (typeof raw === "string") {
-        list = raw.split(/[,/]/);
+        const trimmed = raw.trim();
+        if (/[,/]/.test(trimmed)) {
+            list = trimmed.split(/[,/]/);
+        } else if (/\s+/.test(trimmed)) {
+            list = trimmed.split(/\s+/);
+        } else {
+            list = [trimmed];
+        }
     } else {
         list = [String(raw)];
     }
     const shortcuts = list.map((s) => shortenDay(String(s))).filter(Boolean);
-    return shortcuts.length > 0 ? shortcuts.join(", ") : "TBA";
+
+    if (shortcuts.length === 0) return "TBA";
+
+    const uniqueShortcuts = Array.from(new Set(shortcuts));
+    uniqueShortcuts.sort((a, b) => (DAY_ORDER[a] || 99) - (DAY_ORDER[b] || 99));
+
+    return uniqueShortcuts.join("");
 };
 
 const formatTimeSlot = (timeStr) => {
@@ -492,11 +514,21 @@ export default function SchedulesIndex() {
     };
 
     const handleToggleDay = (dayValue) => {
+        const order = [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+        ];
         setScheduleForm((prev) => {
             const exists = prev.days.includes(dayValue);
-            const nextDays = exists
+            const nextRaw = exists
                 ? prev.days.filter((d) => d !== dayValue)
                 : [...prev.days, dayValue];
+            const nextDays = order.filter((d) => nextRaw.includes(d));
             return { ...prev, days: nextDays };
         });
     };
@@ -573,9 +605,7 @@ export default function SchedulesIndex() {
                                     href={`/courses/course-details?course_id=${courseId}`}
                                     className="text-xs text-blue-600 hover:underline dark:text-blue-400"
                                     title="View Course Details"
-                                >
-                                    ↗
-                                </Link>
+                                ></Link>
                             )}
                         </div>
                         <p className="max-w-56 truncate text-xs text-gray-400 dark:text-slate-400">
@@ -630,13 +660,13 @@ export default function SchedulesIndex() {
         {
             key: "schedule",
             header: "Class Schedule",
-            minWidth: "400px",
+            minWidth: "520px",
             render: (blk) => {
                 const schedules = blk.schedules || blk.course_schedules || [];
                 if (schedules.length === 0) {
                     return (
                         <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center rounded-md bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-950/40 dark:text-amber-300">
+                            <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
                                 No Schedule Set
                             </span>
                             <button
@@ -666,16 +696,19 @@ export default function SchedulesIndex() {
                             const roomName =
                                 s.room?.name || s.room?.room_name || "TBA";
                             const buildingCode = s.room?.building?.code;
+                            const roomDisplay = buildingCode
+                                ? `${buildingCode} | ${roomName}`
+                                : roomName;
                             const type = s.schedule_type || "lecture";
 
                             return (
                                 <div
                                     key={s.schedule_id || idx}
-                                    className="grid grid-cols-[80px_160px_1fr_55px] items-center gap-2.5 text-sm"
+                                    className="grid grid-cols-[84px_160px_180px_auto] items-center gap-4 text-sm"
                                 >
                                     {/* 1. Days */}
                                     <span
-                                        className="font-semibold text-gray-900 dark:text-white truncate"
+                                        className="font-semibold text-gray-900 dark:text-white truncate text-left tracking-wide"
                                         title={daysFormatted}
                                     >
                                         {daysFormatted}
@@ -683,35 +716,25 @@ export default function SchedulesIndex() {
 
                                     {/* 2. Time Range */}
                                     <span
-                                        className="font-mono text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap"
+                                        className="font-mono text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap text-left"
                                         title={timeFormatted}
                                     >
                                         {timeFormatted}
                                     </span>
 
                                     {/* 3. Room */}
-                                    <div className="min-w-0">
+                                    <div className="min-w-0 text-left">
                                         <span
-                                            className="inline-flex items-center gap-1.5 rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 truncate max-w-full"
-                                            title={
-                                                buildingCode
-                                                    ? `[${buildingCode}] ${roomName}`
-                                                    : roomName
-                                            }
+                                            className="block truncate text-xs font-medium text-gray-700 dark:text-slate-300"
+                                            title={roomDisplay}
                                         >
-                                            <MapPinIcon className="h-3.5 w-3.5 shrink-0 text-blue-500" />
-                                            <span className="truncate">
-                                                {buildingCode
-                                                    ? `[${buildingCode}] `
-                                                    : ""}
-                                                {roomName}
-                                            </span>
+                                            {roomDisplay}
                                         </span>
                                     </div>
 
                                     {/* 4. Schedule Type */}
-                                    <div className="text-right">
-                                        <span className="inline-block rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-wider bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-slate-300">
+                                    <div className="text-left">
+                                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300">
                                             {type === "laboratory"
                                                 ? "Lab"
                                                 : "Lec"}
@@ -728,11 +751,15 @@ export default function SchedulesIndex() {
             key: "students_count",
             header: "Enrolled",
             minWidth: "120px",
+            className: "text-center",
+            cellClassName: "text-center",
             render: (blk) => (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-700 dark:bg-white/5 dark:text-slate-200">
-                    <UserGroupIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    {blk.students_count || 0}
-                </span>
+                <div className="flex items-center justify-center">
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-slate-200">
+                        <UserGroupIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        {blk.students_count || 0}
+                    </span>
+                </div>
             ),
         },
         {
@@ -1101,6 +1128,7 @@ export default function SchedulesIndex() {
                                         onClick={() =>
                                             handleToggleDay(day.value)
                                         }
+                                        title={day.full}
                                         className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                                             selected
                                                 ? "bg-blue-600 text-white shadow-xs"

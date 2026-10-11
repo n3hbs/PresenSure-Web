@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 import NoImage from "@/assets/images/noImage.webp";
+import { formatDaysShortcut } from "@/Utils/date";
 
 const fieldFallback = "N/A";
 
@@ -207,8 +208,8 @@ export default function InstructorDetailsContent({
                                                     <div className="flex items-center gap-1.5 font-semibold text-gray-800 dark:text-slate-200">
                                                         <CalendarDaysIcon className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                                         <span>
-                                                             {sched.days?.length
-                                                                ? sched.days.join(", ")
+                                                            {sched.days?.length
+                                                                ? formatDaysShortcut(sched.days)
                                                                 : "Regular"}
                                                         </span>
                                                     </div>

@@ -8,10 +8,9 @@ import {
     ClockIcon,
     Squares2X2Icon,
     UserGroupIcon,
+    UserPlusIcon,
     PlusIcon,
-    MapPinIcon,
     TrashIcon,
-    AcademicCapIcon,
     ExclamationTriangleIcon,
     MagnifyingGlassIcon,
     XMarkIcon,
@@ -22,7 +21,6 @@ import Breadcrumbs from "@/Components/UI/Breadcrumbs";
 import StatCard from "@/Components/UI/StatCard";
 import CourseBlockDetailsSkeleton from "@/Components/Schedules/CourseBlockDetailsSkeleton";
 import Modal from "@/Components/UI/Modal";
-import DataTable from "@/Components/UI/DataTable";
 import scheduleApi from "@/Services/scheduleApi";
 import facilityApi from "@/Services/facilityApi";
 import {
@@ -35,29 +33,38 @@ import { notify } from "@/Services/toast";
 import usePermission from "@/Hooks/usePermission";
 import useFetchData from "@/Hooks/useFetchData";
 import NoImage from "@/assets/images/noImage.webp";
-import { formatDate } from "@/Utils/date";
 
 const DAY_OPTIONS = [
-    { label: "Mon", full: "Monday", value: "monday" },
-    { label: "Tue", full: "Tuesday", value: "tuesday" },
-    { label: "Wed", full: "Wednesday", value: "wednesday" },
-    { label: "Thu", full: "Thursday", value: "thursday" },
-    { label: "Fri", full: "Friday", value: "friday" },
-    { label: "Sat", full: "Saturday", value: "saturday" },
-    { label: "Sun", full: "Sunday", value: "sunday" },
+    { label: "M", full: "Monday", value: "monday" },
+    { label: "T", full: "Tuesday", value: "tuesday" },
+    { label: "W", full: "Wednesday", value: "wednesday" },
+    { label: "Th", full: "Thursday", value: "thursday" },
+    { label: "F", full: "Friday", value: "friday" },
+    { label: "Sa", full: "Saturday", value: "saturday" },
+    { label: "Su", full: "Sunday", value: "sunday" },
 ];
+
+const DAY_ORDER = {
+    M: 1,
+    T: 2,
+    W: 3,
+    Th: 4,
+    F: 5,
+    Sa: 6,
+    Su: 7,
+};
 
 const shortenDay = (dayStr) => {
     if (!dayStr || typeof dayStr !== "string") return "";
     const clean = dayStr.trim().toLowerCase();
-    if (clean.startsWith("mon")) return "Mon";
-    if (clean.startsWith("tue")) return "Tue";
-    if (clean.startsWith("wed")) return "Wed";
-    if (clean.startsWith("thu")) return "Thu";
-    if (clean.startsWith("fri")) return "Fri";
-    if (clean.startsWith("sat")) return "Sat";
-    if (clean.startsWith("sun")) return "Sun";
-    return dayStr.trim().slice(0, 3);
+    if (clean === "m" || clean.startsWith("mon")) return "M";
+    if (clean === "th" || clean.startsWith("thu")) return "Th";
+    if (clean === "t" || clean.startsWith("tu")) return "T";
+    if (clean === "w" || clean.startsWith("wed")) return "W";
+    if (clean === "f" || clean.startsWith("fri")) return "F";
+    if (clean === "sa" || clean.startsWith("sat")) return "Sa";
+    if (clean === "su" || clean.startsWith("sun")) return "Su";
+    return dayStr.trim();
 };
 
 const formatDaysShortcut = (raw) => {
@@ -66,12 +73,24 @@ const formatDaysShortcut = (raw) => {
     if (Array.isArray(raw)) {
         list = raw.map((item) => (typeof item === "object" ? item?.day || item?.name || "" : item));
     } else if (typeof raw === "string") {
-        list = raw.split(/[,/]/);
+        const trimmed = raw.trim();
+        if (/[,/]/.test(trimmed)) {
+            list = trimmed.split(/[,/]/);
+        } else if (/\s+/.test(trimmed)) {
+            list = trimmed.split(/\s+/);
+        } else {
+            list = [trimmed];
+        }
     } else {
         list = [String(raw)];
     }
     const shortcuts = list.map((s) => shortenDay(String(s))).filter(Boolean);
-    return shortcuts.length > 0 ? shortcuts.join(", ") : "TBA";
+    if (shortcuts.length === 0) return "TBA";
+
+    const uniqueShortcuts = Array.from(new Set(shortcuts));
+    uniqueShortcuts.sort((a, b) => (DAY_ORDER[a] || 99) - (DAY_ORDER[b] || 99));
+
+    return uniqueShortcuts.join("");
 };
 
 const formatTimeSlot = (timeStr) => {
@@ -191,6 +210,87 @@ const resolveBlockInstructorData = (block, instructorsList = []) => {
     return { isAssigned: false, name: "Unassigned", userId: null, image: null, email: null };
 };
 
+const isMaleStudent = (sex) => {
+    const s = String(sex || "").trim().toLowerCase();
+    return s === "male" || s === "m";
+};
+
+const isFemaleStudent = (sex) => {
+    const s = String(sex || "").trim().toLowerCase();
+    return s === "female" || s === "f";
+};
+
+function StudentSubTable({
+    students,
+    emptyMessage,
+    avatarBgClass = "bg-blue-50 dark:bg-blue-950/40",
+    avatarTextClass = "text-blue-700 dark:text-blue-400",
+}) {
+    if (students.length === 0) {
+        return (
+            <div className="rounded-xl border border-dashed border-gray-200 py-6 text-center text-xs text-gray-500 dark:border-white/10 dark:text-slate-400">
+                {emptyMessage}
+            </div>
+        );
+    }
+
+    return (
+        <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-white/5">
+            <table className="w-full text-left text-sm text-gray-600 dark:text-slate-400">
+                <thead className="border-b border-gray-100 bg-gray-50/75 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-white/5 dark:bg-white/5 dark:text-slate-400">
+                    <tr>
+                        <th className="px-5 py-3.5">Student ID</th>
+                        <th className="px-5 py-3.5">Student Name</th>
+                        <th className="px-5 py-3.5">Academic Program</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                    {students.map((student, idx) => (
+                        <tr
+                            key={student.user_id || idx}
+                            className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors"
+                        >
+                            <td className="px-5 py-3.5 font-mono text-xs font-bold text-gray-900 dark:text-white whitespace-nowrap">
+                                {student.user_id}
+                            </td>
+                            <td className="px-5 py-3.5">
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className={`flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full ${avatarBgClass} ${avatarTextClass} border border-gray-100 dark:border-white/10`}
+                                    >
+                                        <img
+                                            src={student.image || NoImage}
+                                            alt={student.name}
+                                            className="h-full w-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.onerror = null;
+                                                e.currentTarget.src = NoImage;
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="truncate font-semibold text-gray-900 dark:text-white">
+                                            {student.name}
+                                        </p>
+                                        {student.email && (
+                                            <p className="truncate text-xs text-gray-400 dark:text-slate-400">
+                                                {student.email}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </td>
+                            <td className="px-5 py-3.5 text-xs font-medium text-gray-800 dark:text-slate-200">
+                                {student.program || "—"}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
 export default function BlockDetails() {
     const queryClient = useQueryClient();
     const { can, hasRole } = usePermission();
@@ -230,6 +330,8 @@ export default function BlockDetails() {
         queryKey: courseBlockDetailsQueryKey(blockId),
         queryFn: () => scheduleApi.getCourseBlockById(blockId),
         enabled: Boolean(blockId),
+        staleTime: 0,
+        refetchOnMount: "always",
     });
 
     const { data: rooms = [] } = useQuery({
@@ -244,6 +346,7 @@ export default function BlockDetails() {
     }, [instructorsData]);
 
     // Mutations
+
     const addScheduleMutation = useMutation({
         mutationFn: (payload) =>
             scheduleApi.createSchedule({
@@ -300,11 +403,49 @@ export default function BlockDetails() {
         return resolveBlockInstructorData(block, instructorsList);
     }, [block, instructorsList]);
 
-    // Parse students list from block
+    // Parse students list from block (preserving backend order)
     const studentsList = useMemo(() => {
         if (!block) return [];
         if (Array.isArray(block.students) && block.students.length > 0) {
-            return block.students;
+            return block.students.map((u) => {
+                const uid = u.user_id || u.student?.student_id || u.student_id || u.id;
+                const firstName = u.first_name || u.user?.first_name || "";
+                const lastName = u.last_name || u.user?.last_name || "";
+                const fullName =
+                    `${firstName} ${lastName}`.trim() ||
+                    u.name ||
+                    u.user?.name ||
+                    "Student";
+                return {
+                    user_id: uid,
+                    name: fullName,
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: u.email || u.user?.email,
+                    sex:
+                        u.sex ||
+                        u.gender ||
+                        u.user?.sex ||
+                        u.user?.gender ||
+                        u.student?.sex ||
+                        u.student?.gender,
+                    program:
+                        u.student?.program?.program_name ||
+                        u.student?.program?.name ||
+                        u.program?.program_name ||
+                        u.program?.name ||
+                        (typeof u.program === "string" ? u.program : "—"),
+                    image:
+                        u.userProfile?.imagelink ||
+                        u.user_profile?.imagelink ||
+                        u.image ||
+                        u.user?.userProfile?.imagelink ||
+                        u.user?.user_profile?.imagelink ||
+                        null,
+                    assigned_at:
+                        u.assigned_at || u.pivot?.created_at || u.created_at,
+                };
+            });
         }
 
         const rawUsers = block.user_course_blocks || block.userCourseBlocks || [];
@@ -318,15 +459,32 @@ export default function BlockDetails() {
             })
             .map((ucb) => {
                 const u = ucb.user || ucb;
+                const firstName = u.first_name || "";
+                const lastName = u.last_name || "";
+                const fullName =
+                    `${firstName} ${lastName}`.trim() || u.name || "Student";
                 return {
                     user_id: u.user_id || ucb.user_id,
-                    name: `${u.first_name || ""} ${u.last_name || ""}`.trim() || u.name || "Student",
-                    first_name: u.first_name,
-                    last_name: u.last_name,
+                    name: fullName,
+                    first_name: firstName,
+                    last_name: lastName,
                     email: u.email,
-                    sex: u.sex,
-                    program: u.student?.program?.program_name || u.student?.program?.name || "—",
-                    image: u.userProfile?.imagelink || u.image || null,
+                    sex:
+                        u.sex ||
+                        u.gender ||
+                        ucb.sex ||
+                        ucb.gender ||
+                        u.student?.sex ||
+                        u.student?.gender,
+                    program:
+                        u.student?.program?.program_name ||
+                        u.student?.program?.name ||
+                        (typeof u.program === "string" ? u.program : "—"),
+                    image:
+                        u.userProfile?.imagelink ||
+                        u.user_profile?.imagelink ||
+                        u.image ||
+                        null,
                     assigned_at: ucb.assigned_at,
                 };
             });
@@ -343,6 +501,20 @@ export default function BlockDetails() {
         });
     }, [studentsList, studentSearch]);
 
+    const maleStudents = useMemo(() => {
+        return filteredStudents.filter((s) => isMaleStudent(s.sex));
+    }, [filteredStudents]);
+
+    const femaleStudents = useMemo(() => {
+        return filteredStudents.filter((s) => isFemaleStudent(s.sex));
+    }, [filteredStudents]);
+
+    const otherStudents = useMemo(() => {
+        return filteredStudents.filter(
+            (s) => !isMaleStudent(s.sex) && !isFemaleStudent(s.sex),
+        );
+    }, [filteredStudents]);
+
     // Total weekly sessions count
     const totalWeeklySessions = useMemo(() => {
         let count = 0;
@@ -354,11 +526,24 @@ export default function BlockDetails() {
     }, [schedules]);
 
     const handleToggleDay = (dayValue) => {
+        const order = [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+        ];
         setAddScheduleForm((prev) => {
             const exists = prev.days.includes(dayValue);
+            const nextRaw = exists
+                ? prev.days.filter((d) => d !== dayValue)
+                : [...prev.days, dayValue];
+            const nextDays = order.filter((d) => nextRaw.includes(d));
             return {
                 ...prev,
-                days: exists ? prev.days.filter((d) => d !== dayValue) : [...prev.days, dayValue],
+                days: nextDays,
             };
         });
     };
@@ -386,80 +571,6 @@ export default function BlockDetails() {
 
         addScheduleMutation.mutate(addScheduleForm);
     };
-
-    // Columns for enrolled students table
-    const studentColumns = [
-        {
-            key: "user_id",
-            header: "Student ID",
-            minWidth: "140px",
-            render: (student) => (
-                <span className="font-mono font-bold text-sm text-gray-900 dark:text-white">
-                    {student.user_id}
-                </span>
-            ),
-        },
-        {
-            key: "name",
-            header: "Student Name",
-            minWidth: "240px",
-            render: (student) => (
-                <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-50 text-xs font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border border-gray-100 dark:border-white/10">
-                        <img
-                            src={student.image || NoImage}
-                            alt={student.name}
-                            className="h-full w-full object-cover"
-                            onError={(e) => {
-                                e.currentTarget.onerror = null;
-                                e.currentTarget.src = NoImage;
-                            }}
-                        />
-                    </div>
-                    <div className="min-w-0">
-                        <p className="truncate font-semibold text-gray-900 dark:text-white">
-                            {student.name}
-                        </p>
-                        {student.email && (
-                            <p className="truncate text-xs text-gray-400 dark:text-slate-400">
-                                {student.email}
-                            </p>
-                        )}
-                    </div>
-                </div>
-            ),
-        },
-        {
-            key: "sex",
-            header: "Sex",
-            minWidth: "100px",
-            render: (student) => (
-                <span className="text-sm text-gray-700 dark:text-slate-200 capitalize">
-                    {student.sex || "—"}
-                </span>
-            ),
-        },
-        {
-            key: "program",
-            header: "Academic Program",
-            minWidth: "180px",
-            render: (student) => (
-                <span className="text-sm font-medium text-gray-800 dark:text-slate-200">
-                    {student.program || "—"}
-                </span>
-            ),
-        },
-        {
-            key: "assigned_at",
-            header: "Enrolled Date",
-            minWidth: "120px",
-            render: (student) => (
-                <span className="text-xs text-gray-500 dark:text-slate-400">
-                    {formatDate(student.assigned_at)}
-                </span>
-            ),
-        },
-    ];
 
     if (loadingBlock) {
         return (
@@ -504,7 +615,6 @@ export default function BlockDetails() {
     }
 
     const courseId = block.course_id || block.course?.course_id;
-    const courseCode = block.course?.subject_code || "Course";
     const courseName = block.course?.name || "Untitled Course";
 
     return (
@@ -525,6 +635,13 @@ export default function BlockDetails() {
                     </div>
 
                     <div className="flex gap-2 overflow-x-auto pb-1 lg:pb-0">
+                        <Link
+                            href={`/schedules/add-students?block_id=${blockId}`}
+                            className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-3.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700"
+                        >
+                            <UserPlusIcon className="h-4 w-4" />
+                            <span>Add Student</span>
+                        </Link>
                         <button
                             type="button"
                             onClick={() => setIsAddScheduleModalOpen(true)}
@@ -552,94 +669,85 @@ export default function BlockDetails() {
                     </div>
                 </div>
 
-                {/* StatCards (All container logos are blue) */}
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <StatCard
-                        icon={CalendarDaysIcon}
-                        label="Class Schedules"
-                        value={schedules.length}
-                        tone="blue"
-                    />
-                    <StatCard
-                        icon={UserGroupIcon}
-                        label="Enrolled Students"
-                        value={studentsList.length}
-                        tone="blue"
-                    />
-                    <StatCard
-                        icon={ClockIcon}
-                        label="Weekly Sessions"
-                        value={totalWeeklySessions}
-                        tone="blue"
-                    />
-                    <StatCard
-                        icon={AcademicCapIcon}
-                        label="Instructor"
-                        value={instructorInfo.isAssigned ? instructorInfo.name : "Unassigned"}
-                        tone="blue"
-                    />
-                </div>
-
                 {/* Main Overview Card */}
-                <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm shadow-blue-950/5 dark:border-white/5 dark:bg-[#12131C] space-y-6">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="space-y-1.5">
-                            <div className="flex items-center gap-3">
-                                <span className="inline-flex items-center gap-2 rounded-xl bg-blue-50 px-3.5 py-1.5 font-mono text-base font-bold text-blue-700 ring-1 ring-inset ring-blue-600/20 dark:bg-blue-950/40 dark:text-blue-300">
+                <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm shadow-blue-950/5 dark:border-white/5 dark:bg-[#12131C]">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        {/* Left Side: Block Code, Course, Instructor */}
+                        <div className="space-y-3 min-w-0">
+                            {/* Block Code and Course on the same row */}
+                            <div className="flex flex-wrap items-center gap-3">
+                                <div className="flex items-center gap-2 font-mono text-lg font-bold text-gray-900 dark:text-white">
                                     <Squares2X2Icon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                                    {block.block_code}
-                                </span>
-                                <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">
-                                    {block.semester?.term || "Active Term"}
-                                    {block.semester?.school_year?.year_range
-                                        ? ` (AY ${block.semester.school_year.year_range})`
-                                        : ""}
-                                </span>
+                                    <span>{block.block_code}</span>
+                                </div>
+                                {courseName && (
+                                    <>
+                                        <span className="text-gray-300 dark:text-white/20">•</span>
+                                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                                            {courseName}
+                                        </h2>
+                                    </>
+                                )}
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                                {courseCode} — {courseName}
-                            </h2>
+
                             {block.course?.description && (
-                                <p className="text-xs text-gray-500 dark:text-slate-400 max-w-2xl">
+                                <p className="text-xs text-gray-500 dark:text-slate-400 max-w-xl">
                                     {block.course.description}
                                 </p>
                             )}
+
+                            {/* Instructor (below block code and course, no container) */}
+                            <div className="pt-0.5">
+                                {instructorInfo.isAssigned ? (
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-50 text-xs font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border border-gray-100 dark:border-white/10">
+                                            <img
+                                                src={instructorInfo.image || NoImage}
+                                                alt={instructorInfo.name}
+                                                className="h-full w-full object-cover"
+                                                onError={(e) => {
+                                                    e.currentTarget.onerror = null;
+                                                    e.currentTarget.src = NoImage;
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="truncate text-xs font-semibold text-gray-900 dark:text-white">
+                                                {instructorInfo.name}
+                                            </p>
+                                            <p className="text-[11px] text-gray-400 dark:text-slate-400">
+                                                Instructor{instructorInfo.userId ? ` • ${instructorInfo.userId}` : ""}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-xs italic text-gray-400 dark:text-slate-500">
+                                        No instructor assigned
+                                    </p>
+                                )}
+                            </div>
                         </div>
 
-                        {/* Instructor Mini Card */}
-                        <div className="rounded-xl bg-gray-50/75 p-3.5 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5 min-w-56">
-                            <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-400 mb-2">
-                                Assigned Instructor
-                            </p>
-                            {instructorInfo.isAssigned ? (
-                                <div className="flex items-center gap-2.5">
-                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-50 text-xs font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border border-gray-100 dark:border-white/10">
-                                        <img
-                                            src={instructorInfo.image || NoImage}
-                                            alt={instructorInfo.name}
-                                            className="h-full w-full object-cover"
-                                            onError={(e) => {
-                                                e.currentTarget.onerror = null;
-                                                e.currentTarget.src = NoImage;
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="truncate font-semibold text-xs text-gray-900 dark:text-white">
-                                            {instructorInfo.name}
-                                        </p>
-                                        {instructorInfo.userId && (
-                                            <p className="truncate font-mono text-[11px] text-gray-400 dark:text-slate-500">
-                                                {instructorInfo.userId}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            ) : (
-                                <p className="text-xs italic text-gray-400 dark:text-slate-500">
-                                    No instructor assigned
-                                </p>
-                            )}
+                        {/* Right Side: Class Schedules, Enrolled Students, Weekly Sessions */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0 lg:w-auto">
+                            <StatCard
+                                icon={CalendarDaysIcon}
+                                label="Class Schedules"
+                                value={schedules.length}
+                                tone="blue"
+                            />
+                            <StatCard
+                                icon={UserGroupIcon}
+                                label="Enrolled Students"
+                                value={studentsList.length}
+                                tone="blue"
+                            />
+                            <StatCard
+                                icon={ClockIcon}
+                                label="Weekly Sessions"
+                                value={totalWeeklySessions}
+                                tone="blue"
+                            />
                         </div>
                     </div>
                 </div>
@@ -712,21 +820,17 @@ export default function BlockDetails() {
 
                                         return (
                                             <tr key={s.schedule_id || idx}>
-                                                <td className="px-5 py-3.5 font-semibold text-gray-900 dark:text-white">
+                                                <td className="px-5 py-3.5 font-semibold text-gray-900 dark:text-white tracking-wide">
                                                     {daysFormatted}
                                                 </td>
                                                 <td className="px-5 py-3.5 font-mono text-xs text-gray-600 dark:text-slate-300">
                                                     {timeFormatted}
                                                 </td>
-                                                <td className="px-5 py-3.5 text-xs">
-                                                    <span className="inline-flex items-center gap-1 rounded bg-blue-50 px-2 py-0.5 font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
-                                                        <MapPinIcon className="h-3.5 w-3.5 text-blue-500" />
-                                                        {buildingCode ? `[${buildingCode}] ` : ""}
-                                                        {roomName}
-                                                    </span>
+                                                <td className="px-5 py-3.5 text-xs font-medium text-gray-700 dark:text-slate-300">
+                                                    {buildingCode ? `${buildingCode} | ${roomName}` : roomName}
                                                 </td>
                                                 <td className="px-5 py-3.5 text-xs">
-                                                    <span className="inline-block rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-wider bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-slate-300">
+                                                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300">
                                                         {type}
                                                     </span>
                                                 </td>
@@ -754,7 +858,7 @@ export default function BlockDetails() {
                 </div>
 
                 {/* Enrolled Students Section */}
-                <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm shadow-blue-950/5 dark:border-white/5 dark:bg-[#12131C] space-y-4">
+                <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm shadow-blue-950/5 dark:border-white/5 dark:bg-[#12131C] space-y-6">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-2.5">
                             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
@@ -773,35 +877,117 @@ export default function BlockDetails() {
                             </div>
                         </div>
 
-                        {/* Search students in block */}
-                        <div className="relative w-full sm:w-64">
-                            <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                value={studentSearch}
-                                onChange={(e) => setStudentSearch(e.target.value)}
-                                placeholder="Search enrolled students..."
-                                className="w-full rounded-lg border border-gray-200 bg-gray-50/50 py-1.5 pl-8 pr-7 text-xs text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
-                            />
-                            {studentSearch && (
-                                <button
-                                    type="button"
-                                    onClick={() => setStudentSearch("")}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                    <XMarkIcon className="h-3.5 w-3.5" />
-                                </button>
-                            )}
+                        {/* Search students in block & Add Student Button */}
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <div className="relative w-full sm:w-64">
+                                <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+                                <input
+                                    type="text"
+                                    value={studentSearch}
+                                    onChange={(e) => setStudentSearch(e.target.value)}
+                                    placeholder="Search enrolled students..."
+                                    className="w-full rounded-lg border border-gray-200 bg-gray-50/50 py-1.5 pl-8 pr-7 text-xs text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
+                                />
+                                {studentSearch && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setStudentSearch("")}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    >
+                                        <XMarkIcon className="h-3.5 w-3.5" />
+                                    </button>
+                                )}
+                            </div>
+
+                            <Link
+                                href={`/schedules/add-students?block_id=${blockId}`}
+                                className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+                            >
+                                <UserPlusIcon className="h-3.5 w-3.5" />
+                                <span>Add Student</span>
+                            </Link>
                         </div>
                     </div>
 
-                    <DataTable
-                        columns={studentColumns}
-                        data={filteredStudents}
-                        emptyMessage="No enrolled students found in this course block."
-                        rowKey="user_id"
-                        pageSizeOptions={[10, 25, 50]}
-                    />
+                    {studentsList.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-gray-200 p-8 text-center dark:border-white/10">
+                            <UserGroupIcon className="mx-auto h-8 w-8 text-gray-400" />
+                            <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
+                                No Enrolled Students
+                            </p>
+                            <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">
+                                This course block does not have any enrolled students yet.
+                            </p>
+                        </div>
+                    ) : filteredStudents.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-gray-200 p-8 text-center dark:border-white/10">
+                            <MagnifyingGlassIcon className="mx-auto h-8 w-8 text-gray-400" />
+                            <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
+                                No Students Found
+                            </p>
+                            <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">
+                                No students match &ldquo;{studentSearch}&rdquo;.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {/* Male Students */}
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                                        Male Students
+                                    </h4>
+                                    <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20 dark:bg-blue-950/60 dark:text-blue-300">
+                                        {maleStudents.length}
+                                    </span>
+                                </div>
+                                <StudentSubTable
+                                    students={maleStudents}
+                                    emptyMessage="No male students found."
+                                    avatarBgClass="bg-blue-50 dark:bg-blue-950/40"
+                                    avatarTextClass="text-blue-700 dark:text-blue-400"
+                                />
+                            </div>
+
+                            {/* Female Students */}
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                                        Female Students
+                                    </h4>
+                                    <span className="rounded-full bg-pink-50 px-2 py-0.5 text-xs font-semibold text-pink-700 ring-1 ring-inset ring-pink-600/20 dark:bg-pink-950/60 dark:text-pink-300">
+                                        {femaleStudents.length}
+                                    </span>
+                                </div>
+                                <StudentSubTable
+                                    students={femaleStudents}
+                                    emptyMessage="No female students found."
+                                    avatarBgClass="bg-pink-50 dark:bg-pink-950/40"
+                                    avatarTextClass="text-pink-700 dark:text-pink-400"
+                                />
+                            </div>
+
+                            {/* Unspecified / Other Students (if any) */}
+                            {otherStudents.length > 0 && (
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                                            Other / Unspecified
+                                        </h4>
+                                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 ring-1 ring-inset ring-gray-600/20 dark:bg-gray-800 dark:text-gray-300">
+                                            {otherStudents.length}
+                                        </span>
+                                    </div>
+                                    <StudentSubTable
+                                        students={otherStudents}
+                                        emptyMessage="No students found."
+                                        avatarBgClass="bg-gray-100 dark:bg-gray-800"
+                                        avatarTextClass="text-gray-700 dark:text-gray-300"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -884,6 +1070,7 @@ export default function BlockDetails() {
                                         type="button"
                                         key={day.value}
                                         onClick={() => handleToggleDay(day.value)}
+                                        title={day.full}
                                         className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                                             selected
                                                 ? "bg-blue-600 text-white shadow-xs"

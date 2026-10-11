@@ -33,17 +33,27 @@ import {
 } from "@/Services/queryKeys";
 import NoImage from "@/assets/images/noImage.webp";
 
+const DAY_ORDER = {
+    M: 1,
+    T: 2,
+    W: 3,
+    Th: 4,
+    F: 5,
+    Sa: 6,
+    Su: 7,
+};
+
 const shortenDay = (dayStr) => {
     if (!dayStr || typeof dayStr !== "string") return "";
     const clean = dayStr.trim().toLowerCase();
-    if (clean.startsWith("mon")) return "Mon";
-    if (clean.startsWith("tue")) return "Tue";
-    if (clean.startsWith("wed")) return "Wed";
-    if (clean.startsWith("thu")) return "Thu";
-    if (clean.startsWith("fri")) return "Fri";
-    if (clean.startsWith("sat")) return "Sat";
-    if (clean.startsWith("sun")) return "Sun";
-    return clean.slice(0, 3);
+    if (clean === "m" || clean.startsWith("mon")) return "M";
+    if (clean === "th" || clean.startsWith("thu")) return "Th";
+    if (clean === "t" || clean.startsWith("tu")) return "T";
+    if (clean === "w" || clean.startsWith("wed")) return "W";
+    if (clean === "f" || clean.startsWith("fri")) return "F";
+    if (clean === "sa" || clean.startsWith("sat")) return "Sa";
+    if (clean === "su" || clean.startsWith("sun")) return "Su";
+    return dayStr.trim();
 };
 
 const formatDaysShortcut = (raw) => {
@@ -54,12 +64,24 @@ const formatDaysShortcut = (raw) => {
             typeof item === "object" ? item?.day || item?.name || "" : item,
         );
     } else if (typeof raw === "string") {
-        list = raw.split(/[,/]/);
+        const trimmed = raw.trim();
+        if (/[,/]/.test(trimmed)) {
+            list = trimmed.split(/[,/]/);
+        } else if (/\s+/.test(trimmed)) {
+            list = trimmed.split(/\s+/);
+        } else {
+            list = [trimmed];
+        }
     } else {
         list = [String(raw)];
     }
     const shortcuts = list.map((s) => shortenDay(String(s))).filter(Boolean);
-    return shortcuts.length > 0 ? shortcuts.join(", ") : "TBA";
+    if (shortcuts.length === 0) return "TBA";
+
+    const uniqueShortcuts = Array.from(new Set(shortcuts));
+    uniqueShortcuts.sort((a, b) => (DAY_ORDER[a] || 99) - (DAY_ORDER[b] || 99));
+
+    return uniqueShortcuts.join("");
 };
 
 const formatTimeSlot = (timeStr) => {
